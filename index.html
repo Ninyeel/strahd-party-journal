@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Maledizione di Strahd — Party Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ===================== DESIGN TOKENS (Lore Bible) ===================== */
+  :root{
+    --bg:#1a1a1a;
+    --bg-panel:#221c1c;
+    --bg-panel-alt:#272020;
+    --bg-raised:#2a2222;
+    --text:#e0e0e0;
+    --text-muted:#a89797;
+    --text-dim:#7a6c6c;
+    --crimson:#7a0d12;
+    --crimson-bright:#c41e3a;
+    --crimson-glow:#ff2d44;
+    --gold:#b8924a;
+    --border:#3a2a2a;
+    --shadow:0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, #2a1414 0%, transparent 60%),
+      radial-gradient(ellipse 900px 500px at 90% 100%, #1f1414 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:18px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--crimson-bright); color:#1a1a1a; }
+  a{ color:var(--gold); }
+  a:focus-visible, button:focus-visible, summary:focus-visible{
+    outline:2px solid var(--crimson-glow); outline-offset:3px; border-radius:2px;
+  }
+
+  /* ===================== SCREENS ===================== */
+  .screen{ display:none; }
+
+  /* ===================== AUTH SCREEN ===================== */
+  #screen-auth{
+    min-height:100vh;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    padding:32px 16px;
+  }
+  .auth-box{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:36px 32px;
+    max-width:420px;
+    width:100%;
+    box-shadow:var(--shadow);
+  }
+  .auth-box h2{
+    font-family:'Cormorant Garamond',serif;
+    font-size:26px;
+    margin:0 0 6px;
+    color:#f1e6e6;
+    text-align:center;
+  }
+  .auth-box p.sub{
+    text-align:center;
+    color:var(--text-dim);
+    font-style:italic;
+    font-size:15px;
+    margin:0 0 28px;
+  }
+  .auth-divider{
+    display:flex; align-items:center; gap:12px;
+    margin:20px 0;
+    color:var(--text-dim); font-size:13px;
+  }
+  .auth-divider::before,.auth-divider::after{
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+  .field{
+    display:flex; flex-direction:column; gap:6px; margin-bottom:14px;
+  }
+  .field label{ font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
+  .field input{
+    background:#1a1414;
+    border:1px solid var(--border);
+    border-radius:6px;
+    color:var(--text);
+    font-family:'EB Garamond',serif;
+    font-size:16px;
+    padding:10px 14px;
+    width:100%;
+    transition:border-color .15s;
+  }
+  .field input:focus{ outline:none; border-color:var(--crimson-bright); }
+
+  /* ===================== BUTTONS ===================== */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:'EB Garamond',serif;
+    font-size:16px;
+    letter-spacing:.04em;
+    padding:10px 18px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    cursor:pointer;
+    transition:background .15s, border-color .15s, color .15s;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:var(--crimson);
+    border-color:var(--crimson-bright);
+    color:#f1e6e6;
+    width:100%;
+  }
+  .btn-primary:hover{ background:var(--crimson-bright); }
+  .btn-ghost{
+    background:transparent;
+    border-color:var(--border);
+    color:var(--text-muted);
+  }
+  .btn-ghost:hover{ border-color:var(--crimson); color:var(--text); background:rgba(122,13,18,.18); }
+  .btn-google{
+    background:#1a1414;
+    border-color:var(--border);
+    color:var(--text);
+    width:100%;
+  }
+  .btn-google:hover{ border-color:var(--gold); }
+  .btn-danger{
+    background:transparent;
+    border-color:#5a2020;
+    color:#c78f8f;
+  }
+  .btn-danger:hover{ background:rgba(122,13,18,.3); border-color:var(--crimson-bright); }
+  .btn-sm{ font-size:14px; padding:6px 12px; }
+  .btn-gold{
+    background:transparent;
+    border-color:var(--gold);
+    color:var(--gold);
+  }
+  .btn-gold:hover{ background:rgba(184,146,74,.15); }
+
+  /* ===================== WAITING / LOADING ===================== */
+  #screen-waiting,#screen-loading{
+    min-height:100vh;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:16px;
+    padding:24px;
+  }
+  .waiting-box{
+    text-align:center;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:40px 32px;
+    max-width:440px;
+  }
+  .waiting-box h2{ font-family:'Cormorant Garamond',serif; font-size:24px; color:#f1e6e6; margin:0 0 12px; }
+  .waiting-box p{ color:var(--text-muted); font-size:16px; margin:0; }
+  .waiting-box .email{ color:var(--gold); font-style:italic; margin-top:10px; display:block; }
+  .spinner{
+    width:44px; height:44px;
+    border:3px solid var(--border);
+    border-top-color:var(--crimson-bright);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ===================== TOP NAV ===================== */
+  .topnav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(18,15,15,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--crimson);
+    box-shadow:0 4px 18px rgba(0,0,0,0.45);
+  }
+  .topnav-inner{
+    max-width:980px; margin:0 auto;
+    display:flex; align-items:center; gap:6px;
+    padding:10px 16px;
+    overflow-x:auto;
+    scrollbar-width:thin;
+  }
+  .topnav-inner::-webkit-scrollbar{ height:4px; }
+  .topnav-inner::-webkit-scrollbar-thumb{ background:var(--crimson); border-radius:4px; }
+  .brand{
+    font-family:'Cinzel Decorative', serif;
+    font-size:13px; letter-spacing:.06em;
+    color:var(--crimson-glow);
+    white-space:nowrap;
+    padding-right:14px;
+    border-right:1px solid var(--border);
+    margin-right:6px;
+    flex-shrink:0;
+  }
+  .topnav a{
+    flex-shrink:0; text-decoration:none;
+    color:var(--text-muted); font-size:14.5px; letter-spacing:.02em;
+    padding:7px 11px; border-radius:5px;
+    border:1px solid transparent; white-space:nowrap;
+    transition:color .15s, border-color .15s, background .15s;
+  }
+  .topnav a:hover{ color:var(--text); border-color:var(--crimson); background:rgba(122,13,18,0.25); }
+  .topnav a.active{ color:var(--text); border-color:var(--crimson-bright); background:rgba(122,13,18,0.35); }
+  .nav-spacer{ flex:1; }
+  .nav-user{
+    flex-shrink:0; display:flex; align-items:center; gap:10px;
+    padding-left:14px; border-left:1px solid var(--border);
+  }
+  .nav-user span{ font-size:13px; color:var(--text-dim); font-style:italic; }
+
+  /* ===================== LAYOUT ===================== */
+  .page{ max-width:980px; margin:0 auto; padding:0 18px 90px; }
+
+  /* ===================== HERO ===================== */
+  .hero{
+    text-align:center; padding:64px 10px 38px;
+    border-bottom:1px solid var(--border); margin-bottom:46px; position:relative;
+  }
+  .hero-emblem{ width:54px; height:54px; margin:0 auto 18px; opacity:.92; filter:drop-shadow(0 0 10px rgba(196,30,58,.45)); }
+  .hero h1{
+    font-family:'Cinzel Decorative', serif; font-weight:900;
+    font-size:clamp(28px,5vw,46px); margin:0 0 10px; letter-spacing:.02em;
+    color:#f1e6e6; text-shadow:0 0 22px rgba(196,30,58,.35);
+  }
+  .hero .subtitle{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    color:var(--text-muted); font-size:19px; max-width:560px; margin:0 auto;
+  }
+  .hero .rule{
+    width:120px; height:1px; margin:22px auto 0;
+    background:linear-gradient(90deg, transparent, var(--crimson-bright), transparent);
+  }
+
+  /* ===================== SECTION HEADERS ===================== */
+  section{ margin-bottom:64px; scroll-margin-top:78px; }
+  .sec-head{ display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+  .seal{
+    flex-shrink:0; width:46px; height:46px; border-radius:50%;
+    border:2px solid var(--crimson-bright);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cinzel Decorative', serif; font-size:19px;
+    color:var(--crimson-glow);
+    background:radial-gradient(circle at 35% 30%, #2c1818, #1a1212);
+    box-shadow:0 0 0 3px rgba(122,13,18,.18), inset 0 0 8px rgba(0,0,0,.6);
+  }
+  .seal-sm{ font-size:14px; }
+  .sec-head h2{
+    font-family:'Cormorant Garamond', serif; font-weight:700;
+    font-size:clamp(22px,3.4vw,30px); margin:0; color:#f1e6e6; letter-spacing:.01em;
+  }
+  .sec-head .eyebrow{
+    display:block; font-family:'EB Garamond', serif;
+    font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:2px;
+  }
+  .divider{
+    height:1px; width:100%;
+    background:linear-gradient(90deg, var(--crimson) 0%, var(--border) 35%, var(--border) 65%, transparent 100%);
+    margin:0 0 26px;
+  }
+
+  /* ===================== INDEX CARDS ===================== */
+  .index-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:14px;
+  }
+  .index-card{
+    display:flex; align-items:flex-start; gap:12px; text-decoration:none;
+    background:var(--bg-panel); border:1px solid var(--border); border-left:3px solid var(--crimson);
+    border-radius:8px; padding:16px;
+    transition:transform .15s, border-color .15s, background .15s;
+    cursor:pointer;
+  }
+  .index-card:hover{ transform:translateY(-2px); border-left-color:var(--crimson-glow); background:var(--bg-panel-alt); }
+  .index-card .num{ font-family:'Cinzel Decorative',serif; color:var(--crimson-glow); font-size:20px; flex-shrink:0; }
+  .index-card .label{ color:var(--text); font-size:16.5px; font-weight:600; display:block; }
+  .index-card .desc{ color:var(--text-dim); font-size:13.5px; display:block; margin-top:2px; font-family:'EB Garamond',serif; }
+
+  /* ===================== TIMELINE (ATTI) ===================== */
+  .atto{
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:8px; padding:16px 20px; margin-bottom:14px;
+  }
+  .atto h3{
+    margin:0 0 9px; font-family:'Cormorant Garamond',serif;
+    font-size:18.5px; font-weight:700; color:var(--gold); letter-spacing:.01em;
+  }
+  .atto h3 .sess{
+    font-family:'EB Garamond',serif; font-size:12.5px; font-style:italic;
+    color:var(--text-dim); font-weight:400; margin-left:8px;
+  }
+  .atto ul{ margin:0; padding-left:20px; }
+  .atto li{ margin-bottom:5px; font-size:15.5px; color:var(--text-muted); }
+  .atto li::marker{ color:var(--crimson-bright); }
+  .atto li b, .atto li strong{ color:var(--text); }
+  .tag-mark{
+    display:inline-block; font-size:11.5px; letter-spacing:.04em; color:#1a1212;
+    background:var(--crimson-bright); border-radius:3px; padding:1px 6px;
+    margin-left:6px; vertical-align:1px; font-family:'EB Garamond',serif;
+  }
+
+  /* ===================== SESSION PANEL ===================== */
+  .session-panel{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold);
+    border-radius:8px;
+    padding:18px 20px;
+    margin-bottom:24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .session-info{ flex:1; }
+  .session-info .label{ font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:4px; }
+  .session-info .value{ font-family:'Cormorant Garamond',serif; font-size:19px; color:#f1e6e6; }
+  .session-info .value.inactive{ color:var(--text-dim); font-style:italic; font-size:16px; }
+  .session-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* ===================== NOTE INPUT ===================== */
+  .note-form{
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:18px 20px;
+    margin-bottom:24px;
+  }
+  .note-form h3{
+    font-family:'Cormorant Garamond',serif; font-size:20px; color:#f1e6e6;
+    margin:0 0 14px;
+  }
+  .note-inputs{ display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .note-inputs .field{ flex:1; min-width:160px; margin:0; }
+  .note-inputs .field-tag{ width:140px; flex:none; }
+  .note-inputs textarea{
+    background:#1a1414; border:1px solid var(--border); border-radius:6px;
+    color:var(--text); font-family:'EB Garamond',serif; font-size:16px;
+    padding:10px 14px; width:100%; resize:vertical; min-height:60px;
+    transition:border-color .15s;
+  }
+  .note-inputs textarea:focus{ outline:none; border-color:var(--crimson-bright); }
+  .note-inputs input{
+    background:#1a1414; border:1px solid var(--border); border-radius:6px;
+    color:var(--text); font-family:'EB Garamond',serif; font-size:16px;
+    padding:10px 14px; width:100%; transition:border-color .15s;
+  }
+  .note-inputs input:focus{ outline:none; border-color:var(--crimson-bright); }
+
+  /* ===================== NOTES LIST ===================== */
+  .note-card{
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:8px; padding:14px 16px; margin-bottom:10px;
+    position:relative;
+  }
+  .note-card .note-text{ font-size:16px; color:var(--text); margin-bottom:6px; line-height:1.5; }
+  .note-meta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .note-tag{
+    display:inline-block; font-size:11.5px; padding:1px 8px; border-radius:10px;
+    border:1px solid var(--crimson); color:var(--crimson-glow);
+    font-family:'EB Garamond',serif; letter-spacing:.04em;
+  }
+  .note-author{ font-size:13px; color:var(--text-dim); font-style:italic; }
+  .note-time{ font-size:12px; color:var(--text-dim); }
+  .note-delete{
+    position:absolute; top:10px; right:12px;
+    background:transparent; border:none; cursor:pointer;
+    color:var(--text-dim); font-size:16px; padding:4px;
+    transition:color .15s;
+  }
+  .note-delete:hover{ color:var(--crimson-bright); }
+  .notes-empty{
+    text-align:center; color:var(--text-dim); font-style:italic;
+    padding:32px 0; font-size:15px;
+  }
+
+  /* ===================== TABLES ===================== */
+  .table-wrap{
+    overflow-x:auto; border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow);
+  }
+  table{ width:100%; border-collapse:collapse; min-width:560px; background:var(--bg-panel); }
+  thead th{
+    text-align:left; font-family:'EB Garamond',serif;
+    font-size:12.5px; letter-spacing:.12em; text-transform:uppercase;
+    color:#1a1212; background:linear-gradient(180deg, var(--crimson-bright), var(--crimson));
+    padding:11px 14px; position:sticky; top:0;
+  }
+  tbody td{
+    padding:10px 14px; font-size:15px; border-top:1px solid var(--border);
+    color:var(--text-muted); vertical-align:top;
+  }
+  tbody td:first-child{ color:var(--text); font-weight:600; white-space:nowrap; }
+  tbody tr:nth-child(even){ background:var(--bg-panel-alt); }
+  tbody tr:hover{ background:rgba(122,13,18,0.16); }
+  .status-pg{ color:var(--gold) !important; font-weight:700 !important; }
+  .pill{
+    display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:10px;
+    border:1px solid var(--border); color:var(--text-dim); margin-right:4px;
+  }
+  .pill.vivo{ border-color:#3a5a3a; color:#8fc78f; }
+  .pill.morto{ border-color:#5a3a3a; color:#c78f8f; }
+  .pill.nonmorto{ border-color:var(--crimson); color:var(--crimson-glow); }
+
+  /* ===================== NPC FORM ===================== */
+  .npc-form{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:8px; padding:20px; margin-top:20px;
+  }
+  .npc-form h3{ font-family:'Cormorant Garamond',serif; font-size:20px; color:#f1e6e6; margin:0 0 14px; }
+  .form-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:12px; }
+  .npc-form textarea{
+    background:#1a1414; border:1px solid var(--border); border-radius:6px;
+    color:var(--text); font-family:'EB Garamond',serif; font-size:15px;
+    padding:10px 14px; width:100%; resize:vertical; min-height:70px; margin-top:12px;
+    transition:border-color .15s;
+  }
+  .npc-form textarea:focus{ outline:none; border-color:var(--crimson-bright); }
+  .npc-form input{
+    background:#1a1414; border:1px solid var(--border); border-radius:6px;
+    color:var(--text); font-family:'EB Garamond',serif; font-size:15px;
+    padding:10px 14px; width:100%; transition:border-color .15s;
+  }
+  .npc-form input:focus{ outline:none; border-color:var(--crimson-bright); }
+  .form-actions{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+
+  /* ===================== PLACES ===================== */
+  .luogo{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:8px;
+    padding:16px 20px; margin-bottom:12px;
+    display:grid; grid-template-columns:160px 1fr; gap:14px;
+  }
+  @media(max-width:560px){ .luogo{ grid-template-columns:1fr; } }
+  .luogo .nome{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18px; color:#f1e6e6; }
+  .luogo .nome small{ display:block; font-family:'EB Garamond',serif; font-style:italic; font-size:12.5px; color:var(--text-dim); margin-top:3px; }
+  .luogo ul{ margin:0; padding-left:18px; }
+  .luogo li{ font-size:14.5px; color:var(--text-muted); margin-bottom:4px; }
+  .luogo li::marker{ color:var(--crimson-bright); }
+  .luogo li b{ color:var(--text); }
+
+  /* ===================== PROPHECY / LORE LISTS ===================== */
+  .lore-list{ list-style:none; margin:18px 0 0; padding:0; }
+  .lore-list li{
+    background:var(--bg-panel); border:1px solid var(--border); border-left:3px solid var(--gold);
+    border-radius:7px; padding:11px 16px; margin-bottom:9px; font-size:15px; color:var(--text-muted);
+  }
+  .lore-list li b{ color:var(--text); }
+
+  /* ===================== QUEST ===================== */
+  .quest-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .quest-list li{
+    display:flex; align-items:flex-start; gap:10px;
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:7px;
+    padding:11px 16px; font-size:15.5px; color:var(--text-muted);
+  }
+  .quest-list li b{ color:var(--text); }
+  .dot{ flex-shrink:0; font-size:13px; margin-top:3px; }
+  .dot.aperta{ color:#e2543d; }
+  .dot.sospeso{ color:#d8b65a; }
+  .dot.mistero{ color:#8a7fd1; }
+  .quest-legend{ display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--text-dim); margin-bottom:16px; }
+
+  /* ===================== LIVE BADGE ===================== */
+  .live-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(196,30,58,0.18); border:1px solid var(--crimson);
+    border-radius:20px; padding:3px 10px; font-size:13px; color:var(--crimson-glow);
+    font-family:'EB Garamond',serif;
+  }
+  .live-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--crimson-glow);
+    animation:pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+
+  /* ===================== TOAST ===================== */
+  .toast{
+    position:fixed; bottom:76px; left:50%; transform:translateX(-50%);
+    background:#1a1212; border:1px solid var(--crimson-bright);
+    color:var(--text); border-radius:8px; padding:10px 20px;
+    font-size:15px; z-index:200; opacity:0;
+    transition:opacity .25s; pointer-events:none;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; }
+
+  /* ===================== FOOTER + TOTOP ===================== */
+  footer{
+    text-align:center; color:var(--text-dim); font-family:'Cormorant Garamond',serif;
+    font-style:italic; font-size:14.5px; padding:30px 10px 10px; border-top:1px solid var(--border);
+  }
+  .totop{
+    position:fixed; right:18px; bottom:18px; width:42px; height:42px; border-radius:50%;
+    background:var(--crimson); border:1px solid var(--crimson-bright); color:#f1e6e6;
+    display:flex; align-items:center; justify-content:center;
+    text-decoration:none; font-size:18px; box-shadow:0 4px 14px rgba(0,0,0,.5); z-index:40;
+  }
+  .totop:hover{ background:var(--crimson-bright); }
+
+  /* ===================== ALERTS ===================== */
+  .alert{
+    border-radius:7px; padding:10px 16px; margin-bottom:12px; font-size:15px;
+    border:1px solid var(--border);
+  }
+  .alert-err{ background:rgba(122,13,18,.25); border-color:var(--crimson); color:#e09090; }
+  .alert-ok{ background:rgba(40,90,40,.25); border-color:#3a5a3a; color:#8fc78f; }
+
+  @media(prefers-reduced-motion:reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================== AUTH SCREEN ======================== -->
+<div id="screen-auth" style="display:flex;">
+  <div class="auth-box">
+    <svg style="width:44px;height:44px;margin:0 auto 14px;display:block;filter:drop-shadow(0 0 8px rgba(196,30,58,.4))" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 8 C 38 8 30 18 30 28 C 22 26 14 30 12 38 C 20 38 24 42 24 42 C 16 46 12 56 16 64 C 22 58 28 56 28 56 C 26 66 32 76 42 80 C 40 72 42 66 42 66 C 46 72 56 72 60 66 C 60 66 62 72 60 80 C 70 76 76 66 74 56 C 74 56 80 58 86 64 C 90 56 86 46 78 42 C 78 42 82 38 90 38 C 88 30 80 26 72 28 C 72 18 64 8 50 8 Z" fill="#c41e3a" opacity="0.85"/>
+      <circle cx="42" cy="34" r="2.4" fill="#1a1a1a"/>
+      <circle cx="58" cy="34" r="2.4" fill="#1a1a1a"/>
+    </svg>
+    <h2>La Maledizione di Strahd</h2>
+    <p class="sub">Accesso riservato al party</p>
+    <div id="auth-error" class="alert alert-err" style="display:none"></div>
+    <button class="btn btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z" fill="#EA4335"/></svg>
+      Accedi con Google
+    </button>
+    <div class="auth-divider">oppure con email</div>
+    <div class="field">
+      <label>Email</label>
+      <input id="auth-email" type="email" placeholder="nome@esempio.it" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== LOADING ======================== -->
+<div id="screen-loading" style="display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div class="spinner"></div>
+  <p style="color:var(--text-dim);font-style:italic">Traversando la nebbia…</p>
+</div>
+
+<!-- ======================== WAITING ======================== -->
+<div id="screen-waiting" style="display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;">
+  <div class="waiting-box">
+    <div style="font-size:36px;margin-bottom:12px">⛧</div>
+    <h2>In attesa di approvazione</h2>
+    <p>La tua richiesta è stata inviata. Attendi che Elisa ti approvi.</p>
+    <span class="email" id="waiting-email"></span>
+    <div style="margin-top:20px">
+      <button class="btn btn-danger btn-sm" onclick="logout()">Esci</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== MAIN APP ======================== -->
+<div id="screen-app" style="display:none;">
+
+  <nav class="topnav" aria-label="Indice rapido">
+    <div class="topnav-inner">
+      <span class="brand">STRAHD ⛧</span>
+      <a href="#indice" onclick="navClick(this)">📓 Indice</a>
+      <a href="#sessione" onclick="navClick(this)">🎲 Sessione</a>
+      <a href="#cronologia" onclick="navClick(this)">⏳ Cronologia</a>
+      <a href="#personaggi" onclick="navClick(this)">👥 Personaggi</a>
+      <a href="#luoghi" onclick="navClick(this)">🏰 Luoghi</a>
+      <a href="#profezie" onclick="navClick(this)">🔮 Profezie</a>
+      <a href="#quest" onclick="navClick(this)">📌 Quest</a>
+      <span class="nav-spacer"></span>
+      <div class="nav-user">
+        <span id="nav-nickname"></span>
+        <button class="btn btn-danger btn-sm" onclick="logout()">Esci</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <header class="hero">
+      <svg class="hero-emblem" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M50 8 C 38 8 30 18 30 28 C 22 26 14 30 12 38 C 20 38 24 42 24 42 C 16 46 12 56 16 64 C 22 58 28 56 28 56 C 26 66 32 76 42 80 C 40 72 42 66 42 66 C 46 72 56 72 60 66 C 60 66 62 72 60 80 C 70 76 76 66 74 56 C 74 56 80 58 86 64 C 90 56 86 46 78 42 C 78 42 82 38 90 38 C 88 30 80 26 72 28 C 72 18 64 8 50 8 Z" fill="#c41e3a" opacity="0.85"/>
+        <circle cx="42" cy="34" r="2.4" fill="#1a1a1a"/>
+        <circle cx="58" cy="34" r="2.4" fill="#1a1a1a"/>
+      </svg>
+      <h1>La Maledizione di Strahd</h1>
+      <p class="subtitle">"In cima al castello c'è una figura… finalmente si comincia."</p>
+      <div class="rule"></div>
+    </header>
+
+    <!-- ============ 1. INDICE ============ -->
+    <section id="indice">
+      <div class="sec-head">
+        <div class="seal">I</div>
+        <div>
+          <span class="eyebrow">Sezione 1</span>
+          <h2>📓 Indice Interattivo</h2>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="index-grid">
+        <a class="index-card" href="#sessione">
+          <span class="num">⚡</span>
+          <span><span class="label">🎲 Sessione Attiva</span><span class="desc">Note condivise in tempo reale</span></span>
+        </a>
+        <a class="index-card" href="#cronologia">
+          <span class="num">II</span>
+          <span><span class="label">⏳ Cronologia e Diario</span><span class="desc">Gli eventi in ordine, atto per atto</span></span>
+        </a>
+        <a class="index-card" href="#personaggi">
+          <span class="num">III</span>
+          <span><span class="label">👥 Personaggi</span><span class="desc">PG e PNG: ruolo, stato, posizione</span></span>
+        </a>
+        <a class="index-card" href="#luoghi">
+          <span class="num">IV</span>
+          <span><span class="label">🏰 Luoghi Scoperti</span><span class="desc">Macro-aree, indizi, pericoli</span></span>
+        </a>
+        <a class="index-card" href="#profezie">
+          <span class="num">V</span>
+          <span><span class="label">🔮 Profezie e Oggetti</span><span class="desc">Tarocchi di Madame Eva, tesori, reliquie</span></span>
+        </a>
+        <a class="index-card" href="#quest">
+          <span class="num">VI</span>
+          <span><span class="label">📌 Quest Attive</span><span class="desc">Missioni aperte e misteri da risolvere</span></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ 🎲 SESSIONE LIVE ============ -->
+    <section id="sessione">
+      <div class="sec-head">
+        <div class="seal" style="font-size:16px">⚡</div>
+        <div>
+          <span class="eyebrow">Live</span>
+          <h2>🎲 Sessione in Corso</h2>
+        </div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="session-panel">
+        <div class="session-info">
+          <div class="label">Sessione attiva</div>
+          <div class="value" id="session-display"><span class="inactive">Nessuna sessione attiva</span></div>
+        </div>
+        <div class="session-actions">
+          <button class="btn btn-gold btn-sm" onclick="startSession()">＋ Nuova Sessione</button>
+          <button class="btn btn-danger btn-sm" onclick="closeSession()">✕ Chiudi</button>
+        </div>
+      </div>
+
+      <div class="note-form">
+        <h3>📝 Aggiungi Nota</h3>
+        <div id="note-warning" class="alert alert-err" style="display:none">Apri prima una sessione per aggiungere note.</div>
+        <div class="note-inputs">
+          <div class="field" style="flex:2">
+            <label>Nota</label>
+            <textarea id="note-text" placeholder="Cosa è successo? NPC incontrato, oggetto trovato, indizio scoperto…"></textarea>
+          </div>
+          <div class="field field-tag">
+            <label>Tag</label>
+            <input id="note-tag" placeholder="npc, loot, boss…">
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn btn-primary" style="width:auto" onclick="addNote()">⛧ Aggiungi Nota</button>
+        </div>
+      </div>
+
+      <div id="notes-list">
+        <div class="notes-empty">Le note della sessione appariranno qui in tempo reale.</div>
+      </div>
+    </section>
+
+    <!-- ============ 2. CRONOLOGIA ============ -->
+    <section id="cronologia">
+      <div class="sec-head">
+        <div class="seal">II</div>
+        <div><span class="eyebrow">Sezione 2</span><h2>⏳ Cronologia e Diario</h2></div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="atto">
+        <h3>Atto 0 — Prima della nebbia <span class="sess">Sessione 1</span></h3>
+        <ul>
+          <li>Carnevale Vistano: <b>Ketrina</b>, figlia del Sig. <b>Algor</b>; oste <b>Baldor</b> all'"Occhio della Notte".</li>
+          <li>Sparizioni nella foresta, colpevole un falegname — <i>filo mai più ripreso</i>.</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto I — Casa Darst <span class="sess">Sessioni 2–7</span></h3>
+        <ul>
+          <li><i>📌 Background PG: <b>Zel</b> fu trovata in fasce all'ingresso di Barovia e cresciuta con <b>Ismark</b> e il padre borgomastro — Ismark è il suo fratello adottivo.</i></li>
+          <li>Ingresso a Barovia tra cancelli sorvegliati da statue senza testa; torre infestata da zombie.</li>
+          <li>Villaggio deserto; i bimbi fantasma <b>Rose</b> e <b>Thorn</b>: "C'è un mostro in casa nostra".</li>
+          <li>Casa Darst esplorata: Culto di Osybus, specchio profetico, ombre, ghoul, Mimic, Cumulo Strisciante.</li>
+          <li>Rose e Thorn sepolti; fuga dalla soffitta tra ghigliottine e topi. <span class="tag-mark">🎉 LEVEL UP</span></li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto II — Il villaggio di Barovia <span class="sess">Sessioni 8–11</span></h3>
+        <ul>
+          <li>Il Borgomastro trovato morto: lettera sulla figlia morsa da un vampiro.</li>
+          <li>Taverna "Sangue della Vita"; <b>Ismark</b>; prete <b>Donovich</b> e il figlio-spawn <b>Doru</b>.</li>
+          <li>Sepoltura del Borgomastro — <b>Strahd appare di persona</b> con un mazzo di rose nere.</li>
+          <li>Lettura dei Tarocchi di <b>Madame Eva</b>; scorta a <b>Ireena</b> verso Vallaki.</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto III — Vistani e Castel Ravenloft <span class="sess">Sessioni 12–17</span></h3>
+        <ul>
+          <li>Accampamento alla Pozza di Zer: trovati il <b>Medaglione di Ravenkind</b> e una piuma runata.</li>
+          <li>Invito a cena di Strahd; carrozza guidata dall'elfo <b>Rahadin</b>; Castello esplorato.</li>
+          <li><b>Cena con Strahd</b>: concede salvacondotto. Al piano superiore un <b>contabile</b> parla male di Strahd.</li>
+          <li>In una stanza del castello una <b>vecchia cercava un gatto</b>: ha addormentato <b>Haldir</b>.</li>
+          <li>Visione tribale condivisa: foresta nebbiosa, animali incatenati in una radura.</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto IV — Il rapimento di Ireena <span class="sess">Sessioni 17–21</span></h3>
+        <ul>
+          <li>Il branco di licantropi di <b>Bartok</b> rapisce Ireena in fuga.</li>
+          <li>Scontro con uno Spaventapasseri; scoperto il <b>Vecchio Macinaossa</b> (Megere Morganta, Bella, Ofalia).</li>
+          <li>Prigionia onirica nel castello di Strahd; <b>Doru</b> libera il gruppo dalle catene.</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto V — Vallaki <span class="sess">Sessioni 21–38</span></h3>
+        <ul>
+          <li>Festa del Sole Ardente; <b>Ossa di San Andral</b> trafugate da <b>Milliboj</b> su commissione di Vasily Von Holtz.</li>
+          <li>Accampamento Vistani: sparizione di <b>Arabelle</b> (rapita da Bluto).</li>
+          <li><span class="tag-mark">🎉 CURSE</span> Kraven inizia a trasformarsi in <b>Corvo Mannaro</b>.</li>
+          <li>Covo di spawn di <b>Vasily Von Holtz</b> sgominato; ossa restituite alla chiesa.</li>
+          <li>Bardo <b>Rictavio</b>: pellicce di lupo, corvi magici, <b>passaggio segreto</b>; <b>la tigre dice "Strahd"</b>.</li>
+          <li><b>Zel salva Arabelle</b> dal lago; <b>Kraven uccide Bluto</b>. Ricompensa dai Vistani.</li>
+          <li>Cena da Lady Wachter; <b>Ireena ritrovata</b> e liberata.</li>
+          <li><b>Izek ucciso da Kraven</b>; Strahd si congratula per il caos seminato a Vallaki.</li>
+          <li>La folla giustizia il Borgomastro <b>Vargas</b>; scontro coi figli di Lady Wachter.</li>
+          <li><b>Frik e Mirtle</b> (bambini) lasciati ai Vistani — il gruppo promette di portarli da Ireena.</li>
+          <li><b>Hydra a 5 teste</b> sul Lago Zarovich; fantasma di un annegato; Druido folle.</li>
+          <li>Cadavere di Vargas: "Portate la chiave alla Torre di Argynvostholt".</li>
+          <li>Trappola delle Megere: risveglio nudi e derubati; Troll/Abominio sconfitto.</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto VI — Vecchio Macinaossa e Druidi <span class="sess">Sessioni 39–48</span></h3>
+        <ul>
+          <li>Madame Eva spiega le congreghe; accenna al <b>marchio misterioso</b> sul collo del party.</li>
+          <li>Strahd offre aiuto contro le Megere in cambio di 3 bambole nascoste a Vallaki.</li>
+          <li>Visione condivisa dell'elfo <b>Uetz</b>: "Dobbiamo salvare la foresta".</li>
+          <li>Megere sconfitte al Macinaossa: refurtiva recuperata, <b>tranne la mappa</b>.</li>
+          <li>Imboscata Druidica; tregua proposta da uno spirito "Redivivo".</li>
+        </ul>
+      </div>
+      <div class="atto">
+        <h3>Atto VII — Argynvostholt <span class="sess">Sessioni 49 → oggi</span></h3>
+        <ul>
+          <li>Mappa regionale: Krezk, Passo di Tsolenka, Lago Baratok, Berez, Ravenloft, Argynvostholt.</li>
+          <li>Arrivo alla magione: statua di drago; <b>Kraven dissotterra una chiave</b> e una filastrocca rituale.</li>
+          <li>Tomba, arazzo sbiadito, ragni giganti; spirito drago: "Ridate luce ai miei cavalieri".</li>
+          <li><b>Davio / Savid</b> (elfo crepuscolare ferito, trovato stanza NE — ⚠️ nome in conflitto).</li>
+          <li>Cappella del "Culto dell'Aurora": cavalieri fantasma; Mausoleo di Argynvost vuoto.</li>
+          <li><b>Vladimir Orgaard</b> rivela la storia dei Redivivi; diventa un "Dannato".</li>
+          <li>Incontro con <b>Esmeralda Davenir</b> e <b>Arrigal</b> (cavalli rubati).</li>
+          <li><span class="tag-mark">🔄 IN CORSO</span> Esplorazione del "corridoio trappola".</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 3. PERSONAGGI ============ -->
+    <section id="personaggi">
+      <div class="sec-head">
+        <div class="seal">III</div>
+        <div><span class="eyebrow">Sezione 3</span><h2>👥 Personaggi</h2></div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Fazione / Ruolo</th><th>Stato / Posizione</th></tr></thead>
+          <tbody>
+            <tr><td class="status-pg">Haldir</td><td>PG — Mezzelfo, Chierico della Tomba. Padre ha lasciato eredità legata a un "topino". Addormentato dalla vecchia al Castello.</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
+            <tr><td class="status-pg">Lucien</td><td>PG — Umano, Mago Ammaliatore</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
+            <tr><td class="status-pg">Yan</td><td>PG — Mezzelfa, Warlock. Possiede un <b>libro dei sogni</b> con visioni del padre. Inventario: pozione velenosa senza etichetta.</td><td><span class="pill vivo">viva</span>col gruppo</td></tr>
+            <tr><td class="status-pg">Kraven</td><td>PG — Dragonide rosso, Paladino della Vendetta. Maledizione Corvo Mannaro attiva. Manufatto che si scalda. Ha ucciso Izek e Bluto.</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
+            <tr><td class="status-pg">Zel</td><td>PG — Mezzorca, Barbaro Cammino Totemico. <b>Trovata in fasce a Barovia, cresciuta con Ismark</b> (fratello adottivo).</td><td><span class="pill vivo">viva</span>col gruppo</td></tr>
+            <tr><td>Strahd von Zarovich</td><td>Antagonista — Signore Vampiro. Nato 306, regna dal 347. Amò Tatiana. Per vendetta uccise donne, bambini e evirò gli elfi.</td><td><span class="pill nonmorto">non-morto</span>libero, Ravenloft</td></tr>
+            <tr><td>Madame Eva</td><td>Veggente Vistana</td><td><span class="pill vivo">viva</span>villaggio Vistani / Krezk</td></tr>
+            <tr><td>Ismark</td><td>Alleato — fratello adottivo di Zel e Ireena</td><td><span class="pill vivo">vivo</span>Barovia</td></tr>
+            <tr><td>Ireena</td><td>Protetta del gruppo</td><td><span class="pill vivo">viva</span>chiesa di Vallaki</td></tr>
+            <tr><td>Borgomastro di Barovia</td><td>Governo Barovia (defunto)</td><td><span class="pill morto">morto</span>—</td></tr>
+            <tr><td>Doru</td><td>Figlio di Donovich</td><td><span class="pill nonmorto">spawn vampirico</span>Barovia</td></tr>
+            <tr><td>Padre Donovich</td><td>Sacerdote di Barovia</td><td><span class="pill vivo">vivo</span>chiesa di Barovia</td></tr>
+            <tr><td>Rahadin</td><td>Maggiordomo di Strahd, elfo crepuscolare</td><td><span class="pill vivo">vivo</span>Castel Ravenloft</td></tr>
+            <tr><td>Rose &amp; Thorn</td><td>Spiriti infantili, famiglia Darst</td><td>in pace — sepolti</td></tr>
+            <tr><td>Bartok</td><td>Capobranco licantropo</td><td><span class="pill vivo">vivo</span>foresta presso Vallaki</td></tr>
+            <tr><td>Giorgio</td><td>Alchimista Vistano</td><td><span class="pill vivo">vivo</span>Pozza di Zer</td></tr>
+            <tr><td>Borgomastro Vargas</td><td>Governo di Vallaki</td><td><span class="pill morto">morto</span>linciato dalla folla</td></tr>
+            <tr><td>Izek "il Barone"</td><td>Capo delle guardie di Vargas</td><td><span class="pill morto">morto</span>—</td></tr>
+            <tr><td>Padre Lucian (Parmi)</td><td>Sacerdote di Vallaki</td><td><span class="pill vivo">vivo</span>chiesa di Vallaki</td></tr>
+            <tr><td>Yashka</td><td>Chierichetto</td><td><span class="pill vivo">vivo</span>chiesa di Vallaki</td></tr>
+            <tr><td>Vasily Von Holtz</td><td>Capo spawn vampirico</td><td><span class="pill morto">sconfitto</span>—</td></tr>
+            <tr><td>Lady Wachter</td><td>Nobile, rivale di Vargas</td><td><span class="pill vivo">viva</span>Vallaki</td></tr>
+            <tr><td>Nicolai &amp; Carl</td><td>Figli di Lady Wachter</td><td><span class="pill morto">morti</span>—</td></tr>
+            <tr><td>Rictavio</td><td>Bardo — forse Rudolf Van Richten</td><td><span class="pill vivo">vivo</span>Vallaki / dintorni</td></tr>
+            <tr><td>Bluto Crogarov</td><td>Pescatore — aveva rapito Arabelle. Ucciso da Kraven.</td><td><span class="pill morto">morto</span>—</td></tr>
+            <tr><td>Luigi</td><td>Conoscente — ospita il gruppo</td><td><span class="pill vivo">vivo</span>Vallaki</td></tr>
+            <tr><td>Mario</td><td>Compagno di Luigi</td><td><span class="pill morto">morto</span>durante fatti di Vallaki</td></tr>
+            <tr><td>Milliboj</td><td>Becchino — ha trafugato le Ossa di San Andral</td><td><span class="pill vivo">vivo</span>Vallaki</td></tr>
+            <tr><td>Lady Wachter — Figlia (s.n.)</td><td>Figlia "pazza" tenuta nascosta in casa</td><td><span class="pill vivo">viva</span>casa Wachter</td></tr>
+            <tr><td>Casimir Velikov</td><td>Capo campo Vistano, elfo crepuscolare. Sorella: Patrina Velikofna.</td><td><span class="pill vivo">vivo</span>collina presso Vallaki</td></tr>
+            <tr><td>Luvash &amp; Arrigal</td><td>Co-capi accampamento Vistani</td><td><span class="pill vivo">vivi</span>accampamento Vistani</td></tr>
+            <tr><td>Arabelle</td><td>Figlia di Luvash, salvata da Zel dal lago</td><td><span class="pill vivo">viva</span>accampamento Vistani</td></tr>
+            <tr><td>Patrina Velikofna</td><td>Sorella di Casimir. Spirito imprigionato nel castello.</td><td><span class="pill nonmorto">spirito imprigionato</span>Castel Ravenloft</td></tr>
+            <tr><td>Davio / Savid</td><td>Elfo crepuscolare ferito (⚠️ nome in conflitto tra fonti)</td><td><span class="pill vivo">vivo</span>pressi Argynvostholt</td></tr>
+            <tr><td>Esmeralda Davenir</td><td>Allieva di Van Richten</td><td><span class="pill vivo">viva</span>pressi Argynvostholt</td></tr>
+            <tr><td>Morganta, Bella, Ofalia</td><td>Congrega di Megere</td><td><span class="pill morto">combattute</span>Vecchio Macinaossa</td></tr>
+            <tr><td>Vladimir Orgaard</td><td>Ex cavaliere, ora "Dannato"</td><td><span class="pill nonmorto">non-morto</span>Argynvostholt</td></tr>
+            <tr><td>Argynvost</td><td>Drago d'argento, fondatore Ordine</td><td><span class="pill morto">morto</span>spirito — Argynvostholt</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NPC form aggiuntivo -->
+      <div class="npc-form">
+        <h3>➕ Aggiungi NPC / Aggiorna Personaggio</h3>
+        <div class="form-grid">
+          <div class="field" style="margin:0"><label>Nome</label><input id="npc-name" placeholder="Nome"></div>
+          <div class="field" style="margin:0"><label>Ruolo / Fazione</label><input id="npc-role" placeholder="es. Alleato, Nemico, PNG…"></div>
+          <div class="field" style="margin:0"><label>Stato</label><input id="npc-status" placeholder="es. vivo, morto…"></div>
+          <div class="field" style="margin:0"><label>Posizione</label><input id="npc-location" placeholder="es. Vallaki, Ravenloft…"></div>
+        </div>
+        <textarea id="npc-notes" placeholder="Note aggiuntive (connessioni, dettagli, misteri…)"></textarea>
+        <div class="form-actions">
+          <button class="btn btn-primary" style="width:auto" onclick="addNPC()">⛧ Salva NPC</button>
+        </div>
+      </div>
+
+      <!-- NPC dinamici da Firebase -->
+      <div id="npc-extra-section" style="margin-top:28px;display:none">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#f1e6e6;margin-bottom:14px;">📋 NPC Aggiunti dal Party</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Ruolo</th><th>Stato</th><th>Posizione</th><th>Note</th><th></th></tr></thead>
+            <tbody id="npc-extra-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. LUOGHI ============ -->
+    <section id="luoghi">
+      <div class="sec-head">
+        <div class="seal">IV</div>
+        <div><span class="eyebrow">Sezione 4</span><h2>🏰 Luoghi Scoperti</h2></div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="luogo">
+        <div class="nome">Villaggio di Barovia<small>punto di partenza</small></div>
+        <ul>
+          <li>Taverna "Sangue della Vita", chiesa con cripta (covo di Doru), Casa Darst (esplorata e collassata).</li>
+          <li><b>Pericoli:</b> branchi di lupi, nebbia fittissima, Strahd può comparire in qualunque momento.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Pozza di Zer<small>accampamento Vistano</small></div>
+        <ul>
+          <li>Tenda di Madame Eva, tende saccheggiate.</li>
+          <li><b>Indizi:</b> Medaglione di Ravenkind, carillon con piuma runata, lettura Tarocchi completa.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Castel Ravenloft<small>dimora di Strahd</small></div>
+        <ul>
+          <li>Sala dell'organo (doppio illusorio), sala da pranzo est con 3 enormi specchi, 8 gargoyle.</li>
+          <li><b>Novità:</b> contabile al piano superiore; vecchia con gatto (ha addormentato Haldir); spirito di Patrina imprigionato.</li>
+          <li><b>Pericoli:</b> 4 draghi rossi guardiani, sonno indotto, trappole sulle scale.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Vecchio Macinaossa<small>mulino delle Megere</small></div>
+        <ul>
+          <li>4 monoliti stagionali, cerchio di pietre con mucchio di dentini.</li>
+          <li><b>Pericoli:</b> congrega di Megere (Morganta, Bella, Ofalia) — refurtiva recuperata <b>tranne la mappa</b>.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Vallaki<small>città murata</small></div>
+        <ul>
+          <li>Chiesa (cripta Ossa di San Andral trafugate da Milliboj), casa del Borgomastro (lab. spawn), casa Wachter.</li>
+          <li>Carro di Rictavio: pellicce di lupo, corvi magici, <b>passaggio segreto</b>; tigre che dice "Strahd".</li>
+          <li><b>Mistero:</b> marchio misterioso sul collo del party; specchio di Danika da attivare.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Lago Zarovich<small>specchio d'acqua</small></div>
+        <ul>
+          <li>Sponda nord: capanna di Bluto Crogarov.</li>
+          <li><b>Pericoli:</b> Hydra a 5 teste (sconfitta), fantasma di un annegato, Druido folle.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Argynvostholt<small>magione del Drago d'Argento</small></div>
+        <ul>
+          <li>Atrio con 4 statue. Stanza sud: macerie e ragni. Stanza NE: nascondeva Savid/Davio. Cappella del Culto dell'Aurora.</li>
+          <li><b>Pericoli:</b> cavalieri fantasma, Redivivi, <b>Vladimir Orgaard</b> ("Dannato"). Corridoio trappola in corso.</li>
+        </ul>
+      </div>
+      <div class="luogo">
+        <div class="nome">Mappa regionale<small>non ancora visitati</small></div>
+        <ul>
+          <li>Krezk, Passo di Tsolenka, Lago Baratok, Berez — solo segnati sulla mappa.</li>
+          <li><b>Tempio d'Ambra:</b> posizione ancora ignota. Custodisce il segreto per battere Strahd.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 5. PROFEZIE ============ -->
+    <section id="profezie">
+      <div class="sec-head">
+        <div class="seal">V</div>
+        <div><span class="eyebrow">Sezione 5</span><h2>🔮 Profezie e Oggetti</h2></div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="atto" style="margin-bottom:18px">
+        <h3>⚔️ Come interrompere la Maledizione</h3>
+        <ul>
+          <li><b>Sconfiggere Strahd</b> in combattimento; oppure</li>
+          <li><b>Sostituirlo come regnante</b> di Barovia — anche <b>consensualmente</b>.</li>
+        </ul>
+      </div>
+      <div class="atto" style="margin-bottom:18px">
+        <h3>📖 Lore di Strahd</h3>
+        <ul>
+          <li>Nato nel <b>306</b>, regna dal <b>347</b>. Castello costruito per la madre.</li>
+          <li>Amava <b>Tatiana</b> (lei amava Sergei — simile/identica a Ireena?).</li>
+          <li><b>Patrina Velikofna</b>: Strahd se ne innamorò 140 anni fa, lapidata dalla comunità. Spirito prigioniero nel castello.</li>
+          <li>Per vendetta uccise tutte le donne e i bambini e <b>evirò tutti gli elfi</b>.</li>
+        </ul>
+      </div>
+      <div class="atto" style="margin-bottom:18px">
+        <h3>👁️ Visioni di Yan — Libro dei Sogni</h3>
+        <ul>
+          <li><b>Nebbia / ingresso Barovia:</b> vede la faccia del padre.</li>
+          <li><b>Casa della Morte:</b> il padre ha lasciato una runa — "era tardi".</li>
+          <li><b>Nel bagno:</b> vasca di sangue, dice "<b>NEVA</b>".</li>
+          <li><b>Nel quadro della Casa:</b> lui in ginocchio davanti a una figura femminile, tutto in fiamme.</li>
+          <li><b>Partenza per Ravenloft:</b> il libro si apre — "<b>padre. vicino.</b>" — scritta si infiamma e cola come sangue.</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:18px">
+        <table>
+          <thead><tr><th>Tesoro / Elemento</th><th>Carta</th><th>Indizio ricevuto</th></tr></thead>
+          <tbody>
+            <tr><td>Carta preliminare</td><td>L'Appeso (annerita)</td><td>Fazzoletto con un capello dentro</td></tr>
+            <tr><td>Tomo di Strahd</td><td>Indovina</td><td>Nascosto nell'accampamento di "colei che vede ogni cosa" — Madame Eva?</td></tr>
+            <tr><td>Spada del Sole</td><td>Gufo</td><td>Nascosta dietro il sole di una santa</td></tr>
+            <tr><td>Alleato Prescelto</td><td>Fantasma</td><td>"La sposa del male" — Patrina Velikofna? Ireena=Tatiana?</td></tr>
+            <tr><td>Nemesi finale</td><td>Infelice</td><td>Infesta la tomba dell'uomo che più invidiava — Vladimir Orgaard?</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="lore-list">
+        <li><b>Simbolo Sacro di Ravenkind</b> — sole d'argento e rubino. <b>10 cariche</b>, recupera 4+1d6/alba. Bloccare Vampiri (1c), Scacciare Non-morti (3c), Luce Solare (5c).</li>
+        <li><b>Piuma nera runata</b> — carillon di <b>Fritz Von Berg</b>. Forse collegata alla maledizione Corvo Mannaro di Kraven.</li>
+        <li><b>Marchio misterioso</b> — sul collo di tutto il party. Madame Eva ne conosce il significato ma non lo rivela.</li>
+        <li><b>Filastrocca rituale</b> trovata da Kraven ad Argynvostholt — probabile chiave per lo <b>specchio di Danika</b>, mai attivato.</li>
+        <li><b>Diario di Rictavio</b> — avventura con <b>Drusilla</b> (viveva in una torre lontana) contro pianta mangia-uomini dalla voce soave.</li>
+        <li><b>3 bambole</b> richieste da Strahd contro le Megere — esito del baratto da confermare.</li>
+        <li><b>Pozione velenosa senza etichetta</b> — nello zaino di Yan.</li>
+      </ul>
+    </section>
+
+    <!-- ============ 6. QUEST ============ -->
+    <section id="quest">
+      <div class="sec-head">
+        <div class="seal">VI</div>
+        <div><span class="eyebrow">Sezione 6</span><h2>📌 Quest Attive</h2></div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="quest-legend">
+        <span><span class="dot aperta">●</span> Attiva</span>
+        <span><span class="dot sospeso">●</span> In sospeso</span>
+        <span><span class="dot mistero">●</span> Mistero irrisolto</span>
+      </div>
+      <ul class="quest-list">
+        <li><span class="dot aperta">●</span> Finire l'esplorazione di <b>Argynvostholt</b> (corridoio trappola).</li>
+        <li><span class="dot aperta">●</span> Decidere il destino di <b>Vladimir Orgaard</b> — pace o eterno guardiano?</li>
+        <li><span class="dot aperta">●</span> Trovare e restituire il <b>tesoro di Argynvost</b> alla cripta.</li>
+        <li><span class="dot aperta">●</span> Recuperare i tre tesori della profezia: <b>Tomo</b>, <b>Spada del Sole</b>, <b>Alleato Prescelto</b>.</li>
+        <li><span class="dot aperta">●</span> Localizzare il <b>Tempio d'Ambra</b>.</li>
+        <li><span class="dot aperta">●</span> Chiarire i rapporti con <b>Esmeralda Davenir</b> e <b>Arrigal</b> (cavalli rubati).</li>
+        <li><span class="dot sospeso">●</span> Recuperare la <b>mappa</b> ancora in mano alle Megere.</li>
+        <li><span class="dot sospeso">●</span> Risolvere il caso della ragazza Vistana che si crede un gatto.</li>
+        <li><span class="dot sospeso">●</span> Portare <b>Frik e Mirtle</b> da Ireena (promessa fatta).</li>
+        <li><span class="dot sospeso">●</span> Indagare lo <b>spirito di Patrina Velikofna</b> — potrebbe essere l'Alleato Prescelto?</li>
+        <li><span class="dot mistero">●</span> Significato del <b>marchio</b> sul collo del party.</li>
+        <li><span class="dot mistero">●</span> Identità di <b>"Giacomo"</b> e il medaglione di Ravenkind.</li>
+        <li><span class="dot mistero">●</span> Chi è il <b>padre di Yan</b>? Cosa significa "NEVA"?</li>
+        <li><span class="dot mistero">●</span> <b>Mago misterioso</b> del lago Zarovich — quasi certamente Van Richten/Rictavio.</li>
+        <li><span class="dot mistero">●</span> Filo abbandonato: <b>Sig. Algor</b>, <b>Ketrina</b>, il falegname (sessione 1).</li>
+      </ul>
+    </section>
+
+    <!-- ============ NOTE DM ============ -->
+    <section id="note-dm" style="scroll-margin-top:78px;margin-bottom:64px;">
+      <div class="sec-head">
+        <div class="seal seal-sm">⚠️</div>
+        <div><span class="eyebrow">Appendice</span><h2>📝 Note / Incongruenze da verificare</h2></div>
+      </div>
+      <div class="divider"></div>
+      <ul class="lore-list">
+        <li><b>Savid vs Davio (Argynvostholt):</b> le note a mano chiamano l'elfo "Davio"; il PDF lo chiama "Savid". Da chiarire con il DM.</li>
+        <li><b>Tatiana vs Patrina Velikofna:</b> due donne diverse. Non vanno confuse al tavolo.</li>
+        <li><b>Locanda Acqua Blu (Gunther/Yelena) vs locanda di Danika/Urwin:</b> potrebbero essere due strutture diverse.</li>
+        <li><b>Strahd regna dal 347 (PDF) vs 346 (note originali):</b> discrepanza minima, probabile errore di trascrizione.</li>
+        <li><b>Giacomo:</b> indossa il Medaglione di Ravenkind, ma non corrisponde a nessuno dei 5 PG.</li>
+        <li><b>Eredità "topino" di Haldir:</b> significato non chiaro dagli appunti.</li>
+        <li><b>Visione specchio Casa Darst (Zel):</b> si vede invecchiata e sola nella foresta. Potenziale profezia.</li>
+        <li><b>"NEVA" (visione di Yan):</b> nome o luogo? Da scoprire in gioco, non cercare su internet.</li>
+      </ul>
+    </section>
+
+    <footer>
+      Che la nebbia vi conduca dove dovete essere — non dove volete andare.
+    </footer>
+  </div>
+
+  <a class="totop" href="#indice" aria-label="Torna all'indice">⛧</a>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ======================== FIREBASE ======================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, GoogleAuthProvider,
+  signInWithPopup, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection,
+  addDoc, deleteDoc, onSnapshot, query, orderBy, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ─── CONFIG ───
+const firebaseConfig = {
+  apiKey: "AIzaSyBbZdNw-2bfcNQqMuZ8IjQixRaTmtWChfc",
+  authDomain: "strahd-party-journal.firebaseapp.com",
+  projectId: "strahd-party-journal",
+  storageBucket: "strahd-party-journal.firebasestorage.app",
+  messagingSenderId: "208866650232",
+  appId: "1:208866650232:web:9e0c4006c5130a6191e58d"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
+
+// ─── STATO ───
+let currentSessionId = null;
+let notesUnsubscribe = null;
+let currentNickname = "";
+
+// ─── UI HELPERS ───
+function showScreen(id) {
+  ["screen-auth","screen-loading","screen-waiting","screen-app"].forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = "none";
+  });
+  const target = document.getElementById(id);
+  if (target) target.style.display = "flex";
+}
+
+function showApp() {
+  const el = document.getElementById("screen-app");
+  if (el) el.style.display = "block";
+}
+
+function toast(msg, dur = 2800) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), dur);
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById("auth-error");
+  el.textContent = msg; el.style.display = "block";
+}
+
+function hideAuthError() {
+  const el = document.getElementById("auth-error");
+  el.style.display = "none";
+}
+
+// ─── AUTH STATE ───
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { showScreen("screen-auth"); return; }
+  showScreen("screen-loading");
+  await ensureUser(user);
+  const snap = await getDoc(doc(db, "users", user.uid));
+  const data = snap.data();
+  currentNickname = data?.nickname || user.email.split("@")[0];
+  if (data?.approved === true) {
+    document.getElementById("nav-nickname").textContent = currentNickname;
+    showApp();
+    listenActiveSession();
+    listenNPCs();
+  } else {
+    document.getElementById("waiting-email").textContent = user.email;
+    showScreen("screen-waiting");
+  }
+});
+
+async function ensureUser(user) {
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    const nickname = prompt("Scegli il tuo nickname da avventuriero:");
+    await setDoc(ref, {
+      email: user.email,
+      nickname: nickname || user.email.split("@")[0],
+      approved: false,
+      createdAt: new Date()
+    });
+  }
+}
+
+// ─── LOGIN ───
+window.loginGoogle = async function() {
+  hideAuthError();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await ensureUser(result.user);
+  } catch(e) { showAuthError(e.message); }
+};
+
+window.loginEmail = async function() {
+  hideAuthError();
+  const email = document.getElementById("auth-email").value.trim();
+  const pass = document.getElementById("auth-password").value;
+  if (!email || !pass) { showAuthError("Inserisci email e password."); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    showAuthError(e.code === "auth/invalid-credential" ? "Email o password errati." : e.message);
+  }
+};
+
+window.registerEmail = async function() {
+  hideAuthError();
+  const email = document.getElementById("auth-email").value.trim();
+  const pass = document.getElementById("auth-password").value;
+  if (!email || !pass) { showAuthError("Inserisci email e password."); return; }
+  if (pass.length < 6) { showAuthError("La password deve essere di almeno 6 caratteri."); return; }
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    toast("Registrazione avvenuta! Attendi l'approvazione.");
+  } catch(e) { showAuthError(e.message); }
+};
+
+window.logout = async function() {
+  await signOut(auth);
+  currentSessionId = null;
+  showScreen("screen-auth");
+};
+
+// ─── SESSIONE ───
+async function listenActiveSession() {
+  try {
+    const q = query(collection(db, "sessions"), where("status", "==", "open"));
+    onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const s = snap.docs[0];
+        currentSessionId = s.id;
+        const d = s.data();
+        const dateStr = d.createdAt?.toDate
+          ? d.createdAt.toDate().toLocaleDateString("it-IT", {weekday:"long",day:"numeric",month:"long"})
+          : "Sessione attiva";
+        document.getElementById("session-display").innerHTML =
+          `<span class="live-badge"><span class="live-dot"></span> LIVE</span> &nbsp;${dateStr}`;
+        document.getElementById("note-warning").style.display = "none";
+        listenNotes();
+      } else {
+        currentSessionId = null;
+        document.getElementById("session-display").innerHTML =
+          `<span style="color:var(--text-dim);font-style:italic;font-size:16px">Nessuna sessione attiva</span>`;
+        document.getElementById("notes-list").innerHTML =
+          `<div class="notes-empty">Nessuna sessione aperta. Aprine una per prendere note condivise.</div>`;
+        if (notesUnsubscribe) { notesUnsubscribe(); notesUnsubscribe = null; }
+      }
+    });
+  } catch(e) { console.error(e); }
+}
+
+window.startSession = async function() {
+  const q = query(collection(db, "sessions"), where("status", "==", "open"));
+  const snap = await getDocs(q);
+  if (!snap.empty) { toast("⚠️ C'è già una sessione aperta!"); return; }
+  await addDoc(collection(db, "sessions"), { status: "open", createdAt: new Date() });
+  toast("✅ Nuova sessione aperta!");
+};
+
+window.closeSession = async function() {
+  if (!currentSessionId) { toast("Nessuna sessione aperta."); return; }
+  if (!confirm("Chiudere la sessione corrente?")) return;
+  await setDoc(doc(db, "sessions", currentSessionId), { status: "closed", closedAt: new Date() }, { merge: true });
+  toast("Sessione chiusa.");
+};
+
+// ─── NOTE ───
+function listenNotes() {
+  if (!currentSessionId) return;
+  if (notesUnsubscribe) notesUnsubscribe();
+  const q = query(
+    collection(db, "sessions", currentSessionId, "notes"),
+    orderBy("timestamp", "desc")
+  );
+  notesUnsubscribe = onSnapshot(q, (snap) => {
+    const container = document.getElementById("notes-list");
+    if (!container) return;
+    if (snap.empty) {
+      container.innerHTML = `<div class="notes-empty">Nessuna nota ancora. Aggiungine una sopra!</div>`;
+      return;
+    }
+    container.innerHTML = "";
+    snap.forEach(docSnap => {
+      const n = docSnap.data();
+      const timeStr = n.timestamp?.toDate
+        ? n.timestamp.toDate().toLocaleTimeString("it-IT", {hour:"2-digit",minute:"2-digit"})
+        : "";
+      const card = document.createElement("div");
+      card.className = "note-card";
+      const canDelete = auth.currentUser && auth.currentUser.uid === n.authorId;
+      card.innerHTML = `
+        <div class="note-text">${escHtml(n.text)}</div>
+        <div class="note-meta">
+          <span class="note-tag">${escHtml(n.tag || "generale")}</span>
+          <span class="note-author">${escHtml(n.authorNickname || "unknown")}</span>
+          <span class="note-time">${timeStr}</span>
+        </div>
+        ${canDelete ? `<button class="note-delete" onclick="deleteNote('${docSnap.id}')" title="Elimina nota">🗑</button>` : ""}
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+window.addNote = async function() {
+  const text = document.getElementById("note-text").value.trim();
+  const tag = document.getElementById("note-tag").value.trim();
+  if (!text) { toast("Scrivi qualcosa prima di aggiungere la nota."); return; }
+  if (!currentSessionId) {
+    document.getElementById("note-warning").style.display = "block";
+    return;
+  }
+  const user = auth.currentUser;
+  if (!user) return;
+  await addDoc(collection(db, "sessions", currentSessionId, "notes"), {
+    text, tag: tag || "generale",
+    authorNickname: currentNickname,
+    authorId: user.uid,
+    timestamp: new Date(),
+    sessionId: currentSessionId
+  });
+  document.getElementById("note-text").value = "";
+  document.getElementById("note-tag").value = "";
+  toast("Nota aggiunta!");
+};
+
+window.deleteNote = async function(noteId) {
+  if (!currentSessionId) return;
+  if (!confirm("Eliminare questa nota?")) return;
+  await deleteDoc(doc(db, "sessions", currentSessionId, "notes", noteId));
+  toast("Nota eliminata.");
+};
+
+// ─── NPC EXTRA ───
+window.addNPC = async function() {
+  const name = document.getElementById("npc-name").value.trim();
+  const role = document.getElementById("npc-role").value.trim();
+  const status = document.getElementById("npc-status").value.trim();
+  const location = document.getElementById("npc-location").value.trim();
+  const notes = document.getElementById("npc-notes").value.trim();
+  if (!name) { toast("Inserisci almeno il nome."); return; }
+  await addDoc(collection(db, "campaigns", "strahd", "npcs"), {
+    name, role, status, location, notes,
+    authorId: auth.currentUser?.uid || "",
+    createdAt: new Date()
+  });
+  ["npc-name","npc-role","npc-status","npc-location","npc-notes"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  toast("NPC salvato!");
+};
+
+window.deleteNPC = async function(id, authorId) {
+  if (auth.currentUser?.uid !== authorId) { toast("Puoi eliminare solo i tuoi NPC."); return; }
+  if (!confirm("Eliminare questo NPC?")) return;
+  await deleteDoc(doc(db, "campaigns", "strahd", "npcs", id));
+  toast("NPC eliminato.");
+};
+
+function listenNPCs() {
+  onSnapshot(collection(db, "campaigns", "strahd", "npcs"), (snap) => {
+    const tbody = document.getElementById("npc-extra-table");
+    const section = document.getElementById("npc-extra-section");
+    if (!tbody) return;
+    if (snap.empty) { section.style.display = "none"; return; }
+    section.style.display = "block";
+    tbody.innerHTML = "";
+    snap.forEach(docSnap => {
+      const n = docSnap.data();
+      const canDel = auth.currentUser && auth.currentUser.uid === n.authorId;
+      tbody.innerHTML += `
+        <tr>
+          <td>${escHtml(n.name)}</td>
+          <td>${escHtml(n.role || "—")}</td>
+          <td>${escHtml(n.status || "—")}</td>
+          <td>${escHtml(n.location || "—")}</td>
+          <td style="font-size:13px">${escHtml(n.notes || "")}</td>
+          <td>${canDel ? `<button class="btn btn-danger btn-sm" onclick="deleteNPC('${docSnap.id}','${n.authorId}')">🗑</button>` : ""}</td>
+        </tr>
+      `;
+    });
+  });
+}
+
+// ─── NAV ACTIVE ───
+window.navClick = function(el) {
+  document.querySelectorAll(".topnav a").forEach(a => a.classList.remove("active"));
+  el.classList.add("active");
+};
+
+// ─── UTILS ───
+function escHtml(str) {
+  return String(str || "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
+</body>
+</html>
