@@ -87,8 +87,9 @@ a{color:var(--gold);}
 .topnav a:hover{color:var(--text);border-color:var(--crimson);background:rgba(122,13,18,.25);}
 .topnav a.active{color:var(--text);border-color:var(--crimson-bright);background:rgba(122,13,18,.35);}
 .nav-spacer{flex:1;}
-.nav-user{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--border);}
+.nav-user{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--border);position:static;}
 .nav-user span{font-size:13px;color:var(--text-dim);font-style:italic;}
+#user-menu{position:fixed;top:52px;right:16px;background:var(--bg-panel);border:1px solid var(--crimson-bright);border-radius:8px;min-width:200px;box-shadow:0 12px 32px rgba(0,0,0,.75);z-index:9000;overflow:hidden;}
 
 /* LAYOUT */
 .page{max-width:980px;margin:0 auto;padding:0 18px 90px;}
@@ -213,7 +214,7 @@ tbody tr:hover{background:rgba(122,13,18,.14);}
 .item-edit{top:8px;right:32px;}
 .atto:hover .item-del,.atto:hover .item-edit,
 .luogo:hover .item-del,.luogo:hover .item-edit,
-.lore-list li:hover .item-del{opacity:1;}
+.lore-list li:hover .item-del,.lore-list li:hover .item-edit{opacity:1;}
 .item-del:hover{color:var(--crimson-bright);}
 .item-edit:hover{color:var(--gold);}
 /* quest del inline */
@@ -243,6 +244,41 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 .totop{position:fixed;right:18px;bottom:18px;width:42px;height:42px;border-radius:50%;background:var(--crimson);border:1px solid var(--crimson-bright);color:#f1e6e6;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:40;}
 .totop:hover{background:var(--crimson-bright);}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;animation:none!important;}}
+
+.user-menu-item{display:block;width:100%;background:transparent;border:none;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:10px 16px;text-align:left;cursor:pointer;transition:background .15s;}
+.user-menu-item:hover{background:rgba(122,13,18,.25);color:#f1e6e6;}
+/* SPELL LIST */
+.sp-overlay{position:fixed;inset:0;z-index:8000;background:rgba(8,6,6,.95);backdrop-filter:blur(6px);overflow-y:auto;padding:24px 12px;display:none;}
+.sp-sheet{max-width:900px;margin:0 auto;background:#1e1818;border:2px solid #8a7fd1;border-radius:4px;box-shadow:0 0 0 6px rgba(138,127,209,.07),0 20px 60px rgba(0,0,0,.8);}
+.sp-header{background:linear-gradient(135deg,#1a1826,#12121a);border-bottom:2px solid #8a7fd1;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.sp-title{font-family:'Cinzel Decorative',serif;font-size:11px;letter-spacing:.18em;color:#8a7fd1;text-transform:uppercase;margin:0 0 4px;}
+.sp-body{padding:20px 24px;}
+.sp-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.sp-filters select,.sp-filters input{background:#0f0d0d;border:1px solid #3a3060;border-radius:4px;color:var(--text);font-family:'EB Garamond',serif;font-size:14px;padding:6px 10px;}
+.sp-add-form{background:#181218;border:1px solid #3a3060;border-radius:6px;padding:16px;margin-bottom:20px;}
+.sp-add-form summary{font-family:'Cormorant Garamond',serif;font-size:17px;color:#c0b8f0;cursor:pointer;user-select:none;}
+.sp-add-form summary::-webkit-details-marker{color:#8a7fd1;}
+.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.sp-card{background:#181218;border:1px solid #3a3060;border-radius:6px;padding:12px 14px;position:relative;transition:border-color .15s;}
+.sp-card:hover{border-color:#8a7fd1;}
+.sp-card.preparato{border-left:3px solid #8a7fd1;}
+.sp-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.sp-card-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:#f1e6e6;font-weight:600;}
+.sp-card-level{font-family:'Cinzel Decorative',serif;font-size:11px;color:#8a7fd1;white-space:nowrap;}
+.sp-card-meta{font-size:12px;color:var(--text-dim);line-height:1.6;}
+.sp-card-desc{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.5;max-height:60px;overflow:hidden;transition:max-height .3s;}
+.sp-card-desc.expanded{max-height:400px;}
+.sp-card-actions{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;}
+.sp-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:10px;border:1px solid;margin-right:4px;}
+.sp-badge.conc{border-color:#d8b65a;color:#d8b65a;}
+.sp-badge.rit{border-color:#4fa86e;color:#4fa86e;}
+.sp-slots{background:#181218;border:1px solid #3a3060;border-radius:6px;padding:12px 16px;margin-bottom:16px;}
+.sp-slots-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+.sp-slot-box{background:#0f0d0d;border:1px solid #3a3060;border-radius:4px;text-align:center;padding:6px 10px;min-width:52px;}
+.sp-slot-box label{display:block;font-size:10px;color:#8a7fd1;letter-spacing:.1em;margin-bottom:2px;}
+.sp-slot-box input{background:transparent;border:none;border-bottom:1px solid #3a3060;color:#c0b8f0;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;width:100%;text-align:center;padding:0;}
+.sp-slot-box input:focus{outline:none;border-bottom-color:#8a7fd1;}
+
 </style>
 </head>
 <body>
@@ -274,6 +310,10 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
       <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
     </div>
+    <div id="reset-msg" style="display:none;margin-top:10px;font-size:14px;text-align:center;color:var(--gold)"></div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="btn btn-ghost btn-sm" onclick="resetPassword()" style="font-size:13px;color:var(--text-dim);border:none;background:none;cursor:pointer;text-decoration:underline">Password dimenticata?</button>
+    </div>
   </div>
 </div>
 
@@ -300,10 +340,17 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       <a href="#luoghi">&#127984; Luoghi</a>
       <a href="#profezie">&#128302; Profezie</a>
       <a href="#quest">&#128204; Quest</a>
+      <a href="#diario">&#128212; Diario</a>
       <span class="nav-spacer"></span>
-      <div class="nav-user">
-        <span id="nav-nickname"></span>
-        <button class="btn btn-danger btn-sm" onclick="logout()">Esci</button>
+      <div class="nav-user" style="position:relative">
+        <span id="nav-nickname" onclick="toggleUserMenu()" style="cursor:pointer;user-select:none;color:var(--gold);border-bottom:1px dashed var(--gold);padding-bottom:1px" title="Menu utente">⚔ <span id="nav-nick-text"></span> ▾</span>
+        <div id="user-menu" style="display:none;">
+          <button class="user-menu-item" onclick="openChangePassword()">🔑 Cambia password</button>
+          <button class="user-menu-item" onclick="openScheda()">🧙 Scheda personaggio</button>
+          <button class="user-menu-item" onclick="openSpells()">📖 Lista incantesimi</button>
+          <hr style="border:none;border-top:1px solid var(--border);margin:0">
+          <button class="user-menu-item" style="color:#c78f8f" onclick="logout()">🚪 Logout</button>
+        </div>
       </div>
     </div>
   </nav>
@@ -331,7 +378,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <a class="index-card" href="#luoghi"><span class="num">IV</span><span><span class="label">&#127984; Luoghi</span><span class="desc">Macro-aree, indizi, pericoli</span></span></a>
         <a class="index-card" href="#profezie"><span class="num">V</span><span><span class="label">&#128302; Profezie</span><span class="desc">Tarocchi, tesori, reliquie</span></span></a>
         <a class="index-card" href="#quest"><span class="num">VI</span><span><span class="label">&#128204; Quest</span><span class="desc">Missioni aperte e misteri</span></span></a>
-      </div>
+        <a class="index-card" href="#diario"><span class="num">VII</span><span><span class="label">&#128212; Diario</span><span class="desc">Archivio sessioni e note passate</span></span></a>      </div>
     </section>
 
     <!-- SESSIONE -->
@@ -360,15 +407,6 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         </div>
       </div>
       <div id="notes-list"><div class="empty-msg">Le note della sessione appariranno qui in tempo reale.</div></div>
-      
-      <!-- ARCHIVIO SESSIONI CHIUSE -->
-      <div style="margin-top:32px">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
-          &#128196; Archivio Sessioni
-          <span style="font-size:13px;color:var(--text-dim);font-style:italic;font-weight:400">— le note non vengono mai perse</span>
-        </div>
-        <div id="archivio-sessioni"><div class="empty-msg">Nessuna sessione archiviata.</div></div>
-      </div>
     </section>
 
     <!-- CRONOLOGIA -->
@@ -479,53 +517,6 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <div class="form-row"><textarea id="npc-notes" placeholder="Note aggiuntive&hellip;"></textarea></div>
         <button class="btn btn-primary" style="width:auto" onclick="addNPC()">⛧ Salva Personaggio</button>
       </div>
-
-       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Nome</th><th>Fazione / Ruolo</th><th>Stato / Posizione</th></tr></thead>
-          <tbody>
-            <tr><td class="status-pg">Haldir</td><td>PG — Mezzelfo, Chierico della Tomba.</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
-            <tr><td class="status-pg">Lucien</td><td>PG — Umano, Mago Ammaliatore</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
-            <tr><td class="status-pg">Yan</td><td>PG — Mezzelfa, Warlock. Possiede un <b>libro dei sogni</b> e ha visioni.</td><td><span class="pill vivo">viva</span>col gruppo</td></tr>
-            <tr><td class="status-pg">Kraven</td><td>PG — Dragonide rosso, Paladino della Vendetta. Maledizione Corvo Mannaro attiva. Manufatto che si scalda.</td><td><span class="pill vivo">vivo</span>col gruppo</td></tr>
-            <tr><td class="status-pg">Zel</td><td>PG — Mezzorca, Barbaro Cammino Totemico.</td><td><span class="pill vivo">viva</span>col gruppo</td></tr>
-            <tr><td>Strahd von Zarovich</td><td>Signore Vampiro. Nato 306, regna dal 347. Amò Tatiana. Per vendetta uccise donne, bambini e evirò gli elfi.</td><td><span class="pill nonmorto">non-morto</span>libero, Castello di Ravenloft</td></tr>
-            <tr><td>Madame Eva</td><td>Veggente Vistana</td><td><span class="pill vivo">viva</span>villaggio Vistani / Krezk</td></tr>
-            <tr><td>Ismark</td><td>Alleato — fratello adottivo di Ireena</td><td><span class="pill vivo">vivo</span>Barovia</td></tr>
-            <tr><td>Ireena</td><td>sorella adottiva di Ismark</td><td><span class="pill vivo">viva</span>chiesa di Vallaki</td></tr>
-            <tr><td>Borgomastro di Barovia</td><td>Governo di Barovia (defunto)</td><td><span class="pill morto">morto</span>—</td></tr>
-            <tr><td>Doru</td><td>Figlio di Donovich</td><td><span class="pill nonmorto">progenie vampirica</span>Barovia</td></tr>
-            <tr><td>Padre Donovich</td><td>Sacerdote di Barovia</td><td><span class="pill vivo">vivo</span>chiesa di Barovia</td></tr>
-            <tr><td>Rahadin</td><td>Maggiordomo di Strahd, elfo crepuscolare</td><td><span class="pill vivo">vivo</span>Castello di Ravenloft</td></tr>
-            <tr><td>Rose &amp; Thorn</td><td>Spiriti infantili, famiglia Darst</td><td>in pace — sepolti</td></tr>
-            <tr><td>Bartok</td><td>Capobranco licantropo</td><td><span class="pill vivo">vivo</span>foresta presso Vallaki</td></tr>
-            <tr><td>Giorgio</td><td>Alchimista Vistano</td><td><span class="pill vivo">vivo</span>Pozza di Zer</td></tr>
-            <tr><td>Borgomastro Vargas</td><td>Governo di Vallaki</td><td><span class="pill morto">morto</span>linciato dalla folla?</td></tr>
-            <tr><td>Izek "il Barone"</td><td>Capo delle guardie di Vargas</td><td><span class="pill morto">morto</span>—</td></tr>
-            <tr><td>Padre Lucian</td><td>Sacerdote di Vallaki</td><td><span class="pill vivo">vivo</span>chiesa di Vallaki</td></tr>
-            <tr><td>Yashka</td><td>Chierichetto</td><td><span class="pill vivo">vivo</span>chiesa di Vallaki</td></tr>
-            <tr><td>Vasily Von Holtz</td><td>Capo progenie vampirica?</td><td><span class="pill morto">sconfitto</span>—</td></tr>
-            <tr><td>Lady Fiona Wachter</td><td>Nobile, rivale di Vargas, alleata di Strahd</td><td><span class="pill vivo">viva</span>Vallaki</td></tr>
-            <tr><td>Nicolai &amp; Carl</td><td>Figli di Lady Wachter</td><td><span class="pill morto">morti</span>—</td></tr>
-            <tr><td>Rictavio</td><td>Bardo della Costa della Spada incontrato a Vallaki</td><td><span class="pill vivo">vivo</span>Vallaki / dintorni</td></tr>
-            <tr><td>Bluto Crogarov</td><td>Pescatore — aveva rapito Arabelle. Ucciso da Kraven.</td><td><span class="pill morto">morto</span>—</td></tr>
-            <tr><td>Luigi</td><td>Conoscente — comunica con Zel tramite una Pietra Magica</td><td><span class="pill vivo">vivo</span>Vallaki</td></tr>
-            <tr><td>Mario</td><td>Fratello di Luigi</td><td><span class="pill morto">morto</span>a Vallaki</td></tr>
-            <tr><td>Milliboj</td><td>Becchino — ha trafugato le Ossa di San Andral</td><td><span class="pill vivo">vivo</span>Vallaki</td></tr>
-            <tr><td>Stella</td><td>Figlia "pazza" di Lady Wachter tenuta nascosta in casa. Si crede un gatto.</td><td><span class="pill vivo">viva</span>casa Wachter</td></tr>
-            <tr><td>Casimir Velikov</td><td>Capo campo Vistano, elfo crepuscolare. Sorella: Patrina Velikofna.</td><td><span class="pill vivo">vivo</span>collina presso Vallaki</td></tr>
-            <tr><td>Luvash &amp; Arrigal</td><td>Co-capi accampamento Vistani</td><td><span class="pill vivo">vivi</span>accampamento Vistani</td></tr>
-            <tr><td>Arabelle</td><td>Figlia di Luvash, salvata dal lago quando il pescatore stava per ucciderla</td><td><span class="pill vivo">viva</span>accampamento Vistani</td></tr>
-            <tr><td>Patrina Velikofna</td><td>Sorella di Casimir. Spirito imprigionato nel castello.</td><td><span class="pill nonmorto">spirito imprigionato</span>Castello di Ravenloft</td></tr>
-            <tr><td>Savid</td><td>Elfo crepuscolare ferito</td><td><span class="pill vivo">vivo</span>pressi del campo vistano</td></tr>
-            <tr><td>Esmeralda Davenir</td><td>Allieva di Van Richten. Devota all'Ordine dei Draghi d'Argento</td><td><span class="pill vivo">viva</span>sconosciuto</td></tr>
-            <tr><td>Morganta, Bella, Ofalia</td><td>Congrega di Megere</td><td><span class="pill vivo">vive</span>Vecchio Macinaossa</td></tr>
-            <tr><td>Vladimir Orgaard</td><td>Ex cavaliere, ora "Dannato"</td><td><span class="pill nonmorto">non-morto</span>Villa Argynvostholt</td></tr>
-            <tr><td>Argynvost</td><td>Drago d'argento, fondatore Ordine</td><td><span class="pill morto">morto</span>spirito — Villa Argynvostholt</td></tr>
-            <tr><td>Rudolf Van Richten</td><td>Cacciatore di Vampiri</td><td><span class="pill sconosciuto">sconosciuto</span></td></tr>
-          </tbody>
-        </table>
-      </div>
     </section>
 
     <!-- LUOGHI -->
@@ -625,6 +616,14 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       </div>
     </section>
 
+    <!-- DIARIO DI CAMPAGNA -->
+    <section id="diario" style="scroll-margin-top:78px;margin-bottom:64px;">
+      <div class="sec-head"><div class="seal" style="font-size:16px">&#128212;</div><div><span class="eyebrow">Sezione 7</span><h2>&#128212; Diario di Campagna</h2></div></div>
+      <div class="divider"></div>
+      <p style="color:var(--text-dim);font-style:italic;font-size:15px;margin-bottom:18px">Le note di ogni sessione vengono archiviate automaticamente. Non vengono mai cancellate.</p>
+      <div id="archivio-sessioni"><div class="empty-msg">Nessuna sessione archiviata.</div></div>
+    </section>  
+
     <!-- NOTE DM -->
     <section id="note-dm" style="scroll-margin-top:78px;margin-bottom:64px;">
       <div class="sec-head"><div class="seal" style="font-size:14px">&#9888;</div><div><span class="eyebrow">Appendice</span><h2>&#128221; Incongruenze da verificare</h2></div></div>
@@ -662,11 +661,278 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 
 <div class="toast" id="toast"></div>
 
+<!-- LISTA INCANTESIMI -->
+<div id="spells-overlay" class="sp-overlay">
+  <div class="sp-sheet">
+    <div class="sp-header">
+      <div>
+        <div class="sp-title">⛧ Libro degli Incantesimi</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#f1e6e6" id="sp-pg-name">—</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeSpells()">✕ Chiudi</button>
+    </div>
+    <div class="sp-body">
+
+      <!-- SLOT INCANTESIMO -->
+      <div class="sp-slots">
+        <div style="font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.15em;color:#8a7fd1">Slot Incantesimo</div>
+        <div class="sp-slots-grid">
+          <div class="sp-slot-box"><label>1°</label><input id="slot-1" type="number" min="0" max="4" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>2°</label><input id="slot-2" type="number" min="0" max="3" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>3°</label><input id="slot-3" type="number" min="0" max="3" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>4°</label><input id="slot-4" type="number" min="0" max="3" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>5°</label><input id="slot-5" type="number" min="0" max="3" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>6°</label><input id="slot-6" type="number" min="0" max="2" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>7°</label><input id="slot-7" type="number" min="0" max="2" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>8°</label><input id="slot-8" type="number" min="0" max="1" value="0" onchange="saveSlots()"></div>
+          <div class="sp-slot-box"><label>9°</label><input id="slot-9" type="number" min="0" max="1" value="0" onchange="saveSlots()"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:8px">Inserisci gli slot <b>rimanenti</b> (non il totale). Aggiorna dopo ogni riposo lungo.</div>
+      </div>
+
+      <!-- FORM AGGIUNTA -->
+      <details class="sp-add-form" id="sp-add-details">
+        <summary>+ Aggiungi Incantesimo</summary>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:14px">
+          <div class="sc-field"><label>Nome</label><input id="sp-nome" placeholder="es. Dardo Incantato"></div>
+          <div class="sc-field"><label>Livello (0=trucchetto)</label><input id="sp-livello" type="number" min="0" max="9" value="1"></div>
+          <div class="sc-field"><label>Scuola</label>
+            <select id="sp-scuola">
+              <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+              <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+              <option>Necromanzia</option><option>Trasmutazione</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+          <div class="sc-field"><label>Tempo lancio</label><input id="sp-tempo" placeholder="1 azione"></div>
+          <div class="sc-field"><label>Gittata</label><input id="sp-gittata" placeholder="18 m"></div>
+          <div class="sc-field"><label>Durata</label><input id="sp-durata" placeholder="Istantanea"></div>
+          <div class="sc-field"><label>Componenti</label><input id="sp-comp" placeholder="V, S, M (...)"></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:10px;font-size:14px">
+          <label style="cursor:pointer"><input type="checkbox" id="sp-conc" style="margin-right:4px">Concentrazione</label>
+          <label style="cursor:pointer"><input type="checkbox" id="sp-rit" style="margin-right:4px">Rituale</label>
+          <label style="cursor:pointer"><input type="checkbox" id="sp-prep" style="margin-right:4px">Preparato</label>
+        </div>
+        <div class="sc-field"><label>Descrizione</label><textarea id="sp-desc" style="min-height:80px" placeholder="Effetto, tiro salvezza, danno..."></textarea></div>
+        <div class="sc-field"><label>Note potenziamento (Upcast)</label><textarea id="sp-upcast" style="min-height:44px" placeholder="A livelli superiori..."></textarea></div>
+        <button class="btn btn-primary" style="width:auto;background:#3a3080;border-color:#8a7fd1" onclick="addSpell()">✦ Aggiungi</button>
+      </details>
+
+      <!-- FILTRI -->
+      <div class="sp-filters">
+        <input id="sp-filter-text" placeholder="🔍 cerca incantesimo..." oninput="renderSpells()" style="flex:1;min-width:160px">
+        <select id="sp-filter-lvl" onchange="renderSpells()">
+          <option value="">Tutti i livelli</option>
+          <option value="0">Trucchetti</option>
+          <option value="1">1°</option><option value="2">2°</option><option value="3">3°</option>
+          <option value="4">4°</option><option value="5">5°</option><option value="6">6°</option>
+          <option value="7">7°</option><option value="8">8°</option><option value="9">9°</option>
+        </select>
+        <select id="sp-filter-scuola" onchange="renderSpells()">
+          <option value="">Tutte le scuole</option>
+          <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+          <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+          <option>Necromanzia</option><option>Trasmutazione</option>
+        </select>
+        <select id="sp-filter-prep" onchange="renderSpells()">
+          <option value="">Tutti</option>
+          <option value="1">Solo preparati</option>
+        </select>
+      </div>
+
+      <div id="sp-count" style="font-size:13px;color:var(--text-dim);margin-bottom:10px"></div>
+      <div id="sp-list" class="sp-grid"><div class="empty-msg">Nessun incantesimo ancora.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDA PERSONAGGIO -->
+<style>
+.sc-overlay{position:fixed;inset:0;z-index:8000;background:rgba(8,6,6,.95);backdrop-filter:blur(6px);overflow-y:auto;padding:24px 12px;display:none;}
+.sc-sheet{max-width:820px;margin:0 auto;background:#1e1818;border:2px solid var(--gold);border-radius:4px;box-shadow:0 0 0 6px rgba(184,146,74,.08),0 20px 60px rgba(0,0,0,.8);}
+.sc-header{background:linear-gradient(135deg,#2a1c1c,#1a1212);border-bottom:2px solid var(--gold);padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.sc-title{font-family:'Cinzel Decorative',serif;font-size:11px;letter-spacing:.18em;color:var(--crimson-glow);text-transform:uppercase;margin:0 0 6px;}
+.sc-nome-display{font-family:'Cormorant Garamond',serif;font-size:26px;color:#f1e6e6;margin:0;}
+.sc-body{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:600px){.sc-body{grid-template-columns:1fr;}}
+.sc-section{background:#181212;border:1px solid var(--border);border-radius:4px;padding:14px 16px;}
+.sc-section-title{font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.sc-field{margin-bottom:10px;}
+.sc-field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+.sc-field input,.sc-field textarea,.sc-field select{background:#0f0d0d;border:1px solid var(--border);border-radius:3px;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:7px 10px;width:100%;transition:border-color .15s;}
+.sc-field input:focus,.sc-field textarea:focus,.sc-field select:focus{outline:none;border-color:var(--gold);}
+.sc-field textarea{resize:vertical;min-height:60px;}
+.sc-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sc-stat-box{background:#0f0d0d;border:1px solid var(--border);border-radius:4px;text-align:center;padding:8px 4px;}
+.sc-stat-box label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
+.sc-stat-box input{background:transparent;border:none;color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;width:100%;text-align:center;padding:0;}
+.sc-stat-box input:focus{outline:none;}
+.sc-mod{font-size:11px;color:var(--text-dim);margin-top:2px;min-height:16px;}
+.sc-combat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.sc-combat-box{background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;}
+.sc-combat-box label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);}
+.sc-combat-box input{background:transparent;border:none;border-bottom:1px solid var(--border);color:#f1e6e6;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;width:100%;text-align:center;padding:2px 0;}
+.sc-combat-box input:focus{outline:none;border-bottom-color:var(--gold);}
+.sc-footer{border-top:2px solid var(--gold);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1a1212,#2a1c1c);}
+.sc-hp-bar-wrap{height:6px;background:#0f0d0d;border-radius:3px;margin-top:6px;overflow:hidden;}
+.sc-hp-bar{height:100%;background:linear-gradient(90deg,var(--crimson),var(--crimson-bright));border-radius:3px;transition:width .3s;}
+</style>
+<div id="scheda-overlay" class="sc-overlay">
+  <div class="sc-sheet">
+    <div class="sc-header">
+      <div>
+        <div class="sc-title">⛧ La Maledizione di Strahd — Scheda Personaggio</div>
+        <div class="sc-nome-display"><span id="sc-nome-preview">Avventuriero</span></div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:4px"><span id="sc-preview-info"></span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeScheda()">✕ Chiudi</button>
+    </div>
+    <div class="sc-body">
+
+      <!-- IDENTITÀ -->
+      <div class="sc-section" style="grid-column:1/-1">
+        <div class="sc-section-title">Identità</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px">
+          <div class="sc-field"><label>Nome Personaggio</label><input id="sc-nome" placeholder="es. Haldir" oninput="document.getElementById('sc-nome-preview').textContent=this.value||'Avventuriero'"></div>
+          <div class="sc-field"><label>Classe</label><input id="sc-classe" placeholder="es. Chierico" oninput="schedaUpdatePreview()"></div>
+          <div class="sc-field"><label>Razza</label><input id="sc-razza" placeholder="es. Mezzelfo" oninput="schedaUpdatePreview()"></div>
+          <div class="sc-field"><label>Livello</label><input id="sc-livello" type="number" min="1" max="20" placeholder="1" oninput="schedaUpdatePreview()"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px">
+          <div class="sc-field"><label>Background</label><input id="sc-background" placeholder="es. Acolito"></div>
+          <div class="sc-field"><label>Allineamento</label>
+            <select id="sc-allineamento">
+              <option value="">— scegli —</option>
+              <option>Legale Buono</option><option>Neutrale Buono</option><option>Caotico Buono</option>
+              <option>Legale Neutrale</option><option>Neutrale Puro</option><option>Caotico Neutrale</option>
+              <option>Legale Malvagio</option><option>Neutrale Malvagio</option><option>Caotico Malvagio</option>
+            </select>
+          </div>
+          <div class="sc-field"><label>Punti Esperienza</label><input id="sc-pe" type="number" min="0" placeholder="0"></div>
+        </div>
+      </div>
+
+      <!-- CARATTERISTICHE -->
+      <div class="sc-section">
+        <div class="sc-section-title">Caratteristiche</div>
+        <div class="sc-stats-grid">
+          <div class="sc-stat-box">
+            <label>FOR</label>
+            <input id="sc-for" type="number" min="1" max="30" value="10" oninput="updateMod('for')">
+            <div class="sc-mod" id="mod-for">+0</div>
+          </div>
+          <div class="sc-stat-box">
+            <label>DES</label>
+            <input id="sc-des" type="number" min="1" max="30" value="10" oninput="updateMod('des')">
+            <div class="sc-mod" id="mod-des">+0</div>
+          </div>
+          <div class="sc-stat-box">
+            <label>COS</label>
+            <input id="sc-cos" type="number" min="1" max="30" value="10" oninput="updateMod('cos')">
+            <div class="sc-mod" id="mod-cos">+0</div>
+          </div>
+          <div class="sc-stat-box">
+            <label>INT</label>
+            <input id="sc-int" type="number" min="1" max="30" value="10" oninput="updateMod('int')">
+            <div class="sc-mod" id="mod-int">+0</div>
+          </div>
+          <div class="sc-stat-box">
+            <label>SAG</label>
+            <input id="sc-sag" type="number" min="1" max="30" value="10" oninput="updateMod('sag')">
+            <div class="sc-mod" id="mod-sag">+0</div>
+          </div>
+          <div class="sc-stat-box">
+            <label>CAR</label>
+            <input id="sc-car" type="number" min="1" max="30" value="10" oninput="updateMod('car')">
+            <div class="sc-mod" id="mod-car">+0</div>
+          </div>
+        </div>
+        <div class="sc-field" style="margin-top:12px"><label>Bonus Competenza</label>
+          <input id="sc-prof" type="number" min="2" max="6" placeholder="+2">
+        </div>
+        <div class="sc-field"><label>Ispirazione</label>
+          <select id="sc-ispirazione"><option value="0">No</option><option value="1">Sì</option></select>
+        </div>
+      </div>
+
+      <!-- COMBATTIMENTO -->
+      <div class="sc-section">
+        <div class="sc-section-title">Combattimento</div>
+        <div class="sc-combat-grid">
+          <div class="sc-combat-box">
+            <label>PF Massimi</label>
+            <input id="sc-pf-max" type="number" min="0" placeholder="0" oninput="updateHPBar()">
+          </div>
+          <div class="sc-combat-box">
+            <label>PF Attuali</label>
+            <input id="sc-pf-att" type="number" min="0" placeholder="0" oninput="updateHPBar()">
+          </div>
+          <div class="sc-combat-box">
+            <label>PF Temporanei</label>
+            <input id="sc-pf-tmp" type="number" min="0" placeholder="0">
+          </div>
+          <div class="sc-combat-box">
+            <label>CA</label>
+            <input id="sc-ca" type="number" min="0" placeholder="10">
+          </div>
+          <div class="sc-combat-box">
+            <label>Velocità (ft)</label>
+            <input id="sc-vel" type="number" min="0" placeholder="30">
+          </div>
+          <div class="sc-combat-box">
+            <label>Iniziativa</label>
+            <input id="sc-ini" type="number" placeholder="+0">
+          </div>
+        </div>
+        <div class="sc-hp-bar-wrap" style="margin-top:12px"><div class="sc-hp-bar" id="sc-hp-bar" style="width:100%"></div></div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;text-align:right" id="sc-hp-label"></div>
+        <div class="sc-field" style="margin-top:12px"><label>Dadi Vita (es. 5d8)</label><input id="sc-dv" placeholder="es. 5d8"></div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Tiri Salvezza sulla Morte</div>
+        <div style="display:flex;gap:16px;font-size:13px;color:var(--text-muted)">
+          <span>✓ Successi: <input id="sc-ds-ok" type="number" min="0" max="3" style="background:#0f0d0d;border:none;border-bottom:1px solid var(--border);color:var(--gold);width:32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:16px;padding:1px 0"></span>
+          <span>✗ Fallimenti: <input id="sc-ds-fail" type="number" min="0" max="3" style="background:#0f0d0d;border:none;border-bottom:1px solid var(--border);color:#c78f8f;width:32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:16px;padding:1px 0"></span>
+        </div>
+      </div>
+
+      <!-- TRATTI PERSONAGGIO -->
+      <div class="sc-section">
+        <div class="sc-section-title">Tratti Personaggio</div>
+        <div class="sc-field"><label>Tratti di personalità</label><textarea id="sc-tratti" placeholder="Come si comporta il tuo PG?"></textarea></div>
+        <div class="sc-field"><label>Ideali</label><textarea id="sc-ideali" placeholder="Cosa crede fermamente?" style="min-height:44px"></textarea></div>
+        <div class="sc-field"><label>Legami</label><textarea id="sc-legami" placeholder="A cosa o a chi è legato?" style="min-height:44px"></textarea></div>
+        <div class="sc-field"><label>Difetti</label><textarea id="sc-difetti" placeholder="Qual è il suo tallone d'Achille?" style="min-height:44px"></textarea></div>
+      </div>
+
+      <!-- COMPETENZE E LINGUE -->
+      <div class="sc-section">
+        <div class="sc-section-title">Competenze & Lingue</div>
+        <div class="sc-field"><label>Competenze in armature/armi/strumenti</label><textarea id="sc-competenze" style="min-height:60px" placeholder="Armature leggere, spade, ..."></textarea></div>
+        <div class="sc-field"><label>Lingue</label><textarea id="sc-lingue" style="min-height:44px" placeholder="Comune, Elfico, ..."></textarea></div>
+        <div class="sc-field"><label>Caratteristiche speciali / Abilità di classe</label><textarea id="sc-speciali" style="min-height:70px" placeholder="Channel Divinity, Spellcasting, ..."></textarea></div>
+      </div>
+
+      <!-- NOTE PRIVATE -->
+      <div class="sc-section" style="grid-column:1/-1">
+        <div class="sc-section-title">🔒 Note Private</div>
+        <div class="sc-field"><textarea id="sc-note" placeholder="Segreti, obiettivi personali, note per te — non visibili agli altri giocatori" style="min-height:80px"></textarea></div>
+      </div>
+
+    </div>
+    <div class="sc-footer">
+      <span style="font-size:13px;color:var(--text-dim);font-style:italic" id="sc-saved-at"></span>
+      <button class="btn btn-primary" onclick="saveScheda()">⛧ Salva Scheda</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider,
          signInWithPopup, signInWithEmailAndPassword,
-         createUserWithEmailAndPassword, signOut }
+         createUserWithEmailAndPassword, signOut,
+         sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection,
          addDoc, deleteDoc, updateDoc, onSnapshot,
@@ -724,7 +990,7 @@ onAuthStateChanged(auth, async user=>{
     nickname=data.nickname||user.email.split("@")[0];
     uid=user.uid;
     if(data.approved===true){
-      document.getElementById("nav-nickname").textContent=nickname;
+      document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
       listenSession();
       listenNPCs();
@@ -770,11 +1036,53 @@ window.registerEmail=async()=>{
   try{ await createUserWithEmailAndPassword(auth,e,p); toast("Registrazione OK! Attendi approvazione."); }
   catch(er){ showErr(er.message); }
 };
+window.resetPassword=async()=>{
+  const email=document.getElementById("auth-email").value.trim();
+  const msg=document.getElementById("reset-msg");
+  if(!email){ showErr("Inserisci la tua email nel campo sopra."); return; }
+  hideErr();
+  try{
+    await sendPasswordResetEmail(auth,email);
+    msg.style.display="block";
+    msg.textContent="✓ Email di reset inviata a "+email+". Controlla la posta (e lo spam).";
+  } catch(e){
+    const errs={"auth/user-not-found":"Nessun account con questa email.","auth/invalid-email":"Email non valida."};
+    showErr(errs[e.code]||e.message);
+  }
+};
 window.logout=async()=>{
   if(notesUnsub){ notesUnsub(); notesUnsub=null; }
   sessionId=null;
   await signOut(auth);
   showScreen("screen-auth");
+};
+window.toggleUserMenu=()=>{
+  const m=document.getElementById("user-menu");
+  m.style.display=m.style.display==="none"?"block":"none";
+};
+document.addEventListener("click",e=>{
+  const nav=document.querySelector(".nav-user");
+  if(nav&&!nav.contains(e.target)){
+    const m=document.getElementById("user-menu");
+    if(m) m.style.display="none";
+  }
+});
+window.openChangePassword=()=>{
+  document.getElementById("user-menu").style.display="none";
+  openModal("Cambia Password",
+    '<label>Nuova password (min. 6 caratteri)</label><input id="new-pwd" type="password" placeholder="••••••••">'
+    +'<label>Conferma password</label><input id="new-pwd2" type="password" placeholder="••••••••">',
+    async()=>{
+      const { updatePassword, reauthenticateWithCredential, EmailAuthProvider } =
+        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+      const p1=document.getElementById("new-pwd").value;
+      const p2=document.getElementById("new-pwd2").value;
+      if(p1.length<6){ toast("Password troppo corta."); throw new Error("short"); }
+      if(p1!==p2){ toast("Le password non coincidono."); throw new Error("mismatch"); }
+      try{ await updatePassword(auth.currentUser,p1); toast("Password aggiornata!"); }
+      catch(e){ if(e.code==="auth/requires-recent-login"){ toast("Ri-effettua il login prima di cambiare la password."); } else { toast("Errore: "+e.message); } throw e; }
+    }
+  );
 };
 
 /* ── SESSIONE ── */
@@ -797,7 +1105,7 @@ function listenSession(){
       document.getElementById("session-display").innerHTML=
         '<span style="color:var(--text-dim);font-style:italic;font-size:16px">Nessuna sessione attiva</span>';
       document.getElementById("notes-list").innerHTML=
-        '<div class="empty-msg">Nessuna sessione aperta. Clicca "Nuova Sessione" per iniziare.</div>';
+        '<div class="empty-msg">Nessuna sessione aperta. Le note delle sessioni precedenti sono nel <a href="#diario" style="color:var(--gold)">📖 Diario di Campagna</a>.</div>';
       if(notesUnsub){ notesUnsub(); notesUnsub=null; }
     }
   },e=>console.error("Session listener:",e));
@@ -885,8 +1193,56 @@ window.addNPC=async()=>{
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
 function listenNPCs(){
-  onSnapshot(query(collection(db,"campaigns","strahd","npcs"),orderBy("createdAt","asc")),snap=>{
-    npcCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const STATIC_NPCS = [
+    {id:"s01",name:"Haldir",role:"PG — Mezzelfo, Chierico della Tomba.",stato:"vivo",location:"col gruppo",notes:"",_static:true},
+    {id:"s02",name:"Lucien",role:"PG — Umano, Mago Ammaliatore",stato:"vivo",location:"col gruppo",notes:"",_static:true},
+    {id:"s03",name:"Yan",role:"PG — Mezzelfa, Warlock. Libro dei sogni e visioni.",stato:"viva",location:"col gruppo",notes:"",_static:true},
+    {id:"s04",name:"Kraven",role:"PG — Dragonide rosso, Paladino della Vendetta. Corvo Mannaro.",stato:"vivo",location:"col gruppo",notes:"",_static:true},
+    {id:"s05",name:"Zel",role:"PG — Mezzorca, Barbaro Cammino Totemico.",stato:"viva",location:"col gruppo",notes:"",_static:true},
+    {id:"s06",name:"Strahd von Zarovich",role:"Signore Vampiro. Nato 306, regna dal 347.",stato:"non-morto",location:"Castello di Ravenloft",notes:"",_static:true},
+    {id:"s07",name:"Madame Eva",role:"Veggente Vistana",stato:"viva",location:"villaggio Vistani / Krezk",notes:"",_static:true},
+    {id:"s08",name:"Ismark",role:"Alleato — fratello adottivo di Ireena",stato:"vivo",location:"Barovia",notes:"",_static:true},
+    {id:"s09",name:"Ireena",role:"Sorella adottiva di Ismark",stato:"viva",location:"chiesa di Vallaki",notes:"",_static:true},
+    {id:"s10",name:"Borgomastro di Barovia",role:"Governo di Barovia (defunto)",stato:"morto",location:"—",notes:"",_static:true},
+    {id:"s11",name:"Doru",role:"Figlio di Donovich — progenie vampirica",stato:"non-morto",location:"Barovia",notes:"",_static:true},
+    {id:"s12",name:"Padre Donovich",role:"Sacerdote di Barovia",stato:"vivo",location:"chiesa di Barovia",notes:"",_static:true},
+    {id:"s13",name:"Rahadin",role:"Maggiordomo di Strahd, elfo crepuscolare",stato:"vivo",location:"Castello di Ravenloft",notes:"",_static:true},
+    {id:"s14",name:"Rose & Thorn",role:"Spiriti infantili, famiglia Darst",stato:"in pace",location:"—",notes:"sepolti",_static:true},
+    {id:"s15",name:"Bartok",role:"Capobranco licantropo",stato:"vivo",location:"foresta presso Vallaki",notes:"",_static:true},
+    {id:"s16",name:"Giorgio",role:"Alchimista Vistano",stato:"vivo",location:"Pozza di Zer",notes:"",_static:true},
+    {id:"s17",name:"Borgomastro Vargas",role:"Governo di Vallaki",stato:"morto",location:"—",notes:"linciato dalla folla?",_static:true},
+    {id:"s18",name:"Izek il Barone",role:"Capo delle guardie di Vargas",stato:"morto",location:"—",notes:"",_static:true},
+    {id:"s19",name:"Padre Lucian",role:"Sacerdote di Vallaki",stato:"vivo",location:"chiesa di Vallaki",notes:"",_static:true},
+    {id:"s20",name:"Yashka",role:"Chierichetto",stato:"vivo",location:"chiesa di Vallaki",notes:"",_static:true},
+    {id:"s21",name:"Vasily Von Holtz",role:"Capo progenie vampirica",stato:"sconfitta",location:"—",notes:"",_static:true},
+    {id:"s22",name:"Lady Fiona Wachter",role:"Nobile, rivale di Vargas, alleata di Strahd",stato:"viva",location:"Vallaki",notes:"",_static:true},
+    {id:"s23",name:"Nicolai & Carl",role:"Figli di Lady Wachter",stato:"morti",location:"—",notes:"",_static:true},
+    {id:"s24",name:"Stella",role:"Figlia di Lady Wachter, si crede un gatto",stato:"viva",location:"casa Wachter",notes:"",_static:true},
+    {id:"s25",name:"Rictavio",role:"Bardo della Costa della Spada",stato:"vivo",location:"Vallaki / dintorni",notes:"",_static:true},
+    {id:"s26",name:"Bluto Crogarov",role:"Pescatore — aveva rapito Arabelle. Ucciso da Kraven.",stato:"morto",location:"—",notes:"",_static:true},
+    {id:"s27",name:"Luigi",role:"Conoscente — comunica con Zel tramite Pietra Magica",stato:"vivo",location:"Vallaki",notes:"",_static:true},
+    {id:"s28",name:"Mario",role:"Fratello di Luigi",stato:"morto",location:"Vallaki",notes:"",_static:true},
+    {id:"s29",name:"Milliboj",role:"Becchino — ha trafugato le Ossa di San Andral",stato:"vivo",location:"Vallaki",notes:"",_static:true},
+    {id:"s30",name:"Casimir Velikov",role:"Capo campo Vistano, elfo crepuscolare. Sorella: Patrina.",stato:"vivo",location:"collina presso Vallaki",notes:"",_static:true},
+    {id:"s31",name:"Luvash & Arrigal",role:"Co-capi accampamento Vistani",stato:"vivi",location:"accampamento Vistani",notes:"",_static:true},
+    {id:"s32",name:"Arabelle",role:"Figlia di Luvash, salvata dal lago",stato:"viva",location:"accampamento Vistani",notes:"",_static:true},
+    {id:"s33",name:"Patrina Velikofna",role:"Sorella di Casimir. Spirito imprigionato.",stato:"spirito imprigionato",location:"Castello di Ravenloft",notes:"",_static:true},
+    {id:"s34",name:"Savid",role:"Elfo crepuscolare ferito",stato:"vivo",location:"pressi del campo vistano",notes:"",_static:true},
+    {id:"s35",name:"Esmeralda Davenir",role:"Allieva di Van Richten. Devota all'Ordine dei Draghi d'Argento",stato:"viva",location:"sconosciuto",notes:"",_static:true},
+    {id:"s36",name:"Morganta, Bella, Ofalia",role:"Congrega di Megere",stato:"vive",location:"Vecchio Macinaossa",notes:"",_static:true},
+    {id:"s37",name:"Vladimir Orgaard",role:"Ex cavaliere, ora Dannato",stato:"non-morto",location:"Villa Argynvostholt",notes:"",_static:true},
+    {id:"s38",name:"Argynvost",role:"Drago d'argento, fondatore Ordine",stato:"morto",location:"Villa Argynvostholt",notes:"appare in spirito",_static:true},
+    {id:"s39",name:"Rudolf Van Richten",role:"Cacciatore di Vampiri",stato:"sconosciuto",location:"sconosciuto",notes:"",_static:true},
+  ];
+  // Senza orderBy: include tutti i doc Firebase anche senza createdAt
+  onSnapshot(collection(db,"campaigns","strahd","npcs"),snap=>{
+    const fbNPCs=snap.docs.map(d=>({id:d.id,...d.data(),_static:false}));
+    const fbNames=new Set(fbNPCs.map(n=>(n.name||"").toLowerCase()));
+    // Statici non duplicati + tutti i Firebase
+    npcCache=[
+      ...STATIC_NPCS.filter(s=>!fbNames.has(s.name.toLowerCase())),
+      ...fbNPCs
+    ];
     renderNPCTable();
   });
 }
@@ -916,7 +1272,7 @@ window.renderNPCTable=()=>{
       +'<td style="font-size:13px">'+esc(n.location||"—")+'</td>'
       +'<td style="display:flex;gap:4px">'
         +(own&&!n._static?'<button class="btn btn-danger btn-xs" onclick="deleteNPC(\''+n.id+'\')">&#128465;</button>':"")
-        +(!n._static?'<button class="btn btn-ghost btn-xs" onclick="openNPCEdit(\''+n.id+'\')">&#9999;</button>':'')
+        +(!n._static?'<button class="btn btn-ghost btn-xs" onclick="openNPCEdit(\''+n.id+'\')">&#9999;</button>':"")
       +'</td>'
       +'</tr>';
   }).join("");
@@ -1021,8 +1377,7 @@ function listenLuoghi(){
       div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
         +'<ul>'+lines.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>'
         +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>'
-            +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");
-      c.appendChild(div);
+            +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
   });
 }
@@ -1064,9 +1419,8 @@ function listenProfezie(){
       const div=document.createElement("div");
       div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
       div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?' &mdash; '+esc(p.note):"")
-        +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
-            +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");
-      c.appendChild(div);
+      +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
+          +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
   });
 }
@@ -1074,7 +1428,7 @@ window.deleteProfezia=async id=>{ if(!confirm("Eliminare?")) return; await delet
 window.openProfeziaEdit=(id,titolo,note)=>{
   openModal("Modifica Oggetto / Profezia",
     '<label>Titolo</label><input id="pe-titolo" value="'+titolo+'">'
-    +'<label>Descrizione / Note</label><textarea id="pe-note" style="min-height:100px">'+note+'</textarea>',
+    +'<label>Note</label><textarea id="pe-note" style="min-height:100px">'+note+'</textarea>',
     async()=>{
       await updateDoc(doc(db,"campaigns","strahd","profezie",id),{
         titolo:document.getElementById("pe-titolo").value.trim(),
@@ -1106,21 +1460,22 @@ function listenQuest(){
       const col=colors[q.tipo]||"#e2543d";
       const li=document.createElement("li");
       li.innerHTML='<span class="dot" style="color:'+col+'">&#9679;</span>'
-        +'<span>'+esc(q.testo)+'</span>'
-        +(own?'<button class="quest-del" onclick="openQuestEdit(\''+ds.id+'\',\''+esc(q.testo)+'\',\''+q.tipo+'\')" style="color:var(--gold);margin-left:6px">&#9999;</button>'
-            +'<button class="quest-del" onclick="deleteQuest(\''+ds.id+'\')">&#128465;</button>':"");
+        +'<span style="flex:1">'+esc(q.testo)+'</span>'
+        +(own?'<span style="display:flex;gap:4px;flex-shrink:0">'
+            +'<button class="quest-del" style="color:var(--gold);margin-left:0" onclick="openQuestEdit(\''+ds.id+'\',\''+esc(q.testo)+'\',\''+q.tipo+'\')">&#9999;</button>'
+            +'<button class="quest-del" style="margin-left:0" onclick="deleteQuest(\''+ds.id+'\')">&#128465;</button>'
+            +'</span>':"");
       ul.appendChild(li);
     });
   });
 }
 window.deleteQuest=async id=>{ if(!confirm("Eliminare questa quest?")) return; await deleteDoc(doc(db,"campaigns","strahd","quests",id)); toast("Quest eliminata."); };
-window.openQuestEdit=(id,testo,tipo)=>{  
+window.openQuestEdit=(id,testo,tipo)=>{
   openModal("Modifica Quest",
     '<label>Stato</label><select id="qe-tipo">'
     +[["aperta","Attiva"],["sospeso","In sospeso"],["mistero","Mistero"],["completata","Completata"]]
       .map(([v,l])=>'<option value="'+v+'"'+(tipo===v?" selected":"")+'>'+l+'</option>').join("")
-    +'</select>'
-    +'<label>Descrizione</label><textarea id="qe-testo" style="min-height:80px">'+testo+'</textarea>',
+    +'</select><label>Descrizione</label><textarea id="qe-testo" style="min-height:80px">'+testo+'</textarea>',
     async()=>{
       await updateDoc(doc(db,"campaigns","strahd","quests",id),{
         testo:document.getElementById("qe-testo").value.trim(),
@@ -1131,71 +1486,7 @@ window.openQuestEdit=(id,testo,tipo)=>{
   );
 };
 
-/* ── NOTE DM ── */
-// Note statiche originali sempre presenti
-const STATIC_NOTEDM = [
-  {titolo:"Savid vs Davio",testo:"Le note a mano chiamano l'elfo 'Davio'; il PDF lo chiama 'Savid'. Da chiarire col DM."},
-  {titolo:"Tatiana vs Patrina Velikofna",testo:"Due donne diverse nella vita di Strahd. Non vanno confuse."},
-  {titolo:"Locanda Acqua Blu vs locanda di Danika/Urwin",testo:"Potrebbero essere due strutture diverse o un conflitto di trascrizione."},
-  {titolo:"Strahd regna dal 347 vs 346",testo:"Discrepanza minima, probabile errore di trascrizione."},
-  {titolo:"Giacomo",testo:"Indossa il Medaglione di Ravenkind ma non corrisponde a nessuno dei 5 PG."},
-  {titolo:"Eredità 'topino' di Haldir",testo:"Significato non chiaro dagli appunti."},
-  {titolo:"Visione specchio Casa Darst (Zel)",testo:"Si vede invecchiata e sola nella foresta. Potenziale profezia."},
-  {titolo:"'NEVA'",testo:"Nome o luogo? Da scoprire in gioco — non cercare su internet."},
-];
-window.addNoteDM=async()=>{
-  const titolo=document.getElementById("notedm-titolo").value.trim();
-  if(!titolo){ toast("Inserisci il titolo."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","note-dm"),{
-      titolo, testo:document.getElementById("notedm-testo").value.trim(),
-      authorId:uid, createdAt:new Date()
-    });
-    ["notedm-titolo","notedm-testo"].forEach(id=>document.getElementById(id).value="");
-    toast("Nota salvata!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenNoteDM(){
-  onSnapshot(query(collection(db,"campaigns","strahd","note-dm"),orderBy("createdAt","asc")),snap=>{
-    const c=document.getElementById("note-dm-lista"); if(!c) return;
-    const staticHTML=STATIC_NOTEDM.map(s=>
-      '<li><b>'+esc(s.titolo)+'</b> &mdash; '+esc(s.testo)+'</li>'
-    ).join("");
-    const dynHTML=snap.docs.map(ds=>{
-      const d=ds.data(),own=uid&&uid===d.authorId;
-      return '<li style="border-left-color:var(--crimson-bright)">'
-        +'<b>'+esc(d.titolo)+'</b>'+(d.testo?' &mdash; '+esc(d.testo):"")
-        +(own?'<button class="item-del" style="opacity:1;position:static;margin-left:8px" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465;</button>'
-            +'<button class="item-edit" style="opacity:1;position:static;margin-left:4px" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999;</button>':"")
-        +'</li>';
-    }).join("");
-    c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
-  },e=>console.error("NoteDM listener:",e));
-}
-window.deleteNoteDM=async id=>{
-  if(!confirm("Eliminare questa nota?")) return;
-  await deleteDoc(doc(db,"campaigns","strahd","note-dm",id)); toast("Nota eliminata.");
-};
-window.openNoteDMEdit=(id,titolo,testo)=>{
-  openModal("Modifica Nota",
-    '<label>Titolo</label><input id="ndm-titolo" value="'+titolo+'">'
-    +'<label>Descrizione</label><textarea id="ndm-testo" style="min-height:100px">'+testo+'</textarea>',
-    async()=>{
-      await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
-        titolo:document.getElementById("ndm-titolo").value.trim(),
-        testo:document.getElementById("ndm-testo").value.trim(),
-      });
-      toast("Nota aggiornata!");
-    }
-  );
-};
-
-/* ── ARCHIVIO SESSIONI CHIUSE (Problema 1) ──
-   Le note non vengono mai eliminate da Firestore.
-   Il problema era solo di visibilità: quando la sessione chiude,
-   listenNotes viene fermato e il div #notes-list viene svuotato.
-   Soluzione: listener separato sulle sessioni chiuse che mostra l'archivio.
-*/
+/* ── ARCHIVIO SESSIONI ── */
 function listenArchivio(){
   const q=query(collection(db,"sessions"),where("status","==","closed"),orderBy("closedAt","desc"));
   onSnapshot(q,snap=>{
@@ -1210,14 +1501,15 @@ function listenArchivio(){
       const wrap=document.createElement("div");
       wrap.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--text-dim);border-radius:8px;margin-bottom:14px;overflow:hidden;";
       wrap.innerHTML='<div style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:\'Cormorant Garamond\',serif;color:var(--text-muted);" onclick="toggleArchivio(this)">'
-        +'<span>&#128196; '+esc(dateStr)+'</span>'
-        +'<span style="font-size:13px;color:var(--text-dim)">&#9660; espandi</span>'
+        +'<span>📄 '+esc(dateStr)+'</span>'
+        +'<span style="font-size:13px;color:var(--text-dim)">▼ espandi</span>'
         +'</div>'
         +'<div class="arch-notes" style="display:none;padding:0 16px 12px" data-sid="'+ds.id+'"></div>';
       c.appendChild(wrap);
     });
-  },e=>console.error("Archivio listener:",e));
+  },e=>console.error("Archivio:",e));
 }
+
 window.toggleArchivio=function(header){
   const notesDiv=header.nextElementSibling;
   const sid=notesDiv.dataset.sid;
@@ -1226,29 +1518,53 @@ window.toggleArchivio=function(header){
     header.querySelector("span:last-child").textContent="▲ chiudi";
     if(!notesDiv.dataset.loaded){
       notesDiv.dataset.loaded="1";
-      notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Caricamento note…</div>';
-      // Carica le note di questa sessione una tantum (getDocs, non onSnapshot)
+      notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Caricamento…</div>';
       getDocs(query(collection(db,"sessions",sid,"notes"),orderBy("timestamp","asc"))).then(snap=>{
-        if(snap.empty){ notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessuna nota per questa sessione.</div>'; return; }
+        if(snap.empty){ notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessuna nota.</div>'; return; }
         notesDiv.innerHTML="";
         snap.forEach(ds=>{
           const n=ds.data();
           const t=n.timestamp?.toDate?n.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):"";
           const d=document.createElement("div");
           d.style.cssText="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;";
-          d.innerHTML='<div style="font-size:15px;color:var(--text);margin-bottom:4px">'+esc(n.text)+'</div>'
+          const ownNote = uid && uid === n.authorId;
+          d.innerHTML='<div style="font-size:15px;color:var(--text);margin-bottom:4px;padding-right:'+(ownNote?'64px':'0')+'">'+esc(n.text)+'</div>'
             +'<div style="display:flex;gap:10px;font-size:12px;color:var(--text-dim)">'
             +'<span style="border:1px solid var(--crimson);color:var(--crimson-glow);padding:1px 7px;border-radius:10px">'+esc(n.tag||"generale")+'</span>'
-            +'<span>'+esc(n.authorNickname||"?")+'</span>'
-            +'<span>'+t+'</span></div>';
+            +'<span>'+esc(n.authorNickname||"?")+'</span><span>'+t+'</span></div>'
+            +(ownNote
+              ?'<div style="display:flex;gap:6px;margin-top:8px">'
+               +'<button class="btn btn-ghost btn-xs" onclick="openArchiveNoteEdit(\''+sid+'\',\''+ds.id+'\',\''+esc(n.text)+'\',\''+esc(n.tag||'generale')+'\')">✏ Modifica</button>'
+               +'<button class="btn btn-danger btn-xs" onclick="deleteArchiveNote(\''+sid+'\',\''+ds.id+'\')">🗑 Elimina</button>'
+               +'</div>'
+              :"");
           notesDiv.appendChild(d);
         });
-      }).catch(e=>{ notesDiv.innerHTML='<div style="color:#c78f8f;font-size:14px">Errore caricamento: '+esc(e.message)+'</div>'; });
+      }).catch(e=>{ notesDiv.innerHTML='<div style="color:#c78f8f;font-size:14px">Errore: '+esc(e.message)+'</div>'; });
     }
   } else {
     notesDiv.style.display="none";
     header.querySelector("span:last-child").textContent="▼ espandi";
   }
+};
+
+window.deleteArchiveNote=async(sid,nid)=>{
+  if(!confirm("Eliminare questa nota dall'archivio?")) return;
+  try{ await deleteDoc(doc(db,"sessions",sid,"notes",nid)); toast("Nota eliminata."); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+window.openArchiveNoteEdit=(sid,nid,text,tag)=>{
+  openModal("Modifica Nota Archiviata",
+    '<label>Testo</label><textarea id="an-text" style="min-height:90px">'+text+'</textarea>'
+    +'<label>Tag</label><input id="an-tag" value="'+tag+'">',
+    async()=>{
+      await updateDoc(doc(db,"sessions",sid,"notes",nid),{
+        text:document.getElementById("an-text").value.trim(),
+        tag:document.getElementById("an-tag").value.trim()||"generale",
+      });
+      toast("Nota aggiornata!");
+    }
+  );
 };
 
 /* ── MODAL ── */
@@ -1262,6 +1578,354 @@ window.closeEditModal=()=>document.getElementById("edit-overlay").classList.remo
 document.getElementById("edit-overlay").addEventListener("click",e=>{
   if(e.target===document.getElementById("edit-overlay")) closeEditModal();
 });
+
+/* ── NOTE DM ── */
+window.addNoteDM = async () => {
+  const titolo = document.getElementById("notedm-titolo").value.trim();
+  if (!titolo) { toast("Inserisci il titolo."); return; }
+  try {
+    await addDoc(collection(db, "campaigns", "strahd", "note-dm"), {
+      titolo,
+      testo: document.getElementById("notedm-testo").value.trim(),
+      authorId: uid,
+      createdAt: new Date()
+    });
+    ["notedm-titolo","notedm-testo"].forEach(id => document.getElementById(id).value = "");
+    toast("Nota salvata!");
+  } catch(e) { toast("Errore: " + e.message); console.error(e); }
+};
+
+function listenNoteDM(){
+  const STATIC_NOTEDM=[
+    ["Mappa della regione","La mappa mancante è ancora in mano alle Megere?"],
+  ];
+  onSnapshot(
+    query(collection(db,"campaigns","strahd","note-dm"),orderBy("createdAt","asc")),
+    snap=>{
+      const c=document.getElementById("note-dm-lista"); if(!c) return;
+      const staticHTML=STATIC_NOTEDM.map(([b,t])=>
+        '<li><b>'+esc(b)+'</b> &mdash; '+esc(t)+'</li>'
+      ).join("");
+      const dynHTML=snap.docs.map(ds=>{
+        const d=ds.data(),own=uid&&uid===d.authorId;
+        return '<li style="border-left-color:var(--crimson-bright);display:flex;flex-direction:column;gap:6px">'
+          +(own?'<span style="display:flex;gap:4px">'
+              +'<button class="btn btn-ghost btn-xs" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999; Modifica</button>'
+              +'<button class="btn btn-danger btn-xs" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465; Elimina</button>'
+              +'</span>':"")
+          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?' &mdash; '+esc(d.testo):"")+'</span>'
+          +'</li>';
+      }).join("");
+      c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
+    },
+    e=>console.error("NoteDM listener:",e)
+  );
+}
+
+window.deleteNoteDM=async id=>{
+  if(!confirm("Eliminare questa nota?")) return;
+  await deleteDoc(doc(db,"campaigns","strahd","note-dm",id)); toast("Nota eliminata.");
+};
+
+window.openNoteDMEdit=(id,titolo,testo)=>{
+  openModal("Modifica Nota",
+    '<label>Titolo</label><input id="ndm-titolo" value="'+titolo+'">'
+    +'<label>Descrizione</label><textarea id="ndm-testo" style="min-height:100px">'+testo+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
+        titolo:document.getElementById("ndm-titolo").value.trim(),
+        testo:document.getElementById("ndm-testo").value.trim(),
+      });
+      toast("Nota aggiornata!");
+    }
+  );
+};
+
+window.deleteNoteDM = async id => {
+  if (!confirm("Eliminare questa nota?")) return;
+  await deleteDoc(doc(db, "campaigns", "strahd", "note-dm", id));
+  toast("Nota eliminata.");
+};
+
+/* ── INCANTESIMI ── */
+let spellsCache=[];
+const SLOTS_MAP=["slot-1","slot-2","slot-3","slot-4","slot-5","slot-6","slot-7","slot-8","slot-9"];
+
+window.openSpells=async()=>{
+  document.getElementById("user-menu").style.display="none";
+  if(!uid){ toast("Devi essere loggato."); return; }
+  document.getElementById("spells-overlay").style.display="block";
+  // Mostra nome PG
+  try{
+    const sc=await getDoc(doc(db,"users",uid,"scheda","main"));
+    document.getElementById("sp-pg-name").textContent=sc.exists()&&sc.data().nome?sc.data().nome:"Libro degli Incantesimi";
+  } catch(e){}
+  // Carica slot
+  try{
+    const slotDoc=await getDoc(doc(db,"users",uid,"scheda","slots"));
+    if(slotDoc.exists()){
+      const d=slotDoc.data();
+      SLOTS_MAP.forEach((id,i)=>{ const el=document.getElementById(id); if(el&&d["s"+(i+1)]!=null) el.value=d["s"+(i+1)]; });
+    }
+  } catch(e){ console.error("Slot load:",e); }
+  // Carica incantesimi (listener realtime)
+  listenSpells();
+};
+
+window.closeSpells=()=>{
+  document.getElementById("spells-overlay").style.display="none";
+  if(window._spellsUnsub){ window._spellsUnsub(); window._spellsUnsub=null; }
+};
+
+function listenSpells(){
+  if(window._spellsUnsub){ window._spellsUnsub(); }
+  // Sicurezza: solo l'utente loggato può leggere la propria subcollection (regola Firestore)
+  const ref=query(collection(db,"users",uid,"incantesimi"),orderBy("livello","asc"));
+  window._spellsUnsub=onSnapshot(ref,snap=>{
+    spellsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderSpells();
+  },e=>{ console.error("Spells listener:",e); toast("Errore incantesimi: "+e.message); });
+}
+
+window.renderSpells=()=>{
+  const ft=(document.getElementById("sp-filter-text")?.value||"").toLowerCase();
+  const fl=document.getElementById("sp-filter-lvl")?.value;
+  const fs=document.getElementById("sp-filter-scuola")?.value;
+  const fp=document.getElementById("sp-filter-prep")?.value;
+  let data=spellsCache.filter(s=>
+    (!ft||s.nome?.toLowerCase().includes(ft)||s.descrizione?.toLowerCase().includes(ft)||s.scuola?.toLowerCase().includes(ft))&&
+    (fl===""||String(s.livello)===fl)&&
+    (!fs||s.scuola===fs)&&
+    (!fp||s.preparato)
+  );
+  const count=document.getElementById("sp-count");
+  if(count) count.textContent=data.length+" incantesimi"+(data.length!==spellsCache.length?" (filtrati su "+spellsCache.length+"total)":"");
+  const list=document.getElementById("sp-list"); if(!list) return;
+  if(!data.length){ list.innerHTML='<div class="empty-msg" style="grid-column:1/-1">Nessun incantesimo trovato.</div>'; return; }
+  // Raggruppa per livello
+  const byLevel={};
+  data.forEach(s=>{ const l=s.livello??1; if(!byLevel[l]) byLevel[l]=[]; byLevel[l].push(s); });
+  let html="";
+  Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
+    const lvLabel=+lv===0?"Trucchetti":lv+"° Livello";
+    html+='<div style="grid-column:1/-1;font-family:\'Cinzel Decorative\',serif;font-size:10px;letter-spacing:.15em;color:#8a7fd1;margin:10px 0 4px;padding-bottom:4px;border-bottom:1px solid #3a3060">'+lvLabel+'</div>';
+    byLevel[lv].forEach(s=>{
+      const badges=(s.concentrazione?'<span class="sp-badge conc">C</span>':"")+(s.rituale?'<span class="sp-badge rit">R</span>':"");
+      html+='<div class="sp-card'+(s.preparato?" preparato":"")+(s.concentrazione?" conc":"")+'" id="spc-'+s.id+'">'
+        +'<div class="sp-card-header">'
+          +'<div>'
+            +'<div class="sp-card-name">'+esc(s.nome||"—")+'</div>'
+            +'<div style="font-size:11px;color:#8a7fd1;margin-top:1px">'+esc(s.scuola||"")+(badges?" &nbsp;"+badges:"")+'</div>'
+          +'</div>'
+          +'<div style="text-align:right">'
+            +'<div class="sp-card-level">'+(+s.livello===0?"Trucchetto":s.livello+"°")+'</div>'
+            +'<label style="font-size:11px;color:var(--text-dim);cursor:pointer;margin-top:4px;display:block">'
+              +'<input type="checkbox"'+(s.preparato?" checked":"")
+              +' onchange="togglePreparato(\''+s.id+'\',this.checked)" style="margin-right:3px">prep</label>'
+          +'</div>'
+        +'</div>'
+        +'<div class="sp-card-meta">'
+          +'⏱ '+esc(s.tempo_lancio||"—")+'&nbsp;·&nbsp;'
+          +'🎯 '+esc(s.gittata||"—")+'&nbsp;·&nbsp;'
+          +'⌛ '+esc(s.durata||"—")
+          +(s.componenti?'<br>📦 '+esc(s.componenti):"")
+        +'</div>'
+        +(s.descrizione?'<div class="sp-card-desc" id="desc-'+s.id+'">'+esc(s.descrizione)+'</div>':"")
+        +(s.upcast?'<div style="font-size:12px;color:#8a7fd1;margin-top:4px;font-style:italic">↑ '+esc(s.upcast)+'</div>':"")
+        +'<div class="sp-card-actions">'
+          +(s.descrizione?'<button class="btn btn-ghost btn-xs" onclick="toggleSpellDesc(\''+s.id+'\')" style="border-color:#3a3060;color:#8a7fd1">dettagli</button>':"")
+          +'<button class="btn btn-ghost btn-xs" onclick="openSpellEdit(\''+s.id+'\')" style="border-color:#3a3060">✏</button>'
+          +'<button class="btn btn-danger btn-xs" onclick="deleteSpell(\''+s.id+'\')">🗑</button>'
+        +'</div>'
+      +'</div>';
+    });
+  });
+  list.innerHTML=html;
+};
+
+window.toggleSpellDesc=(id)=>{
+  const el=document.getElementById("desc-"+id);
+  if(el) el.classList.toggle("expanded");
+};
+
+window.addSpell=async()=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  const nome=document.getElementById("sp-nome")?.value.trim();
+  if(!nome){ toast("Inserisci il nome dell'incantesimo."); return; }
+  const spell={
+    nome,
+    livello:parseInt(document.getElementById("sp-livello")?.value)||0,
+    scuola:document.getElementById("sp-scuola")?.value||"",
+    tempo_lancio:document.getElementById("sp-tempo")?.value.trim()||"",
+    gittata:document.getElementById("sp-gittata")?.value.trim()||"",
+    durata:document.getElementById("sp-durata")?.value.trim()||"",
+    componenti:document.getElementById("sp-comp")?.value.trim()||"",
+    concentrazione:document.getElementById("sp-conc")?.checked||false,
+    rituale:document.getElementById("sp-rit")?.checked||false,
+    preparato:document.getElementById("sp-prep")?.checked||false,
+    descrizione:document.getElementById("sp-desc")?.value.trim()||"",
+    upcast:document.getElementById("sp-upcast")?.value.trim()||"",
+    createdAt:new Date()
+  };
+  try{
+    await addDoc(collection(db,"users",uid,"incantesimi"),spell);
+    // Reset form
+    ["sp-nome","sp-tempo","sp-gittata","sp-durata","sp-comp","sp-desc","sp-upcast"].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value="";
+    });
+    ["sp-conc","sp-rit","sp-prep"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
+    document.getElementById("sp-livello").value="1";
+    document.getElementById("sp-add-details").removeAttribute("open");
+    toast("✦ Incantesimo aggiunto!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.togglePreparato=async(id,val)=>{
+  if(!uid) return;
+  try{
+    await updateDoc(doc(db,"users",uid,"incantesimi",id),{preparato:val});
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.openSpellEdit=(id)=>{
+  const s=spellsCache.find(x=>x.id===id); if(!s) return;
+  openModal("Modifica Incantesimo",
+    '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">'
+    +'<div><label>Nome</label><input id="se-nome" value="'+esc(s.nome||"")+'"></div>'
+    +'<div><label>Livello</label><input id="se-livello" type="number" min="0" max="9" value="'+(s.livello??1)+'"></div>'
+    +'</div>'
+    +'<label>Scuola</label>'
+    +'<select id="se-scuola">'
+    +["Abiurazione","Ammaliamento","Divinazione","Evocazione","Illusione","Invocazione","Necromanzia","Trasmutazione"]
+      .map(sc=>'<option'+(s.scuola===sc?" selected":"")+'>'+sc+'</option>').join("")
+    +'</select>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +'<div><label>Tempo lancio</label><input id="se-tempo" value="'+esc(s.tempo_lancio||"")+'"></div>'
+    +'<div><label>Gittata</label><input id="se-gittata" value="'+esc(s.gittata||"")+'"></div>'
+    +'<div><label>Durata</label><input id="se-durata" value="'+esc(s.durata||"")+'"></div>'
+    +'<div><label>Componenti</label><input id="se-comp" value="'+esc(s.componenti||"")+'"></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:16px;margin:10px 0;font-size:14px">'
+    +'<label><input type="checkbox" id="se-conc"'+(s.concentrazione?" checked":"")+' style="margin-right:4px">Concentrazione</label>'
+    +'<label><input type="checkbox" id="se-rit"'+(s.rituale?" checked":"")+' style="margin-right:4px">Rituale</label>'
+    +'</div>'
+    +'<label>Descrizione</label><textarea id="se-desc" style="min-height:90px">'+esc(s.descrizione||"")+'</textarea>'
+    +'<label>Upcast</label><textarea id="se-upcast" style="min-height:44px">'+esc(s.upcast||"")+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"users",uid,"incantesimi",id),{
+        nome:document.getElementById("se-nome").value.trim(),
+        livello:parseInt(document.getElementById("se-livello").value)||0,
+        scuola:document.getElementById("se-scuola").value,
+        tempo_lancio:document.getElementById("se-tempo").value.trim(),
+        gittata:document.getElementById("se-gittata").value.trim(),
+        durata:document.getElementById("se-durata").value.trim(),
+        componenti:document.getElementById("se-comp").value.trim(),
+        concentrazione:document.getElementById("se-conc").checked,
+        rituale:document.getElementById("se-rit").checked,
+        descrizione:document.getElementById("se-desc").value.trim(),
+        upcast:document.getElementById("se-upcast").value.trim(),
+      });
+      toast("Incantesimo aggiornato!");
+    }
+  );
+};
+
+window.deleteSpell=async(id)=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  if(!confirm("Eliminare questo incantesimo?")) return;
+  try{
+    await deleteDoc(doc(db,"users",uid,"incantesimi",id));
+    toast("Incantesimo eliminato.");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.saveSlots=async()=>{
+  if(!uid) return;
+  const data={};
+  SLOTS_MAP.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el) data["s"+(i+1)]=parseInt(el.value)||0;
+  });
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","slots"),data,{merge:true});
+  } catch(e){ console.error("Slot save:",e); }
+};
+
+/* ── SCHEDA ── */
+window.schedaUpdatePreview=()=>{
+  const cl=document.getElementById("sc-classe")?.value||"";
+  const ra=document.getElementById("sc-razza")?.value||"";
+  const lv=document.getElementById("sc-livello")?.value||"";
+  document.getElementById("sc-preview-info").textContent=[ra,cl,lv?"Livello "+lv:""].filter(Boolean).join(" · ");
+};
+window.updateMod=(stat)=>{
+  const val=parseInt(document.getElementById("sc-"+stat)?.value)||10;
+  const mod=Math.floor((val-10)/2);
+  const el=document.getElementById("mod-"+stat);
+  if(el){ el.textContent=(mod>=0?"+":"")+mod; el.style.color=mod>0?"var(--gold)":mod<0?"#c78f8f":"var(--text-dim)"; }
+};
+window.updateHPBar=()=>{
+  const max=parseInt(document.getElementById("sc-pf-max")?.value)||0;
+  const att=parseInt(document.getElementById("sc-pf-att")?.value)||0;
+  const pct=max>0?Math.min(100,Math.round(att/max*100)):100;
+  const bar=document.getElementById("sc-hp-bar");
+  const lbl=document.getElementById("sc-hp-label");
+  if(bar){
+    bar.style.width=pct+"%";
+    bar.style.background=pct>50?"linear-gradient(90deg,var(--crimson),var(--crimson-bright))":pct>25?"linear-gradient(90deg,#b8601a,#e07820)":"linear-gradient(90deg,#6a0000,#c41e3a)";
+  }
+  if(lbl) lbl.textContent=max>0?att+" / "+max+" PF ("+pct+"%)":"";
+};
+const SCHEDA_MAP={
+  nome:"sc-nome",classe:"sc-classe",razza:"sc-razza",livello:"sc-livello",
+  background:"sc-background",allineamento:"sc-allineamento",pe:"sc-pe",
+  pf_max:"sc-pf-max",pf_attuali:"sc-pf-att",pf_tmp:"sc-pf-tmp",
+  ca:"sc-ca",velocita:"sc-vel",iniziativa:"sc-ini",
+  dadi_vita:"sc-dv",ds_successi:"sc-ds-ok",ds_fallimenti:"sc-ds-fail",
+  forza:"sc-for",destrezza:"sc-des",costituzione:"sc-cos",
+  intelligenza:"sc-int",saggezza:"sc-sag",carisma:"sc-car",
+  bonus_competenza:"sc-prof",ispirazione:"sc-ispirazione",
+  tratti_personalita:"sc-tratti",ideali:"sc-ideali",legami:"sc-legami",difetti:"sc-difetti",
+  competenze:"sc-competenze",lingue:"sc-lingue",speciali:"sc-speciali",
+  note_private:"sc-note"
+};
+window.openScheda=async()=>{
+  document.getElementById("user-menu").style.display="none";
+  document.getElementById("scheda-overlay").style.display="block";
+  if(!uid){ toast("Devi essere loggato."); return; }
+  try{
+    const snap=await getDoc(doc(db,"users",uid,"scheda","main"));
+    if(snap.exists()){
+      const d=snap.data();
+      Object.entries(SCHEDA_MAP).forEach(([key,elId])=>{
+        const el=document.getElementById(elId);
+        if(el&&d[key]!=null) el.value=d[key];
+      });
+      if(d.updatedAt?.toDate){
+        document.getElementById("sc-saved-at").textContent="Ultimo salvataggio: "+d.updatedAt.toDate().toLocaleString("it-IT");
+      }
+    }
+    ["for","des","cos","int","sag","car"].forEach(updateMod);
+    schedaUpdatePreview();
+    updateHPBar();
+    const nome=document.getElementById("sc-nome")?.value;
+    document.getElementById("sc-nome-preview").textContent=nome||"Avventuriero";
+  } catch(e){ console.error(e); toast("Errore caricamento scheda: "+e.message); }
+};
+window.closeScheda=()=>{ document.getElementById("scheda-overlay").style.display="none"; };
+window.saveScheda=async()=>{
+  if(!uid){ toast("Devi essere loggato."); return; }
+  const data={updatedAt:new Date()};
+  Object.entries(SCHEDA_MAP).forEach(([key,elId])=>{
+    const el=document.getElementById(elId);
+    if(el) data[key]=el.value.trim();
+  });
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","main"),data,{merge:true});
+    document.getElementById("sc-saved-at").textContent="Salvato alle "+new Date().toLocaleTimeString("it-IT");
+    toast("⛧ Scheda salvata!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
 </script>
 </body>
 </html>
