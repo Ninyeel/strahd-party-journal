@@ -212,7 +212,7 @@ tbody tr:hover{background:rgba(122,13,18,.14);}
 .item-del{top:8px;right:8px;}
 .item-edit{top:8px;right:32px;}
 .atto:hover .item-del,.atto:hover .item-edit,
-.luogo:hover .item-del,
+.luogo:hover .item-del,.luogo:hover .item-edit,
 .lore-list li:hover .item-del{opacity:1;}
 .item-del:hover{color:var(--crimson-bright);}
 .item-edit:hover{color:var(--gold);}
@@ -360,6 +360,15 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         </div>
       </div>
       <div id="notes-list"><div class="empty-msg">Le note della sessione appariranno qui in tempo reale.</div></div>
+      
+      <!-- ARCHIVIO SESSIONI CHIUSE -->
+      <div style="margin-top:32px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+          &#128196; Archivio Sessioni
+          <span style="font-size:13px;color:var(--text-dim);font-style:italic;font-weight:400">— le note non vengono mai perse</span>
+        </div>
+        <div id="archivio-sessioni"><div class="empty-msg">Nessuna sessione archiviata.</div></div>
+      </div>
     </section>
 
     <!-- CRONOLOGIA -->
@@ -724,6 +733,7 @@ onAuthStateChanged(auth, async user=>{
       listenProfezie();
       listenQuest();
       listenNoteDM();
+      listenArchivio();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -905,8 +915,8 @@ window.renderNPCTable=()=>{
       +'<td><span class="pill '+pc+'">'+esc(n.stato||"—")+'</span></td>'
       +'<td style="font-size:13px">'+esc(n.location||"—")+'</td>'
       +'<td style="display:flex;gap:4px">'
-        +(own?'<button class="btn btn-danger btn-xs" onclick="deleteNPC(\''+n.id+'\')">&#128465;</button>':"")
-        +'<button class="btn btn-ghost btn-xs" onclick="openNPCEdit(\''+n.id+'\')">&#9999;</button>'
+        +(own&&!n._static?'<button class="btn btn-danger btn-xs" onclick="deleteNPC(\''+n.id+'\')">&#128465;</button>':"")
+        +(!n._static?'<button class="btn btn-ghost btn-xs" onclick="openNPCEdit(\''+n.id+'\')">&#9999;</button>':'')
       +'</td>'
       +'</tr>';
   }).join("");
@@ -1010,12 +1020,28 @@ function listenLuoghi(){
       const div=document.createElement("div"); div.className="luogo"; div.style.borderLeft="3px solid var(--gold)";
       div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
         +'<ul>'+lines.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>'
-        +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>':"");
+        +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>'
+            +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");
       c.appendChild(div);
     });
   });
 }
 window.deleteLuogo=async id=>{ if(!confirm("Eliminare questo luogo?")) return; await deleteDoc(doc(db,"campaigns","strahd","luoghi",id)); toast("Luogo eliminato."); };
+window.openLuogoEdit=(id,nome,tipo,note)=>{
+  openModal("Modifica Luogo",
+    '<label>Nome</label><input id="le-nome" value="'+nome+'">'
+    +'<label>Tipo</label><input id="le-tipo" value="'+tipo+'">'
+    +'<label>Note (una per riga)</label><textarea id="le-note" style="min-height:120px">'+note+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","luoghi",id),{
+        nome:document.getElementById("le-nome").value.trim(),
+        tipo:document.getElementById("le-tipo").value.trim(),
+        note:document.getElementById("le-note").value.trim(),
+      });
+      toast("Luogo aggiornato!");
+    }
+  );
+};
 
 /* ── PROFEZIE ── */
 window.addProfezia=async()=>{
@@ -1038,12 +1064,26 @@ function listenProfezie(){
       const div=document.createElement("div");
       div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
       div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?' &mdash; '+esc(p.note):"")
-        +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>':"");
+        +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
+            +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");
       c.appendChild(div);
     });
   });
 }
 window.deleteProfezia=async id=>{ if(!confirm("Eliminare?")) return; await deleteDoc(doc(db,"campaigns","strahd","profezie",id)); toast("Eliminato."); };
+window.openProfeziaEdit=(id,titolo,note)=>{
+  openModal("Modifica Oggetto / Profezia",
+    '<label>Titolo</label><input id="pe-titolo" value="'+titolo+'">'
+    +'<label>Descrizione / Note</label><textarea id="pe-note" style="min-height:100px">'+note+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","profezie",id),{
+        titolo:document.getElementById("pe-titolo").value.trim(),
+        note:document.getElementById("pe-note").value.trim(),
+      });
+      toast("Aggiornato!");
+    }
+  );
+};
 
 /* ── QUEST ── */
 window.addQuest=async()=>{
@@ -1067,12 +1107,149 @@ function listenQuest(){
       const li=document.createElement("li");
       li.innerHTML='<span class="dot" style="color:'+col+'">&#9679;</span>'
         +'<span>'+esc(q.testo)+'</span>'
-        +(own?'<button class="quest-del" onclick="deleteQuest(\''+ds.id+'\')">&#128465;</button>':"");
+        +(own?'<button class="quest-del" onclick="openQuestEdit(\''+ds.id+'\',\''+esc(q.testo)+'\',\''+q.tipo+'\')" style="color:var(--gold);margin-left:6px">&#9999;</button>'
+            +'<button class="quest-del" onclick="deleteQuest(\''+ds.id+'\')">&#128465;</button>':"");
       ul.appendChild(li);
     });
   });
 }
 window.deleteQuest=async id=>{ if(!confirm("Eliminare questa quest?")) return; await deleteDoc(doc(db,"campaigns","strahd","quests",id)); toast("Quest eliminata."); };
+window.openQuestEdit=(id,testo,tipo)=>{  
+  openModal("Modifica Quest",
+    '<label>Stato</label><select id="qe-tipo">'
+    +[["aperta","Attiva"],["sospeso","In sospeso"],["mistero","Mistero"],["completata","Completata"]]
+      .map(([v,l])=>'<option value="'+v+'"'+(tipo===v?" selected":"")+'>'+l+'</option>').join("")
+    +'</select>'
+    +'<label>Descrizione</label><textarea id="qe-testo" style="min-height:80px">'+testo+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","quests",id),{
+        testo:document.getElementById("qe-testo").value.trim(),
+        tipo:document.getElementById("qe-tipo").value,
+      });
+      toast("Quest aggiornata!");
+    }
+  );
+};
+
+/* ── NOTE DM ── */
+// Note statiche originali sempre presenti
+const STATIC_NOTEDM = [
+  {titolo:"Savid vs Davio",testo:"Le note a mano chiamano l'elfo 'Davio'; il PDF lo chiama 'Savid'. Da chiarire col DM."},
+  {titolo:"Tatiana vs Patrina Velikofna",testo:"Due donne diverse nella vita di Strahd. Non vanno confuse."},
+  {titolo:"Locanda Acqua Blu vs locanda di Danika/Urwin",testo:"Potrebbero essere due strutture diverse o un conflitto di trascrizione."},
+  {titolo:"Strahd regna dal 347 vs 346",testo:"Discrepanza minima, probabile errore di trascrizione."},
+  {titolo:"Giacomo",testo:"Indossa il Medaglione di Ravenkind ma non corrisponde a nessuno dei 5 PG."},
+  {titolo:"Eredità 'topino' di Haldir",testo:"Significato non chiaro dagli appunti."},
+  {titolo:"Visione specchio Casa Darst (Zel)",testo:"Si vede invecchiata e sola nella foresta. Potenziale profezia."},
+  {titolo:"'NEVA'",testo:"Nome o luogo? Da scoprire in gioco — non cercare su internet."},
+];
+window.addNoteDM=async()=>{
+  const titolo=document.getElementById("notedm-titolo").value.trim();
+  if(!titolo){ toast("Inserisci il titolo."); return; }
+  try{
+    await addDoc(collection(db,"campaigns","strahd","note-dm"),{
+      titolo, testo:document.getElementById("notedm-testo").value.trim(),
+      authorId:uid, createdAt:new Date()
+    });
+    ["notedm-titolo","notedm-testo"].forEach(id=>document.getElementById(id).value="");
+    toast("Nota salvata!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+function listenNoteDM(){
+  onSnapshot(query(collection(db,"campaigns","strahd","note-dm"),orderBy("createdAt","asc")),snap=>{
+    const c=document.getElementById("note-dm-lista"); if(!c) return;
+    const staticHTML=STATIC_NOTEDM.map(s=>
+      '<li><b>'+esc(s.titolo)+'</b> &mdash; '+esc(s.testo)+'</li>'
+    ).join("");
+    const dynHTML=snap.docs.map(ds=>{
+      const d=ds.data(),own=uid&&uid===d.authorId;
+      return '<li style="border-left-color:var(--crimson-bright)">'
+        +'<b>'+esc(d.titolo)+'</b>'+(d.testo?' &mdash; '+esc(d.testo):"")
+        +(own?'<button class="item-del" style="opacity:1;position:static;margin-left:8px" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465;</button>'
+            +'<button class="item-edit" style="opacity:1;position:static;margin-left:4px" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999;</button>':"")
+        +'</li>';
+    }).join("");
+    c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
+  },e=>console.error("NoteDM listener:",e));
+}
+window.deleteNoteDM=async id=>{
+  if(!confirm("Eliminare questa nota?")) return;
+  await deleteDoc(doc(db,"campaigns","strahd","note-dm",id)); toast("Nota eliminata.");
+};
+window.openNoteDMEdit=(id,titolo,testo)=>{
+  openModal("Modifica Nota",
+    '<label>Titolo</label><input id="ndm-titolo" value="'+titolo+'">'
+    +'<label>Descrizione</label><textarea id="ndm-testo" style="min-height:100px">'+testo+'</textarea>',
+    async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
+        titolo:document.getElementById("ndm-titolo").value.trim(),
+        testo:document.getElementById("ndm-testo").value.trim(),
+      });
+      toast("Nota aggiornata!");
+    }
+  );
+};
+
+/* ── ARCHIVIO SESSIONI CHIUSE (Problema 1) ──
+   Le note non vengono mai eliminate da Firestore.
+   Il problema era solo di visibilità: quando la sessione chiude,
+   listenNotes viene fermato e il div #notes-list viene svuotato.
+   Soluzione: listener separato sulle sessioni chiuse che mostra l'archivio.
+*/
+function listenArchivio(){
+  const q=query(collection(db,"sessions"),where("status","==","closed"),orderBy("closedAt","desc"));
+  onSnapshot(q,snap=>{
+    const c=document.getElementById("archivio-sessioni"); if(!c) return;
+    if(snap.empty){ c.innerHTML='<div class="empty-msg">Nessuna sessione archiviata.</div>'; return; }
+    c.innerHTML="";
+    snap.forEach(ds=>{
+      const s=ds.data();
+      const dateStr=s.createdAt?.toDate
+        ? s.createdAt.toDate().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric"})
+        : ds.id;
+      const wrap=document.createElement("div");
+      wrap.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--text-dim);border-radius:8px;margin-bottom:14px;overflow:hidden;";
+      wrap.innerHTML='<div style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:\'Cormorant Garamond\',serif;color:var(--text-muted);" onclick="toggleArchivio(this)">'
+        +'<span>&#128196; '+esc(dateStr)+'</span>'
+        +'<span style="font-size:13px;color:var(--text-dim)">&#9660; espandi</span>'
+        +'</div>'
+        +'<div class="arch-notes" style="display:none;padding:0 16px 12px" data-sid="'+ds.id+'"></div>';
+      c.appendChild(wrap);
+    });
+  },e=>console.error("Archivio listener:",e));
+}
+window.toggleArchivio=function(header){
+  const notesDiv=header.nextElementSibling;
+  const sid=notesDiv.dataset.sid;
+  if(notesDiv.style.display==="none"){
+    notesDiv.style.display="block";
+    header.querySelector("span:last-child").textContent="▲ chiudi";
+    if(!notesDiv.dataset.loaded){
+      notesDiv.dataset.loaded="1";
+      notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Caricamento note…</div>';
+      // Carica le note di questa sessione una tantum (getDocs, non onSnapshot)
+      getDocs(query(collection(db,"sessions",sid,"notes"),orderBy("timestamp","asc"))).then(snap=>{
+        if(snap.empty){ notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessuna nota per questa sessione.</div>'; return; }
+        notesDiv.innerHTML="";
+        snap.forEach(ds=>{
+          const n=ds.data();
+          const t=n.timestamp?.toDate?n.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):"";
+          const d=document.createElement("div");
+          d.style.cssText="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;";
+          d.innerHTML='<div style="font-size:15px;color:var(--text);margin-bottom:4px">'+esc(n.text)+'</div>'
+            +'<div style="display:flex;gap:10px;font-size:12px;color:var(--text-dim)">'
+            +'<span style="border:1px solid var(--crimson);color:var(--crimson-glow);padding:1px 7px;border-radius:10px">'+esc(n.tag||"generale")+'</span>'
+            +'<span>'+esc(n.authorNickname||"?")+'</span>'
+            +'<span>'+t+'</span></div>';
+          notesDiv.appendChild(d);
+        });
+      }).catch(e=>{ notesDiv.innerHTML='<div style="color:#c78f8f;font-size:14px">Errore caricamento: '+esc(e.message)+'</div>'; });
+    }
+  } else {
+    notesDiv.style.display="none";
+    header.querySelector("span:last-child").textContent="▼ espandi";
+  }
+};
 
 /* ── MODAL ── */
 function openModal(title,bodyHTML,saveFn){
@@ -1085,52 +1262,6 @@ window.closeEditModal=()=>document.getElementById("edit-overlay").classList.remo
 document.getElementById("edit-overlay").addEventListener("click",e=>{
   if(e.target===document.getElementById("edit-overlay")) closeEditModal();
 });
-
-/* ── NOTE DM ── */
-window.addNoteDM = async () => {
-  const titolo = document.getElementById("notedm-titolo").value.trim();
-  if (!titolo) { toast("Inserisci il titolo."); return; }
-  try {
-    await addDoc(collection(db, "campaigns", "strahd", "note-dm"), {
-      titolo,
-      testo: document.getElementById("notedm-testo").value.trim(),
-      authorId: uid,
-      createdAt: new Date()
-    });
-    ["notedm-titolo","notedm-testo"].forEach(id => document.getElementById(id).value = "");
-    toast("Nota salvata!");
-  } catch(e) { toast("Errore: " + e.message); console.error(e); }
-};
-
-function listenNoteDM() {
-  onSnapshot(
-    query(collection(db,"campaigns","strahd","note-dm"), orderBy("createdAt","asc")),
-    snap => {
-      const c = document.getElementById("note-dm-lista");
-      if (!c) return;
-      c.innerHTML = '<ul class="lore-list">'
-        + staticItems.map(([b,t]) =>
-            `<li><b>${esc(b)}</b> &mdash; ${esc(t)}</li>`
-          ).join("")
-        + snap.docs.map(ds => {
-            const d = ds.data();
-            const own = uid && uid === d.authorId;
-            return `<li style="border-left-color:var(--crimson-bright)">
-              <b>${esc(d.titolo)}</b>${d.testo ? " &mdash; " + esc(d.testo) : ""}
-              ${own ? `<button class="item-del" style="opacity:1;position:static;margin-left:8px"
-                onclick="deleteNoteDM('${ds.id}')">🗑</button>` : ""}
-            </li>`;
-          }).join("")
-        + '</ul>';
-    }
-  );
-}
-
-window.deleteNoteDM = async id => {
-  if (!confirm("Eliminare questa nota?")) return;
-  await deleteDoc(doc(db, "campaigns", "strahd", "note-dm", id));
-  toast("Nota eliminata.");
-};
 </script>
 </body>
 </html>
