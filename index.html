@@ -334,13 +334,13 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
     <div class="topnav-inner">
       <span class="brand">STRAHD ⛧</span>
       <a href="#indice">&#128211; Indice</a>
-      <a href="#sessione">&#127922; Sessione</a>
+      <a href="sessione.html">⚡ Sessione</a>
       <a href="#cronologia">&#9203; Cronologia</a>
       <a href="#personaggi">&#128101; Personaggi</a>
       <a href="#luoghi">&#127984; Luoghi</a>
       <a href="#profezie">&#128302; Profezie</a>
       <a href="#quest">&#128204; Quest</a>
-      <a href="#diario">&#128212; Diario</a>
+      <a href="sessione.html#diario">📚 Diario</a>
       <span class="nav-spacer"></span>
       <div class="nav-user" style="position:relative">
         <span id="nav-nickname" onclick="toggleUserMenu()" style="cursor:pointer;user-select:none;color:var(--gold);border-bottom:1px dashed var(--gold);padding-bottom:1px" title="Menu utente">⚔ <span id="nav-nick-text"></span> ▾</span>
@@ -372,13 +372,13 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       <div class="sec-head"><div class="seal">I</div><div><span class="eyebrow">Sezione 1</span><h2>&#128211; Indice</h2></div></div>
       <div class="divider"></div>
       <div class="index-grid">
-        <a class="index-card" href="#sessione"><span class="num">&#9889;</span><span><span class="label">&#127922; Sessione</span><span class="desc">Note condivise in tempo reale</span></span></a>
+        <a class="index-card" href="sessione.html"><span class="num">&#9889;</span><span><span class="label">&#127922; Sessione</span><span class="desc">Note condivise in tempo reale</span></span></a>
         <a class="index-card" href="#cronologia"><span class="num">II</span><span><span class="label">&#9203; Cronologia</span><span class="desc">Gli eventi atto per atto</span></span></a>
         <a class="index-card" href="#personaggi"><span class="num">III</span><span><span class="label">&#128101; Personaggi</span><span class="desc">PG e PNG: ruolo, stato, posizione</span></span></a>
         <a class="index-card" href="#luoghi"><span class="num">IV</span><span><span class="label">&#127984; Luoghi</span><span class="desc">Macro-aree, indizi, pericoli</span></span></a>
         <a class="index-card" href="#profezie"><span class="num">V</span><span><span class="label">&#128302; Profezie</span><span class="desc">Tarocchi, tesori, reliquie</span></span></a>
         <a class="index-card" href="#quest"><span class="num">VI</span><span><span class="label">&#128204; Quest</span><span class="desc">Missioni aperte e misteri</span></span></a>
-        <a class="index-card" href="#diario"><span class="num">VII</span><span><span class="label">&#128212; Diario</span><span class="desc">Archivio sessioni e note passate</span></span></a>      </div>
+        <a class="index-card" href="sessione.html#diario"><span class="num">VII</span><span><span class="label">&#128212; Diario</span><span class="desc">Archivio sessioni e note passate</span></span></a>      </div>
     </section>
 
     <!-- SESSIONE -->
@@ -992,14 +992,12 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved===true){
       document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
-      listenSession();
       listenNPCs();
       listenAtti();
       listenLuoghi();
       listenProfezie();
       listenQuest();
       listenNoteDM();
-      listenArchivio();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -1488,12 +1486,14 @@ window.openQuestEdit=(id,testo,tipo)=>{
 
 /* ── ARCHIVIO SESSIONI ── */
 function listenArchivio(){
-  const q=query(collection(db,"sessions"),where("status","==","closed"),orderBy("closedAt","desc"));
+  const q=query(collection(db,"sessions"),orderBy("createdAt","desc"));
   onSnapshot(q,snap=>{
     const c=document.getElementById("archivio-sessioni"); if(!c) return;
-    if(snap.empty){ c.innerHTML='<div class="empty-msg">Nessuna sessione archiviata.</div>'; return; }
+    // Filtro lato client: teniamo solo le sessioni chiuse
+    const closed=snap.docs.filter(ds=>ds.data().status==="closed");
+    if(!closed.length){ c.innerHTML='<div class="empty-msg">Nessuna sessione archiviata.</div>'; return; }
     c.innerHTML="";
-    snap.forEach(ds=>{
+    closed.forEach(ds=>{
       const s=ds.data();
       const dateStr=s.createdAt?.toDate
         ? s.createdAt.toDate().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric"})
@@ -1507,7 +1507,7 @@ function listenArchivio(){
         +'<div class="arch-notes" style="display:none;padding:0 16px 12px" data-sid="'+ds.id+'"></div>';
       c.appendChild(wrap);
     });
-  },e=>console.error("Archivio:",e));
+  },e=>{ console.error("Archivio:",e); });
 }
 
 window.toggleArchivio=function(header){
