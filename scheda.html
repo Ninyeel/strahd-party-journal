@@ -1,1 +1,697 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheda Personaggio — La Maledizione di Strahd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1a1a;--bg-panel:#221c1c;--bg-panel-alt:#272020;--bg-raised:#2a2222;
+  --text:#e0e0e0;--text-muted:#a89797;--text-dim:#7a6c6c;
+  --crimson:#7a0d12;--crimson-bright:#c41e3a;--crimson-glow:#ff2d44;
+  --gold:#b8924a;--border:#3a2a2a;--shadow:0 10px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:radial-gradient(ellipse 1200px 600px at 50% -10%,#2a1414 0%,transparent 60%),
+    radial-gradient(ellipse 900px 500px at 90% 100%,#1f1414 0%,transparent 55%),var(--bg);
+  color:var(--text);font-family:'EB Garamond',Georgia,serif;
+  font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--gold);}
 
+/* OVERLAY */
+#overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#overlay.hidden{display:none;}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--crimson-bright);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#overlay p{color:var(--text-dim);font-style:italic;font-size:16px;margin:0;}
+
+/* AUTH */
+#screen-auth{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;padding:32px 16px;}
+.auth-box{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:36px 32px;max-width:420px;width:100%;box-shadow:var(--shadow);}
+.auth-box h2{font-family:'Cormorant Garamond',serif;font-size:26px;margin:0 0 6px;color:#f1e6e6;text-align:center;}
+.auth-box p.sub{text-align:center;color:var(--text-dim);font-style:italic;font-size:15px;margin:0 0 28px;}
+.alert-err{background:rgba(122,13,18,.25);border:1px solid var(--crimson);border-radius:7px;padding:10px 16px;margin-bottom:12px;font-size:15px;color:#e09090;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);}
+.field input{background:#1a1414;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'EB Garamond',serif;font-size:16px;padding:10px 14px;width:100%;transition:border-color .15s;}
+.field input:focus{outline:none;border-color:var(--crimson-bright);}
+
+/* WAITING */
+#screen-waiting{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;}
+.waiting-box{text-align:center;background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:40px 32px;max-width:440px;}
+.waiting-box h2{font-family:'Cormorant Garamond',serif;font-size:24px;color:#f1e6e6;margin:0 0 12px;}
+.waiting-box p{color:var(--text-muted);font-size:16px;margin:0;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:.04em;padding:10px 18px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:background .15s,border-color .15s,color .15s;text-decoration:none;white-space:nowrap;}
+.btn-primary{background:var(--crimson);border-color:var(--crimson-bright);color:#f1e6e6;}
+.btn-primary:hover{background:var(--crimson-bright);}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-muted);}
+.btn-ghost:hover{border-color:var(--crimson);color:var(--text);background:rgba(122,13,18,.18);}
+.btn-google{background:#1a1414;border-color:var(--border);color:var(--text);width:100%;}
+.btn-google:hover{border-color:var(--gold);}
+.btn-danger{background:transparent;border-color:#5a2020;color:#c78f8f;}
+.btn-danger:hover{background:rgba(122,13,18,.3);border-color:var(--crimson-bright);}
+.btn-sm{font-size:13px;padding:5px 11px;}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(18,15,15,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--crimson);box-shadow:0 4px 18px rgba(0,0,0,.45);}
+.topnav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:thin;}
+.topnav-inner::-webkit-scrollbar{height:4px;}
+.topnav-inner::-webkit-scrollbar-thumb{background:var(--crimson);border-radius:4px;}
+.brand{font-family:'Cinzel Decorative',serif;font-size:13px;letter-spacing:.06em;color:var(--crimson-glow);white-space:nowrap;padding-right:14px;border-right:1px solid var(--border);margin-right:6px;flex-shrink:0;}
+.topnav a{flex-shrink:0;text-decoration:none;color:var(--text-muted);font-size:14px;padding:7px 10px;border-radius:5px;border:1px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s,background .15s;}
+.topnav a:hover{color:var(--text);border-color:var(--crimson);background:rgba(122,13,18,.25);}
+.topnav a.active{color:var(--text);border-color:var(--crimson-bright);background:rgba(122,13,18,.35);}
+.nav-spacer{flex:1;}
+.nav-user{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--border);}
+#user-menu{position:fixed;top:52px;right:16px;background:var(--bg-panel);border:1px solid var(--crimson-bright);border-radius:8px;min-width:200px;box-shadow:0 12px 32px rgba(0,0,0,.75);z-index:9000;overflow:hidden;}
+.user-menu-item{display:block;width:100%;background:transparent;border:none;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:10px 16px;text-align:left;cursor:pointer;transition:background .15s;}
+.user-menu-item:hover{background:rgba(122,13,18,.25);color:#f1e6e6;}
+
+/* LAYOUT SCHEDA */
+.page{max-width:1100px;margin:0 auto;padding:32px 18px 90px;}
+.sc-title-bar{text-align:center;padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px;}
+.sc-title-bar h1{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,3vw,28px);color:#f1e6e6;margin:0 0 6px;}
+.sc-title-bar .sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-dim);font-size:16px;}
+
+/* GRIGLIA SCHEDA */
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:700px){.sc-grid{grid-template-columns:1fr;}}
+.sc-full{grid-column:1/-1;}
+
+/* PANNELLI */
+.sc-panel{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:18px 20px;}
+.sc-panel-title{font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+/* CAMPI */
+.sc-field{margin-bottom:12px;}
+.sc-field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
+.sc-field input,.sc-field textarea,.sc-field select{
+  background:#0f0d0d;border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-family:'EB Garamond',serif;font-size:15px;
+  padding:8px 11px;width:100%;transition:border-color .15s;
+}
+.sc-field input:focus,.sc-field textarea:focus,.sc-field select:focus{outline:none;border-color:var(--gold);}
+.sc-field textarea{resize:vertical;min-height:64px;}
+
+/* CARATTERISTICHE */
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+@media(max-width:500px){.stats-grid{grid-template-columns:repeat(3,1fr);}}
+.stat-box{background:#0f0d0d;border:1px solid var(--border);border-radius:6px;text-align:center;padding:10px 4px 8px;}
+.stat-box label{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+.stat-box input{background:transparent;border:none;color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;width:100%;text-align:center;padding:0;}
+.stat-box input:focus{outline:none;}
+.stat-mod{font-size:13px;color:var(--text-dim);margin-top:4px;min-height:18px;font-family:'Cormorant Garamond',serif;}
+
+/* COMBATTIMENTO */
+.combat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:500px){.combat-grid{grid-template-columns:repeat(2,1fr);}}
+.combat-box{background:#0f0d0d;border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;}
+.combat-box label{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+.combat-box input{background:transparent;border:none;border-bottom:1px solid var(--border);color:#f1e6e6;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;width:100%;text-align:center;padding:2px 0;}
+.combat-box input:focus{outline:none;border-bottom-color:var(--gold);}
+.combat-box .calc{font-size:11px;color:var(--text-dim);margin-top:4px;min-height:16px;}
+
+/* HP BAR */
+.hp-bar-wrap{height:6px;background:#0f0d0d;border-radius:3px;margin-top:8px;overflow:hidden;}
+.hp-bar{height:100%;background:linear-gradient(90deg,var(--crimson),var(--crimson-bright));border-radius:3px;transition:width .3s;}
+
+/* COMPETENZE */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;}
+@media(max-width:500px){.skills-grid{grid-template-columns:1fr;}}
+.skill-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(58,42,42,.5);}
+.skill-row:last-child{border-bottom:none;}
+.skill-check{width:16px;height:16px;border:1px solid var(--border);border-radius:3px;background:#0f0d0d;cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none;transition:background .15s,border-color .15s;}
+.skill-check:checked{background:var(--gold);border-color:var(--gold);}
+.skill-check:focus{outline:none;border-color:var(--gold);}
+.skill-name{flex:1;font-size:14px;color:var(--text-muted);}
+.skill-attr{font-size:11px;color:var(--text-dim);width:28px;text-align:center;}
+.skill-val{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold);font-weight:700;width:32px;text-align:right;}
+
+/* MONETE */
+.coins-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+@media(max-width:500px){.coins-grid{grid-template-columns:repeat(3,1fr);}}
+.coin-box{background:#0f0d0d;border:1px solid var(--border);border-radius:6px;padding:8px 6px;text-align:center;}
+.coin-box label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.coin-box input{background:transparent;border:none;border-bottom:1px solid var(--border);font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;width:100%;text-align:center;padding:2px 0;}
+.coin-box input:focus{outline:none;border-bottom-color:var(--gold);}
+.coin-mr label{color:#b87333;} .coin-mr input{color:#b87333;}
+.coin-ma label{color:#c0c0c0;} .coin-ma input{color:#c0c0c0;}
+.coin-me label{color:#7ec8c8;} .coin-me input{color:#7ec8c8;}
+.coin-mo label{color:var(--gold);} .coin-mo input{color:var(--gold);}
+.coin-mp label{color:#e5e4e2;} .coin-mp input{color:#e5e4e2;}
+
+/* TIRI SALVEZZA MORTE */
+.death-saves{display:flex;gap:20px;font-size:14px;color:var(--text-muted);flex-wrap:wrap;}
+.death-saves span{display:flex;align-items:center;gap:6px;}
+.death-saves input{background:#0f0d0d;border:none;border-bottom:1px solid var(--border);color:var(--gold);width:32px;text-align:center;font-family:'Cormorant Garamond',serif;font-size:18px;padding:1px 0;}
+.death-saves input:focus{outline:none;border-bottom-color:var(--gold);}
+
+/* FOOTER SCHEDA */
+.sc-footer{position:sticky;bottom:0;background:rgba(18,15,15,.97);border-top:1px solid var(--crimson);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;backdrop-filter:blur(6px);}
+.sc-footer-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.saved-at{font-size:13px;color:var(--text-dim);font-style:italic;}
+
+/* TOAST */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1a1212;border:1px solid var(--crimson-bright);color:var(--text);border-radius:8px;padding:10px 20px;font-size:15px;z-index:8000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+/* NOTE PRIVATE */
+.private-banner{display:flex;align-items:center;gap:8px;background:rgba(122,13,18,.12);border:1px solid var(--crimson);border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:14px;color:var(--text-dim);}
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div class="spinner"></div>
+  <p>Attraversando la nebbia…</p>
+</div>
+
+<div id="screen-auth" style="display:none;">
+  <div class="auth-box">
+    <h2>La Maledizione di Strahd</h2>
+    <p class="sub">Accesso riservato al party</p>
+    <div id="auth-error" style="display:none;" class="alert-err"></div>
+    <button class="btn btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908C16.658 14.121 17.64 11.813 17.64 9.205z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Accedi con Google
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-dim);font-size:13px;">
+      <div style="flex:1;height:1px;background:var(--border)"></div>oppure con email<div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="nome@esempio.it"></div>
+    <div class="field"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-waiting" style="display:none;">
+  <div class="waiting-box">
+    <div style="font-size:36px;margin-bottom:12px">⛧</div>
+    <h2>In attesa di approvazione</h2>
+    <p>Attendi che Elisa ti approvi.</p>
+    <span style="color:var(--gold);font-style:italic;margin-top:10px;display:block" id="waiting-email"></span>
+    <div style="margin-top:20px"><button class="btn btn-danger btn-sm" onclick="logout()">Esci</button></div>
+  </div>
+</div>
+
+<div id="screen-app" style="display:none;">
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <span class="brand">STRAHD ⛧</span>
+      <a href="index.html">🏠 Home</a>
+      <a href="sessione.html">⚡ Sessione</a>
+      <a href="scheda.html" class="active">📋 Scheda</a>
+      <a href="incantesimi.html">📖 Incantesimi</a>
+      <a href="grimorio.html">📚 Grimorio</a>
+      <span class="nav-spacer"></span>
+      <div class="nav-user">
+        <span onclick="toggleUserMenu()" style="cursor:pointer;color:var(--gold);border-bottom:1px dashed var(--gold);padding-bottom:1px">⚔ <span id="nav-nick-text"></span> ▾</span>
+        <div id="user-menu" style="display:none;">
+          <button class="user-menu-item" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="sc-title-bar">
+      <h1>⛧ Scheda Personaggio</h1>
+      <div class="sub" id="sc-preview-sub">Compila i campi qui sotto</div>
+    </div>
+
+    <div class="sc-grid">
+
+      <!-- IDENTITÀ -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">Identità</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;flex-wrap:wrap;">
+          <div class="sc-field"><label>Nome Personaggio</label>
+            <input id="sc-nome" placeholder="es. Zel" oninput="updatePreview()">
+          </div>
+          <div class="sc-field"><label>Classe</label>
+            <input id="sc-classe" placeholder="es. Barbaro" oninput="updatePreview()">
+          </div>
+          <div class="sc-field"><label>Razza</label>
+            <input id="sc-razza" placeholder="es. Mezzorca" oninput="updatePreview()">
+          </div>
+          <div class="sc-field"><label>Livello</label>
+            <input id="sc-livello" type="number" min="1" max="20" placeholder="1" oninput="updatePreview();updateAllSkills()">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+          <div class="sc-field"><label>Background</label>
+            <input id="sc-background" placeholder="es. Soldato">
+          </div>
+          <div class="sc-field"><label>Allineamento</label>
+            <select id="sc-allineamento">
+              <option value="">— scegli —</option>
+              <option>Legale Buono</option><option>Neutrale Buono</option><option>Caotico Buono</option>
+              <option>Legale Neutrale</option><option>Neutrale Puro</option><option>Caotico Neutrale</option>
+              <option>Legale Malvagio</option><option>Neutrale Malvagio</option><option>Caotico Malvagio</option>
+            </select>
+          </div>
+          <div class="sc-field"><label>Punti Esperienza</label>
+            <input id="sc-pe" type="number" min="0" placeholder="0">
+          </div>
+          <div class="sc-field"><label>Bonus Competenza</label>
+            <input id="sc-prof" type="number" min="2" max="6" placeholder="+2" oninput="updateAllSkills()">
+          </div>
+        </div>
+      </div>
+
+      <!-- CARATTERISTICHE -->
+      <div class="sc-panel">
+        <div class="sc-panel-title">Caratteristiche</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <label>FOR</label>
+            <input id="sc-for" type="number" min="1" max="30" value="10" oninput="updateMod('for');updateAllSkills()">
+            <div class="stat-mod" id="mod-for">+0</div>
+          </div>
+          <div class="stat-box">
+            <label>DES</label>
+            <input id="sc-des" type="number" min="1" max="30" value="10" oninput="updateMod('des');updateAllSkills()">
+            <div class="stat-mod" id="mod-des">+0</div>
+          </div>
+          <div class="stat-box">
+            <label>COS</label>
+            <input id="sc-cos" type="number" min="1" max="30" value="10" oninput="updateMod('cos');updateAllSkills()">
+            <div class="stat-mod" id="mod-cos">+0</div>
+          </div>
+          <div class="stat-box">
+            <label>INT</label>
+            <input id="sc-int" type="number" min="1" max="30" value="10" oninput="updateMod('int');updateAllSkills()">
+            <div class="stat-mod" id="mod-int">+0</div>
+          </div>
+          <div class="stat-box">
+            <label>SAG</label>
+            <input id="sc-sag" type="number" min="1" max="30" value="10" oninput="updateMod('sag');updateAllSkills()">
+            <div class="stat-mod" id="mod-sag">+0</div>
+          </div>
+          <div class="stat-box">
+            <label>CAR</label>
+            <input id="sc-car" type="number" min="1" max="30" value="10" oninput="updateMod('car');updateAllSkills()">
+            <div class="stat-mod" id="mod-car">+0</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;">
+          <div class="sc-field" style="flex:1;margin:0"><label>Ispirazione</label>
+            <select id="sc-ispirazione">
+              <option value="0">No</option><option value="1">Sì ✦</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMBATTIMENTO -->
+      <div class="sc-panel">
+        <div class="sc-panel-title">Combattimento</div>
+        <div class="combat-grid">
+          <div class="combat-box">
+            <label>PF Massimi</label>
+            <input id="sc-pf-max" type="number" min="0" placeholder="0" oninput="updateHPBar()">
+          </div>
+          <div class="combat-box">
+            <label>PF Attuali</label>
+            <input id="sc-pf-att" type="number" placeholder="0" oninput="updateHPBar()">
+          </div>
+          <div class="combat-box">
+            <label>PF Temporanei</label>
+            <input id="sc-pf-tmp" type="number" min="0" placeholder="0">
+          </div>
+          <div class="combat-box">
+            <label>CA</label>
+            <input id="sc-ca" type="number" placeholder="10">
+            <div class="calc" id="ca-calc"></div>
+          </div>
+          <div class="combat-box">
+            <label>Iniziativa</label>
+            <input id="sc-ini" type="number" placeholder="+0">
+            <div class="calc" id="ini-calc"></div>
+          </div>
+          <div class="combat-box">
+            <label>Velocità (ft)</label>
+            <input id="sc-vel" type="number" min="0" placeholder="30">
+          </div>
+        </div>
+        <div class="hp-bar-wrap"><div class="hp-bar" id="hp-bar" style="width:100%"></div></div>
+        <div style="font-size:12px;color:var(--text-dim);text-align:right;margin-top:3px" id="hp-label"></div>
+        <div style="margin-top:14px">
+          <div class="sc-field"><label>Dadi Vita</label>
+            <input id="sc-dv" placeholder="es. 5d12">
+          </div>
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px">Tiri Salvezza sulla Morte</div>
+          <div class="death-saves">
+            <span>✓ Successi: <input id="sc-ds-ok" type="number" min="0" max="3"></span>
+            <span>✗ Fallimenti: <input id="sc-ds-fail" type="number" min="0" max="3" style="color:#c78f8f"></span>
+          </div>
+        </div>
+        <div style="margin-top:14px;background:#0f0d0d;border:1px solid var(--border);border-radius:6px;padding:10px 14px;">
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">Percezione Passiva</div>
+          <div id="perc-passiva" style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold);font-weight:700;text-align:center">10</div>
+          <div style="font-size:11px;color:var(--text-dim);text-align:center">10 + modificatore Percezione</div>
+        </div>
+      </div>
+
+      <!-- COMPETENZE NELLE ABILITÀ -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">Competenze nelle Abilità</div>
+        <div class="skills-grid" id="skills-grid">
+          <!-- popolato da JS -->
+        </div>
+      </div>
+
+      <!-- MONETE -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">Monete</div>
+        <div class="coins-grid">
+          <div class="coin-box coin-mr"><label>MR — Rame</label><input id="sc-mr" type="number" min="0" placeholder="0"></div>
+          <div class="coin-box coin-ma"><label>MA — Argento</label><input id="sc-ma" type="number" min="0" placeholder="0"></div>
+          <div class="coin-box coin-me"><label>ME — Electrum</label><input id="sc-me" type="number" min="0" placeholder="0"></div>
+          <div class="coin-box coin-mo"><label>MO — Oro</label><input id="sc-mo" type="number" min="0" placeholder="0"></div>
+          <div class="coin-box coin-mp"><label>MP — Platino</label><input id="sc-mp" type="number" min="0" placeholder="0"></div>
+        </div>
+      </div>
+
+      <!-- TRATTI -->
+      <div class="sc-panel">
+        <div class="sc-panel-title">Tratti Personaggio</div>
+        <div class="sc-field"><label>Tratti di personalità</label>
+          <textarea id="sc-tratti" placeholder="Come si comporta il tuo PG?"></textarea>
+        </div>
+        <div class="sc-field"><label>Ideali</label>
+          <textarea id="sc-ideali" placeholder="Cosa crede fermamente?" style="min-height:48px"></textarea>
+        </div>
+        <div class="sc-field"><label>Legami</label>
+          <textarea id="sc-legami" placeholder="A cosa o a chi è legato?" style="min-height:48px"></textarea>
+        </div>
+        <div class="sc-field"><label>Difetti</label>
+          <textarea id="sc-difetti" placeholder="Qual è il suo tallone d'Achille?" style="min-height:48px"></textarea>
+        </div>
+      </div>
+
+      <!-- COMPETENZE E LINGUE -->
+      <div class="sc-panel">
+        <div class="sc-panel-title">Competenze & Lingue</div>
+        <div class="sc-field"><label>Competenze in armature / armi / strumenti</label>
+          <textarea id="sc-competenze" style="min-height:64px" placeholder="Armature leggere, spade corte…"></textarea>
+        </div>
+        <div class="sc-field"><label>Lingue</label>
+          <textarea id="sc-lingue" style="min-height:48px" placeholder="Comune, Orchesco…"></textarea>
+        </div>
+        <div class="sc-field"><label>Caratteristiche speciali / Abilità di classe</label>
+          <textarea id="sc-speciali" style="min-height:80px" placeholder="Rabbia, Difesa Senza Armatura…"></textarea>
+        </div>
+      </div>
+
+      <!-- EQUIPAGGIAMENTO -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">Equipaggiamento & Inventario</div>
+        <div class="sc-field">
+          <textarea id="sc-inventario" style="min-height:100px" placeholder="Elenca armi, armature, oggetti magici, kit…"></textarea>
+        </div>
+      </div>
+
+      <!-- NOTE PRIVATE -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">🔒 Note Private</div>
+        <div class="private-banner">
+          🔒 Queste note sono visibili solo a te — nessun altro giocatore può leggerle.
+        </div>
+        <div class="sc-field">
+          <textarea id="sc-note" style="min-height:90px" placeholder="Segreti, obiettivi personali, retroscena…"></textarea>
+        </div>
+      </div>
+
+    </div><!-- fine sc-grid -->
+  </div><!-- fine page -->
+
+  <!-- FOOTER FISSO CON SALVA -->
+  <div class="sc-footer">
+    <div class="sc-footer-inner">
+      <span class="saved-at" id="saved-at"></span>
+      <button class="btn btn-primary" onclick="saveScheda()">⛧ Salva Scheda</button>
+    </div>
+  </div>
+
+</div><!-- fine screen-app -->
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { auth, db } from "./js/firebase-init.js";
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+         signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { doc, getDoc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const gp = new GoogleAuthProvider();
+let uid = "";
+
+/* ── ABILITÀ: definizione completa ── */
+const SKILLS = [
+  { id:"acrobazia",         label:"Acrobazia",          attr:"des" },
+  { id:"addestrare",        label:"Addestrare Animali", attr:"sag" },
+  { id:"arcano",            label:"Arcano",              attr:"int" },
+  { id:"atletica",          label:"Atletica",            attr:"for" },
+  { id:"furtivita",         label:"Furtività",           attr:"des" },
+  { id:"indagare",          label:"Indagare",            attr:"int" },
+  { id:"inganno",           label:"Inganno",             attr:"car" },
+  { id:"intimidire",        label:"Intimidire",          attr:"car" },
+  { id:"intrattenere",      label:"Intrattenere",        attr:"car" },
+  { id:"intuizione",        label:"Intuizione",          attr:"sag" },
+  { id:"medicina",          label:"Medicina",            attr:"sag" },
+  { id:"natura",            label:"Natura",              attr:"int" },
+  { id:"percezione",        label:"Percezione",          attr:"sag" },
+  { id:"persuasione",       label:"Persuasione",         attr:"car" },
+  { id:"rapidita",          label:"Rapidità di Mano",   attr:"des" },
+  { id:"religione",         label:"Religione",           attr:"int" },
+  { id:"sopravvivenza",     label:"Sopravvivenza",       attr:"sag" },
+  { id:"storia",            label:"Storia",              attr:"int" },
+];
+
+/* ── UI helpers ── */
+function hideOverlay(){ document.getElementById("overlay").classList.add("hidden"); }
+function showScreen(id){
+  ["screen-auth","screen-waiting","screen-app"].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display="none";
+  });
+  const t=document.getElementById(id);
+  if(t) t.style.display=(id==="screen-app")?"block":"flex";
+}
+function toast(msg,dur=2800){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),dur);
+}
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function showErr(msg){ const e=document.getElementById("auth-error"); e.textContent=msg; e.style.display="block"; }
+function hideErr(){ document.getElementById("auth-error").style.display="none"; }
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async user=>{
+  if(!user){ hideOverlay(); showScreen("screen-auth"); return; }
+  try{
+    const snap=await getDoc(doc(db,"users",user.uid));
+    const data=snap.data()||{};
+    uid=user.uid;
+    if(data.approved===true){
+      document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
+      showScreen("screen-app");
+      buildSkillsGrid();
+      await loadScheda();
+    } else {
+      document.getElementById("waiting-email").textContent=user.email;
+      showScreen("screen-waiting");
+    }
+  } catch(e){ console.error(e); toast("Errore: "+e.message); }
+  finally{ hideOverlay(); }
+});
+
+window.loginGoogle=async()=>{ hideErr(); try{ await signInWithPopup(auth,gp); } catch(e){ showErr(e.message); } };
+window.loginEmail=async()=>{
+  hideErr();
+  const e=document.getElementById("auth-email").value.trim();
+  const p=document.getElementById("auth-password").value;
+  if(!e||!p){ showErr("Inserisci email e password."); return; }
+  try{ await signInWithEmailAndPassword(auth,e,p); }
+  catch(er){ showErr(er.code==="auth/invalid-credential"?"Email o password errati.":er.message); }
+};
+window.registerEmail=async()=>{
+  hideErr();
+  const e=document.getElementById("auth-email").value.trim();
+  const p=document.getElementById("auth-password").value;
+  if(!e||!p){ showErr("Inserisci email e password."); return; }
+  if(p.length<6){ showErr("Password minimo 6 caratteri."); return; }
+  try{ await createUserWithEmailAndPassword(auth,e,p); toast("Registrazione OK!"); }
+  catch(er){ showErr(er.message); }
+};
+window.logout=async()=>{ await signOut(auth); showScreen("screen-auth"); };
+window.toggleUserMenu=()=>{
+  const m=document.getElementById("user-menu");
+  m.style.display=m.style.display==="none"?"block":"none";
+};
+document.addEventListener("click",e=>{
+  const nav=document.querySelector(".nav-user");
+  if(nav&&!nav.contains(e.target)){
+    const m=document.getElementById("user-menu");
+    if(m) m.style.display="none";
+  }
+});
+
+/* ── GRIGLIA ABILITÀ ── */
+function buildSkillsGrid(){
+  const grid=document.getElementById("skills-grid");
+  grid.innerHTML=SKILLS.map(sk=>`
+    <div class="skill-row">
+      <input type="checkbox" class="skill-check" id="chk-${sk.id}" onchange="updateAllSkills()">
+      <span class="skill-name">${sk.label}</span>
+      <span class="skill-attr">${sk.attr.toUpperCase()}</span>
+      <span class="skill-val" id="val-${sk.id}">+0</span>
+    </div>
+  `).join("");
+}
+
+/* ── CALCOLI ── */
+function getMod(stat){
+  const val=parseInt(document.getElementById("sc-"+stat)?.value)||10;
+  return Math.floor((val-10)/2);
+}
+function getProfBonus(){
+  return parseInt(document.getElementById("sc-prof")?.value)||2;
+}
+
+window.updateMod=(stat)=>{
+  const mod=getMod(stat);
+  const el=document.getElementById("mod-"+stat);
+  if(el){
+    el.textContent=(mod>=0?"+":"")+mod;
+    el.style.color=mod>0?"var(--gold)":mod<0?"#c78f8f":"var(--text-dim)";
+  }
+  // Aggiorna iniziativa se cambia DES
+  if(stat==="des"){
+    const ini=document.getElementById("sc-ini");
+    // Solo suggerisci se il campo è vuoto o uguale al vecchio mod
+    const el2=document.getElementById("ini-calc");
+    if(el2) el2.textContent="da DES: "+(mod>=0?"+":"")+mod;
+  }
+};
+
+window.updateAllSkills=()=>{
+  const prof=getProfBonus();
+  SKILLS.forEach(sk=>{
+    const mod=getMod(sk.attr);
+    const comp=document.getElementById("chk-"+sk.id)?.checked||false;
+    const tot=mod+(comp?prof:0);
+    const el=document.getElementById("val-"+sk.id);
+    if(el){
+      el.textContent=(tot>=0?"+":"")+tot;
+      el.style.color=comp?"var(--gold)":"var(--text-dim)";
+    }
+    // Aggiorna percezione passiva quando cambia Percezione
+    if(sk.id==="percezione"){
+      const pp=10+tot;
+      const el2=document.getElementById("perc-passiva");
+      if(el2) el2.textContent=pp;
+    }
+  });
+};
+
+window.updateHPBar=()=>{
+  const max=parseInt(document.getElementById("sc-pf-max")?.value)||0;
+  const att=parseInt(document.getElementById("sc-pf-att")?.value)||0;
+  const pct=max>0?Math.min(100,Math.round(att/max*100)):100;
+  const bar=document.getElementById("hp-bar");
+  const lbl=document.getElementById("hp-label");
+  if(bar){
+    bar.style.width=pct+"%";
+    bar.style.background=pct>50
+      ?"linear-gradient(90deg,var(--crimson),var(--crimson-bright))"
+      :pct>25?"linear-gradient(90deg,#b8601a,#e07820)"
+      :"linear-gradient(90deg,#6a0000,#c41e3a)";
+  }
+  if(lbl) lbl.textContent=max>0?att+" / "+max+" PF ("+pct+"%)":"";
+};
+
+window.updatePreview=()=>{
+  const nome=document.getElementById("sc-nome")?.value||"Avventuriero";
+  const cl=document.getElementById("sc-classe")?.value||"";
+  const ra=document.getElementById("sc-razza")?.value||"";
+  const lv=document.getElementById("sc-livello")?.value||"";
+  document.getElementById("sc-preview-sub").textContent=
+    [nome,ra,cl,lv?"Livello "+lv:""].filter(Boolean).join(" · ");
+};
+
+/* ── CAMPI DA SALVARE / CARICARE ── */
+const FIELDS = [
+  "sc-nome","sc-classe","sc-razza","sc-livello","sc-background","sc-allineamento","sc-pe","sc-prof",
+  "sc-for","sc-des","sc-cos","sc-int","sc-sag","sc-car",
+  "sc-pf-max","sc-pf-att","sc-pf-tmp","sc-ca","sc-ini","sc-vel","sc-dv","sc-ds-ok","sc-ds-fail",
+  "sc-ispirazione","sc-tratti","sc-ideali","sc-legami","sc-difetti",
+  "sc-competenze","sc-lingue","sc-speciali","sc-inventario","sc-note",
+  "sc-mr","sc-ma","sc-me","sc-mo","sc-mp"
+];
+
+async function loadScheda(){
+  try{
+    const snap=await getDoc(doc(db,"users",uid,"scheda","main"));
+    if(!snap.exists()) return;
+    const d=snap.data();
+    // Campi semplici
+    FIELDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el&&d[id]!=null) el.value=d[id];
+    });
+    // Competenze nelle abilità (checkbox)
+    SKILLS.forEach(sk=>{
+      const chk=document.getElementById("chk-"+sk.id);
+      if(chk&&d["chk-"+sk.id]!=null) chk.checked=d["chk-"+sk.id];
+    });
+    // Ricalcola tutto
+    ["for","des","cos","int","sag","car"].forEach(updateMod);
+    updateAllSkills();
+    updateHPBar();
+    updatePreview();
+    if(d.updatedAt?.toDate){
+      document.getElementById("saved-at").textContent=
+        "Ultimo salvataggio: "+d.updatedAt.toDate().toLocaleString("it-IT");
+    }
+  } catch(e){ console.error(e); toast("Errore caricamento scheda."); }
+}
+
+window.saveScheda=async()=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  const data={ updatedAt: new Date() };
+  // Campi semplici
+  FIELDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) data[id]=el.value.trim ? el.value.trim() : el.value;
+  });
+  // Checkbox competenze
+  SKILLS.forEach(sk=>{
+    const chk=document.getElementById("chk-"+sk.id);
+    if(chk) data["chk-"+sk.id]=chk.checked;
+  });
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","main"),data,{merge:true});
+    const now=new Date().toLocaleTimeString("it-IT");
+    document.getElementById("saved-at").textContent="Salvato alle "+now;
+    toast("⛧ Scheda salvata!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+</script>
+</body>
+</html>
