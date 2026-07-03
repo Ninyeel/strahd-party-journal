@@ -562,7 +562,11 @@ window.renderSpells=()=>{
   // Raggruppa per livello
   const byLevel={};
   data.forEach(s=>{ const l=s.livello??1; if(!byLevel[l]) byLevel[l]=[]; byLevel[l].push(s); });
-
+  // Ordine alfabetico per nome all'interno di ogni livello
+  Object.keys(byLevel).forEach(lv=>{
+    byLevel[lv].sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
+  });
+  
   let html='<div class="spell-grid">';
   Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
     const label=+lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
