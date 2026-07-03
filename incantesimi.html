@@ -252,8 +252,15 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
     </div>
 
     <!-- FORM AGGIUNGI INCANTESIMO -->
+    <div style="background:rgba(138,127,209,.08);border:1px solid var(--arcane-dark);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--arcane-glow)">📚 Vuoi aggiungere un incantesimo?</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:2px">Il flusso consigliato è: cerca nel Grimorio condiviso → clicca "+ ai miei incantesimi".</div>
+      </div>
+      <a href="grimorio.html" class="btn btn-arcane btn-sm">Apri il Grimorio →</a>
+    </div>
     <details class="add-panel" id="add-details">
-      <summary>Aggiungi Incantesimo</summary>
+      <summary>Aggiungi Incantesimo Manualmente</summary>
       <div class="add-form-grid">
         <div class="f-field"><label>Nome *</label><input id="f-nome" placeholder="es. Dardo Incantato"></div>
         <div class="f-field"><label>Livello (0=trucchetto)</label><input id="f-livello" type="number" min="0" max="9" value="1"></div>
