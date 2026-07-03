@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incantesimi — La Maledizione di Strahd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a1a1a;--bg-panel:#221c1c;--bg-panel-alt:#272020;--bg-raised:#2a2222;
+  --text:#e0e0e0;--text-muted:#a89797;--text-dim:#7a6c6c;
+  --crimson:#7a0d12;--crimson-bright:#c41e3a;--crimson-glow:#ff2d44;
+  --gold:#b8924a;--border:#3a2a2a;--shadow:0 10px 30px rgba(0,0,0,.5);
+  --arcane:#8a7fd1;--arcane-dark:#3a3060;--arcane-glow:#c0b8f0;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:radial-gradient(ellipse 1200px 600px at 50% -10%,#1a1426 0%,transparent 60%),
+    radial-gradient(ellipse 900px 500px at 90% 100%,#14141f 0%,transparent 55%),var(--bg);
+  color:var(--text);font-family:'EB Garamond',Georgia,serif;
+  font-size:18px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--gold);}
+
+/* OVERLAY */
+#overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#overlay.hidden{display:none;}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--arcane);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#overlay p{color:var(--text-dim);font-style:italic;font-size:16px;margin:0;}
+
+/* AUTH */
+#screen-auth{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;padding:32px 16px;}
+.auth-box{background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:36px 32px;max-width:420px;width:100%;box-shadow:var(--shadow);}
+.auth-box h2{font-family:'Cormorant Garamond',serif;font-size:26px;margin:0 0 6px;color:#f1e6e6;text-align:center;}
+.auth-box p.sub{text-align:center;color:var(--text-dim);font-style:italic;font-size:15px;margin:0 0 28px;}
+.alert-err{background:rgba(122,13,18,.25);border:1px solid var(--crimson);border-radius:7px;padding:10px 16px;margin-bottom:12px;font-size:15px;color:#e09090;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.field label{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);}
+.field input{background:#1a1414;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'EB Garamond',serif;font-size:16px;padding:10px 14px;width:100%;transition:border-color .15s;}
+.field input:focus{outline:none;border-color:var(--arcane);}
+
+/* WAITING */
+#screen-waiting{min-height:100vh;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;}
+.waiting-box{text-align:center;background:var(--bg-panel);border:1px solid var(--border);border-radius:12px;padding:40px 32px;max-width:440px;}
+.waiting-box h2{font-family:'Cormorant Garamond',serif;font-size:24px;color:#f1e6e6;margin:0 0 12px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'EB Garamond',serif;font-size:16px;letter-spacing:.04em;padding:10px 18px;border-radius:6px;border:1px solid var(--border);cursor:pointer;transition:background .15s,border-color .15s,color .15s;text-decoration:none;white-space:nowrap;background:transparent;}
+.btn-primary{background:var(--crimson);border-color:var(--crimson-bright);color:#f1e6e6;}
+.btn-primary:hover{background:var(--crimson-bright);}
+.btn-arcane{background:#2a2460;border-color:var(--arcane);color:var(--arcane-glow);}
+.btn-arcane:hover{background:#3a3480;}
+.btn-ghost{border-color:var(--border);color:var(--text-muted);}
+.btn-ghost:hover{border-color:var(--crimson);color:var(--text);background:rgba(122,13,18,.18);}
+.btn-google{background:#1a1414;border-color:var(--border);color:var(--text);width:100%;}
+.btn-google:hover{border-color:var(--gold);}
+.btn-danger{border-color:#5a2020;color:#c78f8f;}
+.btn-danger:hover{background:rgba(122,13,18,.3);border-color:var(--crimson-bright);}
+.btn-gold{border-color:var(--gold);color:var(--gold);}
+.btn-gold:hover{background:rgba(184,146,74,.15);}
+.btn-sm{font-size:13px;padding:5px 11px;}
+.btn-xs{font-size:12px;padding:3px 8px;}
+
+/* NAV */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(12,10,18,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--arcane-dark);box-shadow:0 4px 18px rgba(0,0,0,.45);}
+.topnav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:thin;}
+.topnav-inner::-webkit-scrollbar{height:4px;}
+.topnav-inner::-webkit-scrollbar-thumb{background:var(--arcane);border-radius:4px;}
+.brand{font-family:'Cinzel Decorative',serif;font-size:13px;letter-spacing:.06em;color:var(--arcane-glow);white-space:nowrap;padding-right:14px;border-right:1px solid var(--border);margin-right:6px;flex-shrink:0;}
+.topnav a{flex-shrink:0;text-decoration:none;color:var(--text-muted);font-size:14px;padding:7px 10px;border-radius:5px;border:1px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s,background .15s;}
+.topnav a:hover{color:var(--text);border-color:var(--arcane);background:rgba(138,127,209,.15);}
+.topnav a.active{color:var(--arcane-glow);border-color:var(--arcane);background:rgba(138,127,209,.2);}
+.nav-spacer{flex:1;}
+.nav-user{flex-shrink:0;display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--border);}
+#user-menu{position:fixed;top:52px;right:16px;background:var(--bg-panel);border:1px solid var(--arcane);border-radius:8px;min-width:200px;box-shadow:0 12px 32px rgba(0,0,0,.75);z-index:9000;overflow:hidden;}
+.user-menu-item{display:block;width:100%;background:transparent;border:none;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:10px 16px;text-align:left;cursor:pointer;transition:background .15s;}
+.user-menu-item:hover{background:rgba(138,127,209,.2);color:#f1e6e6;}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:28px 18px 100px;}
+
+/* TITLE BAR */
+.title-bar{text-align:center;padding:20px 0 22px;border-bottom:1px solid var(--arcane-dark);margin-bottom:28px;}
+.title-bar h1{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,3vw,26px);color:var(--arcane-glow);margin:0 0 4px;text-shadow:0 0 18px rgba(138,127,209,.3);}
+.title-bar .sub{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-dim);font-size:16px;}
+
+/* SLOT INCANTESIMO */
+.slots-panel{background:#181220;border:2px solid var(--arcane-dark);border-radius:8px;padding:18px 20px;margin-bottom:24px;}
+.slots-title{font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.18em;color:var(--arcane);text-transform:uppercase;margin:0 0 14px;}
+.slots-grid{display:flex;gap:10px;flex-wrap:wrap;}
+.slot-col{text-align:center;min-width:60px;}
+.slot-col label{display:block;font-size:10px;letter-spacing:.1em;color:var(--arcane);text-transform:uppercase;margin-bottom:6px;}
+.slot-pips{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.pip-row{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;}
+.pip{width:14px;height:14px;border-radius:50%;border:1px solid var(--arcane);background:transparent;cursor:pointer;transition:background .15s;flex-shrink:0;}
+.pip.used{background:transparent;border-color:var(--arcane-dark);}
+.pip.avail{background:var(--arcane);}
+.slot-counter{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--text-dim);margin-top:4px;}
+.slots-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
+.rest-info{font-size:13px;color:var(--text-dim);font-style:italic;}
+
+/* MAX SLOT PER LIVELLO (PHB) */
+/* usato solo per i pallini — l'utente può modificare il massimo */
+.slot-max-row{display:flex;gap:6px;align-items:center;margin-top:8px;}
+.slot-max-row label{font-size:11px;color:var(--text-dim);white-space:nowrap;}
+.slot-max-row input{background:#0f0d0d;border:1px solid var(--arcane-dark);border-radius:3px;color:var(--arcane-glow);font-family:'Cormorant Garamond',serif;font-size:14px;width:38px;text-align:center;padding:3px 0;}
+.slot-max-row input:focus{outline:none;border-color:var(--arcane);}
+
+/* FILTRI */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+.filter-bar input,.filter-bar select{background:#0f0d0d;border:1px solid var(--arcane-dark);border-radius:5px;color:var(--text);font-family:'EB Garamond',serif;font-size:14px;padding:7px 11px;transition:border-color .15s;}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--arcane);}
+.filter-bar input{flex:1;min-width:160px;}
+.filter-count{font-size:13px;color:var(--text-dim);margin-left:auto;white-space:nowrap;}
+
+/* GRIGLIA SPELL */
+.spell-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.level-header{grid-column:1/-1;font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.18em;color:var(--arcane);text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--arcane-dark);margin-top:8px;}
+.level-header:first-child{margin-top:0;}
+
+/* SPELL CARD */
+.sp-card{background:#181220;border:1px solid var(--arcane-dark);border-radius:7px;padding:14px 16px;position:relative;transition:border-color .15s,box-shadow .15s;}
+.sp-card:hover{border-color:var(--arcane);box-shadow:0 0 12px rgba(138,127,209,.12);}
+.sp-card.preparato{border-left:3px solid var(--arcane);}
+.sp-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.sp-card-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:#f1e6e6;font-weight:600;line-height:1.2;}
+.sp-card-level{font-family:'Cinzel Decorative',serif;font-size:10px;color:var(--arcane);white-space:nowrap;margin-top:2px;}
+.sp-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.badge{display:inline-block;font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid;}
+.badge-conc{border-color:#d8b65a;color:#d8b65a;}
+.badge-rit{border-color:#4fa86e;color:#4fa86e;}
+.badge-prep{border-color:var(--arcane);color:var(--arcane-glow);}
+.sp-meta{font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:8px;}
+.sp-meta span{display:inline-block;margin-right:8px;}
+.sp-desc{font-size:13px;color:var(--text-muted);line-height:1.5;max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.sp-desc.open{max-height:600px;}
+.sp-upcast{font-size:12px;color:var(--arcane);font-style:italic;margin-top:6px;padding-top:6px;border-top:1px solid var(--arcane-dark);}
+.sp-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.prep-label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-dim);cursor:pointer;margin-left:auto;}
+.prep-label input[type=checkbox]{width:14px;height:14px;accent-color:var(--arcane);cursor:pointer;}
+
+/* FORM AGGIUNGI */
+.add-panel{background:#181220;border:1px dashed var(--arcane-dark);border-radius:8px;padding:18px 20px;margin-bottom:24px;}
+.add-panel summary{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--arcane-glow);cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:8px;}
+.add-panel summary::before{content:"✦";color:var(--arcane);}
+.add-panel summary::-webkit-details-marker{display:none;}
+.add-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:16px;}
+.add-form-grid2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:10px;}
+.f-field label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
+.f-field input,.f-field select,.f-field textarea{background:#0f0d0d;border:1px solid var(--arcane-dark);border-radius:4px;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:8px 10px;width:100%;transition:border-color .15s;}
+.f-field input:focus,.f-field select:focus,.f-field textarea:focus{outline:none;border-color:var(--arcane);}
+.f-field textarea{resize:vertical;min-height:70px;}
+.checkrow{display:flex;gap:18px;margin-top:10px;font-size:14px;color:var(--text-muted);flex-wrap:wrap;}
+.checkrow label{display:flex;align-items:center;gap:5px;cursor:pointer;}
+.checkrow input[type=checkbox]{accent-color:var(--arcane);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(10,8,8,.85);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#1a1428;border:1px solid var(--arcane);border-radius:12px;padding:28px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+.modal-box h3{font-family:'Cormorant Garamond',serif;font-size:22px;color:#f1e6e6;margin:0 0 18px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.modal-box label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);display:block;margin-top:12px;}
+.modal-box input,.modal-box select,.modal-box textarea{width:100%;background:#0f0d0d;border:1px solid var(--arcane-dark);border-radius:4px;color:var(--text);font-family:'EB Garamond',serif;font-size:15px;padding:9px 12px;margin-top:5px;transition:border-color .15s;}
+.modal-box input:focus,.modal-box select:focus,.modal-box textarea:focus{outline:none;border-color:var(--arcane);}
+.modal-box textarea{resize:vertical;min-height:80px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1428;border:1px solid var(--arcane);color:var(--text);border-radius:8px;padding:10px 20px;font-size:15px;z-index:8000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;padding:30px 10px 10px;border-top:1px solid var(--arcane-dark);}
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div class="spinner"></div>
+  <p>Consultando il libro degli incantesimi…</p>
+</div>
+
+<div id="screen-auth" style="display:none;">
+  <div class="auth-box">
+    <h2>La Maledizione di Strahd</h2>
+    <p class="sub">Accesso riservato al party</p>
+    <div id="auth-error" style="display:none;" class="alert-err"></div>
+    <button class="btn btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908C16.658 14.121 17.64 11.813 17.64 9.205z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Accedi con Google
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-dim);font-size:13px;">
+      <div style="flex:1;height:1px;background:var(--border)"></div>oppure con email<div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="nome@esempio.it"></div>
+    <div class="field"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-waiting" style="display:none;">
+  <div class="waiting-box">
+    <div style="font-size:36px;margin-bottom:12px">✦</div>
+    <h2>In attesa di approvazione</h2>
+    <p>Attendi che Elisa ti approvi.</p>
+    <span style="color:var(--gold);font-style:italic;margin-top:10px;display:block" id="waiting-email"></span>
+    <div style="margin-top:20px"><button class="btn btn-danger btn-sm" onclick="logout()">Esci</button></div>
+  </div>
+</div>
+
+<div id="screen-app" style="display:none;">
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <span class="brand">STRAHD ⛧</span>
+      <a href="index.html">🏠 Home</a>
+      <a href="sessione.html">⚡ Sessione</a>
+      <a href="scheda.html">📋 Scheda</a>
+      <a href="incantesimi.html" class="active">📖 Incantesimi</a>
+      <a href="grimorio.html">📚 Grimorio</a>
+      <span class="nav-spacer"></span>
+      <div class="nav-user">
+        <span onclick="toggleUserMenu()" style="cursor:pointer;color:var(--arcane-glow);border-bottom:1px dashed var(--arcane);padding-bottom:1px">✦ <span id="nav-nick-text"></span> ▾</span>
+        <div id="user-menu" style="display:none;">
+          <button class="user-menu-item" onclick="window.location.href='scheda.html'">🧙 Scheda</button>
+          <button class="user-menu-item" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="title-bar">
+      <h1>✦ Libro degli Incantesimi</h1>
+      <div class="sub" id="pg-name-display">Caricamento…</div>
+    </div>
+
+    <!-- SLOT INCANTESIMO -->
+    <div class="slots-panel">
+      <div class="slots-title">Slot Incantesimo</div>
+      <div class="slots-grid" id="slots-grid">
+        <!-- popolato da JS -->
+      </div>
+      <div class="slots-actions">
+        <button class="btn btn-arcane btn-sm" onclick="riposo()">🌙 Riposo Lungo — Recupera tutti gli slot</button>
+        <span class="rest-info">Gli slot si resettano al massimo impostato per ogni livello.</span>
+      </div>
+    </div>
+
+    <!-- FORM AGGIUNGI INCANTESIMO -->
+    <div style="background:rgba(138,127,209,.08);border:1px solid var(--arcane-dark);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--arcane-glow)">📚 Vuoi aggiungere un incantesimo?</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:2px">Il flusso consigliato è: cerca nel Grimorio condiviso → clicca "+ ai miei incantesimi".</div>
+      </div>
+      <a href="grimorio.html" class="btn btn-arcane btn-sm">Apri il Grimorio →</a>
+    </div>
+    <details class="add-panel" id="add-details">
+      <summary>Aggiungi Incantesimo Manualmente</summary>
+      <div class="add-form-grid">
+        <div class="f-field"><label>Nome *</label><input id="f-nome" placeholder="es. Dardo Incantato"></div>
+        <div class="f-field"><label>Livello (0=trucchetto)</label><input id="f-livello" type="number" min="0" max="9" value="1"></div>
+        <div class="f-field"><label>Scuola</label>
+          <select id="f-scuola">
+            <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+            <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+            <option>Necromanzia</option><option>Trasmutazione</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-form-grid2">
+        <div class="f-field"><label>Tempo di lancio</label><input id="f-tempo" placeholder="1 azione"></div>
+        <div class="f-field"><label>Gittata</label><input id="f-gittata" placeholder="18 m"></div>
+        <div class="f-field"><label>Durata</label><input id="f-durata" placeholder="Istantanea"></div>
+        <div class="f-field"><label>Componenti</label><input id="f-comp" placeholder="V, S, M (...)"></div>
+      </div>
+      <div class="checkrow">
+        <label><input type="checkbox" id="f-conc"> Concentrazione</label>
+        <label><input type="checkbox" id="f-rit"> Rituale</label>
+        <label><input type="checkbox" id="f-prep"> Preparato</label>
+      </div>
+      <div class="f-field" style="margin-top:10px"><label>Descrizione</label>
+        <textarea id="f-desc" placeholder="Effetto, tiro salvezza, danno…"></textarea>
+      </div>
+      <div class="f-field"><label>A livelli superiori (Upcast)</label>
+        <textarea id="f-upcast" style="min-height:44px" placeholder="Quando lanci questo incantesimo usando uno slot di livello superiore…"></textarea>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-arcane" onclick="addSpell()">✦ Aggiungi Incantesimo</button>
+      </div>
+    </details>
+
+    <!-- FILTRI -->
+    <div class="filter-bar">
+      <input id="f-search" placeholder="🔍 cerca nome o descrizione…" oninput="renderSpells()">
+      <select id="f-lvl" onchange="renderSpells()">
+        <option value="">Tutti i livelli</option>
+        <option value="0">Trucchetti</option>
+        <option value="1">1°</option><option value="2">2°</option><option value="3">3°</option>
+        <option value="4">4°</option><option value="5">5°</option><option value="6">6°</option>
+        <option value="7">7°</option><option value="8">8°</option><option value="9">9°</option>
+      </select>
+      <select id="f-scuola-filter" onchange="renderSpells()">
+        <option value="">Tutte le scuole</option>
+        <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+        <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+        <option>Necromanzia</option><option>Trasmutazione</option>
+      </select>
+      <select id="f-prep-filter" onchange="renderSpells()">
+        <option value="">Tutti</option>
+        <option value="1">Solo preparati</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <!-- LISTA INCANTESIMI -->
+    <div id="spell-list"></div>
+
+    <footer>✦ La magia è l'unica luce che Strahd non può spegnere.</footer>
+  </div>
+</div>
+
+<!-- MODAL MODIFICA -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modal-title">Modifica Incantesimo</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-arcane btn-sm" id="modal-save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { auth, db } from "./js/firebase-init.js";
+import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+         signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { doc, getDoc, setDoc, collection, addDoc, deleteDoc,
+         updateDoc, onSnapshot, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const gp = new GoogleAuthProvider();
+let uid = "";
+let spellsCache = [];
+let slotsData = {};   // { 1: {max:2, used:1}, 2: {max:1, used:0}, … }
+
+/* ── UI ── */
+function hideOverlay(){ document.getElementById("overlay").classList.add("hidden"); }
+function showScreen(id){
+  ["screen-auth","screen-waiting","screen-app"].forEach(s=>{
+    const el=document.getElementById(s); if(el) el.style.display="none";
+  });
+  const t=document.getElementById(id);
+  if(t) t.style.display=(id==="screen-app")?"block":"flex";
+}
+function toast(msg,dur=2800){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),dur);
+}
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function showErr(msg){ const e=document.getElementById("auth-error"); e.textContent=msg; e.style.display="block"; }
+function hideErr(){ document.getElementById("auth-error").style.display="none"; }
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async user=>{
+  if(!user){ hideOverlay(); showScreen("screen-auth"); return; }
+  try{
+    const snap=await getDoc(doc(db,"users",user.uid));
+    const data=snap.data()||{};
+    uid=user.uid;
+    if(data.approved===true){
+      document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
+      // Mostra nome PG dalla scheda
+      try{
+        const sc=await getDoc(doc(db,"users",uid,"scheda","main"));
+        if(sc.exists()&&sc.data()["sc-nome"]){
+          document.getElementById("pg-name-display").textContent=
+            sc.data()["sc-nome"]+" · "+(sc.data()["sc-classe"]||"")+" Livello "+(sc.data()["sc-livello"]||"?");
+        } else {
+          document.getElementById("pg-name-display").textContent="Compila prima la scheda personaggio";
+        }
+      } catch(e){ document.getElementById("pg-name-display").textContent=""; }
+      showScreen("screen-app");
+      await loadSlots();
+      buildSlotsGrid();
+      listenSpells();
+    } else {
+      document.getElementById("waiting-email").textContent=user.email;
+      showScreen("screen-waiting");
+    }
+  } catch(e){ console.error(e); toast("Errore: "+e.message); }
+  finally{ hideOverlay(); }
+});
+
+window.loginGoogle=async()=>{ hideErr(); try{ await signInWithPopup(auth,gp); } catch(e){ showErr(e.message); } };
+window.loginEmail=async()=>{
+  hideErr();
+  const e=document.getElementById("auth-email").value.trim();
+  const p=document.getElementById("auth-password").value;
+  if(!e||!p){ showErr("Inserisci email e password."); return; }
+  try{ await signInWithEmailAndPassword(auth,e,p); }
+  catch(er){ showErr(er.code==="auth/invalid-credential"?"Email o password errati.":er.message); }
+};
+window.registerEmail=async()=>{
+  hideErr();
+  const e=document.getElementById("auth-email").value.trim();
+  const p=document.getElementById("auth-password").value;
+  if(!e||!p||p.length<6){ showErr("Email e password (min 6 caratteri) richiesti."); return; }
+  try{ await createUserWithEmailAndPassword(auth,e,p); toast("Registrazione OK!"); }
+  catch(er){ showErr(er.message); }
+};
+window.logout=async()=>{ await signOut(auth); showScreen("screen-auth"); };
+window.toggleUserMenu=()=>{
+  const m=document.getElementById("user-menu");
+  m.style.display=m.style.display==="none"?"block":"none";
+};
+document.addEventListener("click",e=>{
+  const nav=document.querySelector(".nav-user");
+  if(nav&&!nav.contains(e.target)){
+    const m=document.getElementById("user-menu");
+    if(m) m.style.display="none";
+  }
+});
+
+/* ── SLOT ── */
+async function loadSlots(){
+  try{
+    const snap=await getDoc(doc(db,"users",uid,"scheda","slots"));
+    if(snap.exists()) slotsData=snap.data();
+    else{
+      // Inizializza vuoto livelli 1-9
+      for(let i=1;i<=9;i++) slotsData[i]={max:0,used:0};
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function saveSlots(){
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","slots"),slotsData,{merge:true});
+  } catch(e){ console.error("Slot save:",e); }
+}
+
+function buildSlotsGrid(){
+  const grid=document.getElementById("slots-grid");
+  grid.innerHTML="";
+  for(let lv=1;lv<=9;lv++){
+    const s=slotsData[lv]||{max:0,used:0};
+    const col=document.createElement("div"); col.className="slot-col"; col.id="slot-col-"+lv;
+    col.innerHTML=`
+      <label>${lv}°</label>
+      <div class="slot-pips" id="pips-${lv}"></div>
+      <div class="slot-counter" id="counter-${lv}"></div>
+      <div class="slot-max-row">
+        <label>max</label>
+        <input type="number" min="0" max="4" value="${s.max}"
+          onchange="setSlotMax(${lv},this.value)">
+      </div>
+    `;
+    grid.appendChild(col);
+    renderPips(lv);
+  }
+}
+
+function renderPips(lv){
+  const s=slotsData[lv]||{max:0,used:0};
+  const container=document.getElementById("pips-"+lv); if(!container) return;
+  const counter=document.getElementById("counter-"+lv);
+  const avail=Math.max(0,s.max-s.used);
+  container.innerHTML="";
+  const row=document.createElement("div"); row.className="pip-row";
+  for(let i=0;i<s.max;i++){
+    const pip=document.createElement("div");
+    pip.className="pip "+(i<avail?"avail":"used");
+    pip.title=i<avail?"Clicca per usare lo slot":"Slot usato — clicca per recuperare";
+    pip.onclick=()=>togglePip(lv,i,avail);
+    row.appendChild(pip);
+  }
+  if(s.max===0){
+    const empty=document.createElement("div");
+    empty.style.cssText="font-size:11px;color:var(--text-dim);font-style:italic;";
+    empty.textContent="—";
+    row.appendChild(empty);
+  }
+  container.appendChild(row);
+  if(counter) counter.textContent=s.max>0?avail+" / "+s.max:"";
+}
+
+window.togglePip=async(lv,idx,avail)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const s=slotsData[lv];
+  // Se il pip cliccato è disponibile → usalo (aumenta used)
+  // Se è usato → recuperalo (diminuisce used)
+  if(idx<avail){
+    s.used=Math.min(s.max,s.used+1);
+  } else {
+    s.used=Math.max(0,s.used-1);
+  }
+  renderPips(lv);
+  await saveSlots();
+};
+
+window.setSlotMax=async(lv,val)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const max=Math.max(0,parseInt(val)||0);
+  slotsData[lv].max=max;
+  slotsData[lv].used=Math.min(slotsData[lv].used,max);
+  renderPips(lv);
+  await saveSlots();
+};
+
+window.riposo=async()=>{
+  if(!confirm("Riposo Lungo: recuperare tutti gli slot incantesimo?")) return;
+  for(let i=1;i<=9;i++){
+    if(slotsData[i]) slotsData[i].used=0;
+  }
+  for(let i=1;i<=9;i++) renderPips(i);
+  await saveSlots();
+  toast("🌙 Riposo lungo: tutti gli slot recuperati!");
+};
+
+/* ── INCANTESIMI ── */
+function listenSpells(){
+  const ref=query(collection(db,"users",uid,"incantesimi"),orderBy("livello","asc"));
+  onSnapshot(ref,snap=>{
+    spellsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderSpells();
+  },e=>{ console.error(e); toast("Errore: "+e.message); });
+}
+
+window.renderSpells=()=>{
+  const ft=(document.getElementById("f-search")?.value||"").toLowerCase();
+  const fl=document.getElementById("f-lvl")?.value;
+  const fs=document.getElementById("f-scuola-filter")?.value;
+  const fp=document.getElementById("f-prep-filter")?.value;
+
+  let data=spellsCache.filter(s=>
+    (!ft||(s.nome||"").toLowerCase().includes(ft)||(s.descrizione||"").toLowerCase().includes(ft))&&
+    (fl===""||String(s.livello)===fl)&&
+    (!fs||s.scuola===fs)&&
+    (!fp||s.preparato)
+  );
+
+  const countEl=document.getElementById("filter-count");
+  if(countEl) countEl.textContent=data.length+" incantesimi"+(data.length!==spellsCache.length?" (su "+spellsCache.length+")":"");
+
+  const list=document.getElementById("spell-list"); if(!list) return;
+  if(!data.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text-dim);font-style:italic;padding:40px 0">Nessun incantesimo trovato.</div>';
+    return;
+  }
+
+  // Raggruppa per livello
+  const byLevel={};
+  data.forEach(s=>{ const l=s.livello??1; if(!byLevel[l]) byLevel[l]=[]; byLevel[l].push(s); });
+
+  let html='<div class="spell-grid">';
+  Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
+    const label=+lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
+    html+='<div class="level-header">'+label+'</div>';
+    byLevel[lv].forEach(s=>{
+      const badges=
+        (s.preparato?'<span class="badge badge-prep">preparato</span>':"")
+        +(s.concentrazione?'<span class="badge badge-conc">C</span>':"")
+        +(s.rituale?'<span class="badge badge-rit">R</span>':"");
+      html+=`
+        <div class="sp-card${s.preparato?" preparato":""}" id="spc-${s.id}">
+          <div class="sp-card-top">
+            <div>
+              <div class="sp-card-name">${esc(s.nome||"—")}</div>
+              <div class="sp-card-level">${esc(s.scuola||"")} · ${+s.livello===0?"Trucchetto":s.livello+"° liv."}</div>
+            </div>
+          </div>
+          ${badges?'<div class="sp-badges">'+badges+'</div>':""}
+          <div class="sp-meta">
+            <span>⏱ ${esc(s.tempo_lancio||"—")}</span>
+            <span>🎯 ${esc(s.gittata||"—")}</span>
+            <span>⌛ ${esc(s.durata||"—")}</span>
+            ${s.componenti?'<br><span>📦 '+esc(s.componenti)+'</span>':""}
+          </div>
+          ${s.descrizione?`<div class="sp-desc" id="desc-${s.id}">${esc(s.descrizione)}</div>`:""}
+          ${s.upcast?`<div class="sp-upcast" id="upcast-${s.id}" style="display:none">↑ ${esc(s.upcast)}</div>`:""}
+          <div class="sp-actions">
+            ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
+            <button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteSpell('${s.id}')">🗑</button>
+            <label class="prep-label">
+              <input type="checkbox" ${s.preparato?"checked":""} onchange="togglePrep('${s.id}',this.checked)">
+              preparato
+            </label>
+          </div>
+        </div>`;
+    });
+  });
+  html+='</div>';
+  list.innerHTML=html;
+};
+
+window.toggleDesc=(id)=>{
+  const desc=document.getElementById("desc-"+id);
+  const upcast=document.getElementById("upcast-"+id);
+  if(desc) desc.classList.toggle("open");
+  if(upcast) upcast.style.display=upcast.style.display==="none"?"block":"none";
+};
+
+window.addSpell=async()=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  const nome=document.getElementById("f-nome")?.value.trim();
+  if(!nome){ toast("Inserisci il nome dell'incantesimo."); return; }
+  const spell={
+    nome,
+    livello:parseInt(document.getElementById("f-livello")?.value)||0,
+    scuola:document.getElementById("f-scuola")?.value||"",
+    tempo_lancio:document.getElementById("f-tempo")?.value.trim()||"",
+    gittata:document.getElementById("f-gittata")?.value.trim()||"",
+    durata:document.getElementById("f-durata")?.value.trim()||"",
+    componenti:document.getElementById("f-comp")?.value.trim()||"",
+    concentrazione:document.getElementById("f-conc")?.checked||false,
+    rituale:document.getElementById("f-rit")?.checked||false,
+    preparato:document.getElementById("f-prep")?.checked||false,
+    descrizione:document.getElementById("f-desc")?.value.trim()||"",
+    upcast:document.getElementById("f-upcast")?.value.trim()||"",
+    createdAt:new Date()
+  };
+  try{
+    await addDoc(collection(db,"users",uid,"incantesimi"),spell);
+    // Reset form
+    ["f-nome","f-tempo","f-gittata","f-durata","f-comp","f-desc","f-upcast"].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value="";
+    });
+    ["f-conc","f-rit","f-prep"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
+    document.getElementById("f-livello").value="1";
+    document.getElementById("add-details").removeAttribute("open");
+    toast("✦ Incantesimo aggiunto!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.togglePrep=async(id,val)=>{
+  if(!uid) return;
+  try{ await updateDoc(doc(db,"users",uid,"incantesimi",id),{preparato:val}); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+
+window.deleteSpell=async(id)=>{
+  if(!confirm("Eliminare questo incantesimo?")) return;
+  try{ await deleteDoc(doc(db,"users",uid,"incantesimi",id)); toast("Incantesimo eliminato."); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+
+window.openEdit=(id)=>{
+  const s=spellsCache.find(x=>x.id===id); if(!s) return;
+  document.getElementById("modal-title").textContent="Modifica — "+esc(s.nome);
+  document.getElementById("modal-body").innerHTML=`
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+      <div><label>Nome</label><input id="me-nome" value="${esc(s.nome||"")}"></div>
+      <div><label>Livello</label><input id="me-livello" type="number" min="0" max="9" value="${s.livello??1}"></div>
+    </div>
+    <label>Scuola</label>
+    <select id="me-scuola">
+      ${["Abiurazione","Ammaliamento","Divinazione","Evocazione","Illusione","Invocazione","Necromanzia","Trasmutazione"]
+        .map(sc=>`<option${s.scuola===sc?" selected":""}>${sc}</option>`).join("")}
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Tempo di lancio</label><input id="me-tempo" value="${esc(s.tempo_lancio||"")}"></div>
+      <div><label>Gittata</label><input id="me-gittata" value="${esc(s.gittata||"")}"></div>
+      <div><label>Durata</label><input id="me-durata" value="${esc(s.durata||"")}"></div>
+      <div><label>Componenti</label><input id="me-comp" value="${esc(s.componenti||"")}"></div>
+    </div>
+    <div style="display:flex;gap:16px;margin:10px 0;font-size:14px">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-conc"${s.concentrazione?" checked":""}> Concentrazione</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-rit"${s.rituale?" checked":""}> Rituale</label>
+    </div>
+    <label>Descrizione</label><textarea id="me-desc" style="min-height:90px">${esc(s.descrizione||"")}</textarea>
+    <label>A livelli superiori (Upcast)</label><textarea id="me-upcast" style="min-height:44px">${esc(s.upcast||"")}</textarea>
+  `;
+  document.getElementById("modal-save").onclick=async()=>{
+    await updateDoc(doc(db,"users",uid,"incantesimi",id),{
+      nome:document.getElementById("me-nome").value.trim(),
+      livello:parseInt(document.getElementById("me-livello").value)||0,
+      scuola:document.getElementById("me-scuola").value,
+      tempo_lancio:document.getElementById("me-tempo").value.trim(),
+      gittata:document.getElementById("me-gittata").value.trim(),
+      durata:document.getElementById("me-durata").value.trim(),
+      componenti:document.getElementById("me-comp").value.trim(),
+      concentrazione:document.getElementById("me-conc").checked,
+      rituale:document.getElementById("me-rit").checked,
+      descrizione:document.getElementById("me-desc").value.trim(),
+      upcast:document.getElementById("me-upcast").value.trim(),
+    });
+    toast("Incantesimo aggiornato!");
+    closeModal();
+  };
+  document.getElementById("modal-overlay").classList.add("open");
+};
+
+window.closeModal=()=>document.getElementById("modal-overlay").classList.remove("open");
+document.getElementById("modal-overlay").addEventListener("click",e=>{
+  if(e.target===document.getElementById("modal-overlay")) closeModal();
+});
+</script>
+</body>
+</html>
