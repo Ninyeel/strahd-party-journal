@@ -1,0 +1,13 @@
+{
+  "name": "firestore-backup",
+  "version": "1.0.0",
+  "description": "Backup e restore Firestore per Strahd Party Journal",
+  "type": "commonjs",
+  "scripts": {
+    "backup": "node firestore-backup.js",
+    "restore": "node firestore-restore.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
