@@ -566,11 +566,16 @@ window.renderSpells=()=>{
   Object.keys(byLevel).forEach(lv=>{
     byLevel[lv].sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
   });
-  
+
   let html='<div class="spell-grid">';
   Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
-    const label=+lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
-    html+='<div class="level-header">'+label+'</div>';
+    const count = byLevel[lv].length;
+    const label = +lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
+    html+='<div class="level-header">'
+      +label
+      +'<span style="font-family:\'EB Garamond\',serif;font-size:12px;color:var(--text-dim);font-weight:normal;letter-spacing:0;text-transform:none;margin-left:10px;">'
+      +count+(count===1?" incantesimo":" incantesimi")
+      +'</span></div>';
     byLevel[lv].forEach(s=>{
       const badges=
         (s.preparato?'<span class="badge badge-prep">preparato</span>':"")
