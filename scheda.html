@@ -459,6 +459,15 @@ import { doc, getDoc, setDoc }
 
 const gp = new GoogleAuthProvider();
 let uid = "";
+let isDirty = false; // true se ci sono modifiche non salvate
+
+// Avvisa l'utente se tenta di lasciare la pagina con modifiche non salvate
+window.addEventListener("beforeunload", e => {
+  if(isDirty){
+    e.preventDefault();
+    e.returnValue = "";  // il browser mostra il proprio dialogo di conferma
+  }
+});
 
 /* ── ABILITÀ: definizione completa ── */
 const SKILLS = [
@@ -513,6 +522,11 @@ onAuthStateChanged(auth, async user=>{
       showScreen("screen-app");
       buildSkillsGrid();
       await loadScheda();
+      showScreen("screen-app");
+      buildSkillsGrid();
+      await loadScheda();
+      // Dopo il caricamento, monitora le modifiche dell'utente
+      setupDirtyTracking();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -672,14 +686,51 @@ async function loadScheda(){
   } catch(e){ console.error(e); toast("Errore caricamento scheda."); }
 }
 
+function setupDirtyTracking(){
+  // Ascolta qualsiasi modifica su input, select e textarea dentro .page
+  document.querySelector('.page').addEventListener('input', ()=>{
+    isDirty = true;
+  });
+  document.querySelector('.page').addEventListener('change', ()=>{
+    isDirty = true;
+  });
+}
+
 window.saveScheda=async()=>{
   if(!uid){ toast("Non autenticato."); return; }
+
+  // Feedback visivo: disabilita il pulsante durante il salvataggio
+  const btn = document.querySelector('.sc-footer button.btn-primary');
+  if(btn){ btn.disabled = true; btn.textContent = "Salvataggio…"; }
+
   const data={ updatedAt: new Date() };
+  FIELDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) data[id]=el.value.trim ? el.value.trim() : el.value;
+  });
+  SKILLS.forEach(sk=>{
+    const chk=document.getElementById("chk-"+sk.id);
+    if(chk) data["chk-"+sk.id]=chk.checked;
+  });
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","main"),data,{merge:true});
+    const now=new Date().toLocaleTimeString("it-IT");
+    document.getElementById("saved-at").textContent="Salvato alle "+now;
+    toast("⛧ Scheda salvata!");
+    isDirty = false; // segnala che non ci sono modifiche non salvate
+  } catch(e){
+    toast("Errore: "+e.message); console.error(e);
+  } finally{
+    // Ripristina il pulsante in ogni caso
+    if(btn){ btn.disabled = false; btn.textContent = "⛧ Salva Scheda"; }
+  };
+
   // Campi semplici
   FIELDS.forEach(id=>{
     const el=document.getElementById(id);
     if(el) data[id]=el.value.trim ? el.value.trim() : el.value;
   });
+
   // Checkbox competenze
   SKILLS.forEach(sk=>{
     const chk=document.getElementById("chk-"+sk.id);
@@ -692,6 +743,7 @@ window.saveScheda=async()=>{
     toast("⛧ Scheda salvata!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
+
 </script>
 </body>
 </html>
