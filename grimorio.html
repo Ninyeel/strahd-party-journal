@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grimorio — La Maledizione di Strahd</title>
@@ -147,6 +148,17 @@ a{color:var(--gold);}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1428;border:1px solid var(--arcane);color:var(--text);border-radius:8px;padding:10px 20px;font-size:15px;z-index:8000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;padding:30px 10px 10px;border-top:1px solid var(--arcane-dark);}
+
+/* QUILL EDITOR */
+.ql-toolbar{background:#181220;border:1px solid var(--arcane-dark)!important;border-radius:4px 4px 0 0;padding:6px 8px;}
+.ql-toolbar button,.ql-toolbar .ql-picker-label{filter:invert(.6);}
+.ql-container{background:#0f0d0d;border:1px solid var(--arcane-dark)!important;border-top:none!important;border-radius:0 0 4px 4px;font-family:'EB Garamond',serif;font-size:15px;color:var(--text);min-height:80px;}
+.ql-editor{min-height:80px;padding:10px 12px;line-height:1.55;}
+.ql-editor.ql-blank::before{color:var(--text-dim)!important;font-style:italic;}
+.ql-snow .ql-stroke{stroke:var(--arcane)!important;}
+.ql-snow .ql-fill{fill:var(--arcane)!important;}
+.ql-picker-options{background:#181220!important;border-color:var(--arcane-dark)!important;}
+
 </style>
 </head>
 <body>
@@ -244,11 +256,11 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       </div>
       <div class="f-field" style="margin-top:10px">
         <label>Descrizione completa</label>
-        <textarea id="g-desc" style="min-height:100px" placeholder="Effetto, tiro salvezza, danno, area…"></textarea>
+        <div id="g-desc" class="ql-target"></div>
       </div>
       <div class="f-field">
         <label>A livelli superiori (Upcast)</label>
-        <textarea id="g-upcast" style="min-height:44px" placeholder="Quando lanci questo incantesimo usando uno slot di livello superiore…"></textarea>
+        <div id="g-upcast" class="ql-target"></div>
       </div>
       <div style="margin-top:14px">
         <button class="btn btn-arcane" onclick="addToGrimorio()">✦ Aggiungi al Grimorio</button>
@@ -303,6 +315,8 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
 <script type="module">
 import { auth, db } from "./js/firebase-init.js";
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
@@ -315,8 +329,24 @@ import { doc, getDoc, setDoc, collection, addDoc, deleteDoc,
 
 const gp = new GoogleAuthProvider();
 let uid = "";
-let grimorioCache = [];   // incantesimi del grimorio condiviso
-let mySpellIds = new Set(); // grimorioId già importati dall'utente
+let grimorioCache = [];
+let mySpellIds = new Set();
+
+const QUILL_TOOLBAR = [
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link'], ['clean']
+];
+
+// Editor nel form di aggiunta
+let qDesc = null;
+let qUpcast = null;
+
+function initFormQuills(){
+  qDesc   = new Quill('#g-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno, area…', modules:{toolbar:QUILL_TOOLBAR} });
+  qUpcast = new Quill('#g-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+}
 
 /* ── UI ── */
 function hideOverlay(){ document.getElementById("overlay").classList.add("hidden"); }
@@ -346,6 +376,7 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved===true){
       document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
       showScreen("screen-app");
+      initFormQuills();
       await loadMySpellIds();
       listenGrimorio();
     } else {
@@ -483,8 +514,8 @@ window.renderGrimorio=()=>{
             <span>⌛ ${esc(s.durata||"—")}</span>
             ${s.componenti?'<br><span>📦 '+esc(s.componenti)+'</span>':""}
           </div>
-          ${s.descrizione?`<div class="sp-desc" id="gdesc-${s.id}">${esc(s.descrizione).replace(/\n/g,'<br>')}</div>`:""}
-          ${s.upcast?`<div class="sp-upcast" id="gupcast-${s.id}">↑ ${esc(s.upcast)}</div>`:""}
+          ${s.descrizione?`<div class="sp-desc" id="gdesc-${s.id}">${s.descrizione}</div>`:""}
+          ${s.upcast?`<div class="sp-upcast" id="gupcast-${s.id}">↑ ${s.upcast}</div>`:""}
           <div class="sp-actions">
             ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
             <button class="btn btn-import${alreadyImported?" done":""}"
@@ -523,8 +554,8 @@ window.addToGrimorio=async()=>{
     classi:document.getElementById("g-classi")?.value.trim()||"",
     concentrazione:document.getElementById("g-conc")?.checked||false,
     rituale:document.getElementById("g-rit")?.checked||false,
-    descrizione:document.getElementById("g-desc")?.value.trim()||"",
-    upcast:document.getElementById("g-upcast")?.value.trim()||"",
+    descrizione: qDesc   ? qDesc.root.innerHTML   : "",
+    upcast:      qUpcast ? qUpcast.root.innerHTML : "",
     authorId:uid,
     createdAt:new Date()
   };
@@ -534,6 +565,8 @@ window.addToGrimorio=async()=>{
       .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
     ["g-conc","g-rit"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
     document.getElementById("g-livello").value="1";
+    if(qDesc)   qDesc.setText("");
+    if(qUpcast) qUpcast.setText("");
     document.getElementById("add-details").removeAttribute("open");
     toast("✦ Incantesimo aggiunto al Grimorio!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
@@ -596,28 +629,36 @@ window.openEdit=(id)=>{
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-conc"${s.concentrazione?" checked":""}> Concentrazione</label>
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-rit"${s.rituale?" checked":""}> Rituale</label>
     </div>
-    <label>Descrizione</label><textarea id="me-desc" style="min-height:100px">${esc(s.descrizione||"")}</textarea>
-    <label>A livelli superiori (Upcast)</label><textarea id="me-upcast" style="min-height:44px">${esc(s.upcast||"")}</textarea>
+    <label>Descrizione</label><div id="me-desc" style="min-height:100px"></div>
+    <label>A livelli superiori (Upcast)</label><div id="me-upcast" style="min-height:44px"></div>
   `;
-  document.getElementById("modal-save").onclick=async()=>{
-    await updateDoc(doc(db,"campaigns","strahd","grimorio",id),{
-      nome:document.getElementById("me-nome").value.trim(),
-      livello:parseInt(document.getElementById("me-livello").value)||0,
-      scuola:document.getElementById("me-scuola").value,
-      tempo_lancio:document.getElementById("me-tempo").value.trim(),
-      gittata:document.getElementById("me-gittata").value.trim(),
-      durata:document.getElementById("me-durata").value.trim(),
-      componenti:document.getElementById("me-comp").value.trim(),
-      classi:document.getElementById("me-classi").value.trim(),
-      concentrazione:document.getElementById("me-conc").checked,
-      rituale:document.getElementById("me-rit").checked,
-      descrizione:document.getElementById("me-desc").value.trim(),
-      upcast:document.getElementById("me-upcast").value.trim(),
-    });
-    toast("Grimorio aggiornato!");
-    closeModal();
-  };
   document.getElementById("modal-overlay").classList.add("open");
+  
+  // Inizializza Quill nella modal (dopo che il DOM è pronto)
+  setTimeout(()=>{
+    const qMDesc   = new Quill('#me-desc',   { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    const qMUpcast = new Quill('#me-upcast', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    if(s.descrizione) qMDesc.root.innerHTML   = s.descrizione;
+    if(s.upcast)      qMUpcast.root.innerHTML = s.upcast;
+    document.getElementById("modal-save").onclick = async()=>{
+      await updateDoc(doc(db,"campaigns","strahd","grimorio",id),{
+        nome:     document.getElementById("me-nome").value.trim(),
+        livello:  parseInt(document.getElementById("me-livello").value)||0,
+        scuola:   document.getElementById("me-scuola").value,
+        tempo_lancio: document.getElementById("me-tempo").value.trim(),
+        gittata:  document.getElementById("me-gittata").value.trim(),
+        durata:   document.getElementById("me-durata").value.trim(),
+        componenti: document.getElementById("me-comp").value.trim(),
+        classi:   document.getElementById("me-classi").value.trim(),
+        concentrazione: document.getElementById("me-conc").checked,
+        rituale:  document.getElementById("me-rit").checked,
+        descrizione: qMDesc.root.innerHTML,
+        upcast:      qMUpcast.root.innerHTML,
+      });
+      toast("Grimorio aggiornato!");
+      closeModal();
+    };
+  }, 50);
 };
 
 window.deleteFromGrimorio=async(id)=>{
@@ -632,6 +673,7 @@ window.closeModal=()=>document.getElementById("modal-overlay").classList.remove(
 document.getElementById("modal-overlay").addEventListener("click",e=>{
   if(e.target===document.getElementById("modal-overlay")) closeModal();
 });
+
 </script>
 </body>
 </html>
