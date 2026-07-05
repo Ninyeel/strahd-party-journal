@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Incantesimi — La Maledizione di Strahd</title>
@@ -173,6 +174,17 @@ a{color:var(--gold);}
 .toast.show{opacity:1;}
 
 footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;padding:30px 10px 10px;border-top:1px solid var(--arcane-dark);}
+
+/* QUILL EDITOR */
+.ql-toolbar{background:#181220;border:1px solid var(--arcane-dark)!important;border-radius:4px 4px 0 0;padding:6px 8px;}
+.ql-toolbar button,.ql-toolbar .ql-picker-label{filter:invert(.6);}
+.ql-container{background:#0f0d0d;border:1px solid var(--arcane-dark)!important;border-top:none!important;border-radius:0 0 4px 4px;font-family:'EB Garamond',serif;font-size:15px;color:var(--text);min-height:80px;}
+.ql-editor{min-height:80px;padding:10px 12px;line-height:1.55;}
+.ql-editor.ql-blank::before{color:var(--text-dim)!important;font-style:italic;}
+.ql-snow .ql-stroke{stroke:var(--arcane)!important;}
+.ql-snow .ql-fill{fill:var(--arcane)!important;}
+.ql-picker-options{background:#181220!important;border-color:var(--arcane-dark)!important;}
+
 </style>
 </head>
 <body>
@@ -284,10 +296,10 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <label><input type="checkbox" id="f-prep"> Preparato</label>
       </div>
       <div class="f-field" style="margin-top:10px"><label>Descrizione</label>
-        <textarea id="f-desc" placeholder="Effetto, tiro salvezza, danno…"></textarea>
+        <div id="f-desc" class="ql-target"></div>
       </div>
       <div class="f-field"><label>A livelli superiori (Upcast)</label>
-        <textarea id="f-upcast" style="min-height:44px" placeholder="Quando lanci questo incantesimo usando uno slot di livello superiore…"></textarea>
+        <div id="f-upcast" class="ql-target"></div>
       </div>
       <div style="margin-top:12px">
         <button class="btn btn-arcane" onclick="addSpell()">✦ Aggiungi Incantesimo</button>
@@ -338,6 +350,8 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
 <script type="module">
 import { auth, db } from "./js/firebase-init.js";
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
@@ -352,6 +366,20 @@ const gp = new GoogleAuthProvider();
 let uid = "";
 let spellsCache = [];
 let slotsData = {};   // { 1: {max:2, used:1}, 2: {max:1, used:0}, … }
+
+const QUILL_TOOLBAR = [
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link'], ['clean']
+];
+let qDesc = null;
+let qUpcast = null;
+
+function initFormQuills(){
+  qDesc   = new Quill('#f-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno…', modules:{toolbar:QUILL_TOOLBAR} });
+  qUpcast = new Quill('#f-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+}
 
 /* ── UI ── */
 function hideOverlay(){ document.getElementById("overlay").classList.add("hidden"); }
@@ -391,6 +419,7 @@ onAuthStateChanged(auth, async user=>{
         }
       } catch(e){ document.getElementById("pg-name-display").textContent=""; }
       showScreen("screen-app");
+      initFormQuills();
       await loadSlots();
       buildSlotsGrid();
       listenSpells();
@@ -596,8 +625,8 @@ window.renderSpells=()=>{
             <span>⌛ ${esc(s.durata||"—")}</span>
             ${s.componenti?'<br><span>📦 '+esc(s.componenti)+'</span>':""}
           </div>
-          ${s.descrizione?`<div class="sp-desc" id="desc-${s.id}">${esc(s.descrizione)}</div>`:""}
-          ${s.upcast?`<div class="sp-upcast" id="upcast-${s.id}" style="display:none">↑ ${esc(s.upcast)}</div>`:""}
+          ${s.descrizione?`<div class="sp-desc" id="desc-${s.id}">${s.descrizione}</div>`:""}
+          ${s.upcast?`<div class="sp-upcast" id="upcast-${s.id}" style="display:none">↑ ${s.upcast}</div>`:""}
           <div class="sp-actions">
             ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
             <button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>
@@ -636,8 +665,8 @@ window.addSpell=async()=>{
     concentrazione:document.getElementById("f-conc")?.checked||false,
     rituale:document.getElementById("f-rit")?.checked||false,
     preparato:document.getElementById("f-prep")?.checked||false,
-    descrizione:document.getElementById("f-desc")?.value.trim()||"",
-    upcast:document.getElementById("f-upcast")?.value.trim()||"",
+    descrizione: qDesc   ? qDesc.root.innerHTML   : "",
+    upcast:      qUpcast ? qUpcast.root.innerHTML : "",
     createdAt:new Date()
   };
   try{
@@ -648,6 +677,8 @@ window.addSpell=async()=>{
     });
     ["f-conc","f-rit","f-prep"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
     document.getElementById("f-livello").value="1";
+    if(qDesc)   qDesc.setText("");
+    if(qUpcast) qUpcast.setText("");
     document.getElementById("add-details").removeAttribute("open");
     toast("✦ Incantesimo aggiunto!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
@@ -688,27 +719,34 @@ window.openEdit=(id)=>{
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-conc"${s.concentrazione?" checked":""}> Concentrazione</label>
       <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-rit"${s.rituale?" checked":""}> Rituale</label>
     </div>
-    <label>Descrizione</label><textarea id="me-desc" style="min-height:90px">${esc(s.descrizione||"")}</textarea>
-    <label>A livelli superiori (Upcast)</label><textarea id="me-upcast" style="min-height:44px">${esc(s.upcast||"")}</textarea>
+    <label>Descrizione</label><div id="me-desc"></div>
+    <label>A livelli superiori (Upcast)</label><div id="me-upcast"></div>
   `;
-  document.getElementById("modal-save").onclick=async()=>{
-    await updateDoc(doc(db,"users",uid,"incantesimi",id),{
-      nome:document.getElementById("me-nome").value.trim(),
-      livello:parseInt(document.getElementById("me-livello").value)||0,
-      scuola:document.getElementById("me-scuola").value,
-      tempo_lancio:document.getElementById("me-tempo").value.trim(),
-      gittata:document.getElementById("me-gittata").value.trim(),
-      durata:document.getElementById("me-durata").value.trim(),
-      componenti:document.getElementById("me-comp").value.trim(),
-      concentrazione:document.getElementById("me-conc").checked,
-      rituale:document.getElementById("me-rit").checked,
-      descrizione:document.getElementById("me-desc").value.trim(),
-      upcast:document.getElementById("me-upcast").value.trim(),
-    });
-    toast("Incantesimo aggiornato!");
-    closeModal();
-  };
+
   document.getElementById("modal-overlay").classList.add("open");
+  setTimeout(()=>{
+    const qMDesc   = new Quill('#me-desc',   { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    const qMUpcast = new Quill('#me-upcast', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    if(s.descrizione) qMDesc.root.innerHTML   = s.descrizione;
+    if(s.upcast)      qMUpcast.root.innerHTML = s.upcast;
+    document.getElementById("modal-save").onclick = async()=>{
+      await updateDoc(doc(db,"users",uid,"incantesimi",id),{
+        nome:        document.getElementById("me-nome").value.trim(),
+        livello:     parseInt(document.getElementById("me-livello").value)||0,
+        scuola:      document.getElementById("me-scuola").value,
+        tempo_lancio:document.getElementById("me-tempo").value.trim(),
+        gittata:     document.getElementById("me-gittata").value.trim(),
+        durata:      document.getElementById("me-durata").value.trim(),
+        componenti:  document.getElementById("me-comp").value.trim(),
+        concentrazione: document.getElementById("me-conc").checked,
+        rituale:     document.getElementById("me-rit").checked,
+        descrizione: qMDesc.root.innerHTML,
+        upcast:      qMUpcast.root.innerHTML,
+      });
+      toast("Incantesimo aggiornato!");
+      closeModal();
+    };
+  }, 50);
 };
 
 window.closeModal=()=>document.getElementById("modal-overlay").classList.remove("open");
