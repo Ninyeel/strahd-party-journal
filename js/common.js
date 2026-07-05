@@ -12,7 +12,7 @@ import {
 import { doc, getDoc, setDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-export { auth, db, onAuthStateChanged, doc, getDoc, setDoc };
+export { auth, db, onAuthStateChanged };
 
 const gp = new GoogleAuthProvider();
 
