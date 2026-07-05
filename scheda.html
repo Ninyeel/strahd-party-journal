@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scheda Personaggio — La Maledizione di Strahd</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -162,8 +163,45 @@ a{color:var(--gold);}
 .toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#1a1212;border:1px solid var(--crimson-bright);color:var(--text);border-radius:8px;padding:10px 20px;font-size:15px;z-index:8000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 
+/* COUNTER */
+.counter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:4px;}
+.counter-card{background:#0f0d0d;border:1px solid var(--border);border-radius:6px;padding:12px 14px;position:relative;}
+.counter-card .c-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:#f1e6e6;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.counter-card .c-recharge{font-size:11px;color:var(--text-dim);margin-bottom:8px;}
+.counter-controls{display:flex;align-items:center;gap:8px;justify-content:center;margin:8px 0;}
+.counter-controls .c-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--gold);min-width:48px;text-align:center;line-height:1;}
+.counter-controls .c-max{font-size:14px;color:var(--text-dim);align-self:flex-end;margin-bottom:4px;}
+.c-pip-row{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-bottom:6px;}
+.c-pip{width:13px;height:13px;border-radius:50%;border:1px solid var(--gold);cursor:pointer;transition:background .12s;}
+.c-pip.on{background:var(--gold);}
+.c-pip.off{background:transparent;}
+.c-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
+.c-btn:hover{border-color:var(--gold);color:var(--gold);}
+.c-note{font-size:12px;color:var(--text-dim);font-style:italic;margin-top:4px;min-height:14px;}
+.c-actions{display:flex;gap:4px;position:absolute;top:8px;right:8px;}
+.counter-add-form{background:#0f0d0d;border:1px dashed var(--border);border-radius:6px;padding:14px;margin-top:12px;}
+.counter-add-form h4{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);margin:0 0 10px;}
+.counter-form-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.counter-form-grid2{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px;}
+@media(max-width:500px){.counter-form-grid,.counter-form-grid2{grid-template-columns:1fr;}}
+
 /* NOTE PRIVATE */
 .private-banner{display:flex;align-items:center;gap:8px;background:rgba(122,13,18,.12);border:1px solid var(--crimson);border-radius:6px;padding:8px 14px;margin-bottom:12px;font-size:14px;color:var(--text-dim);}
+
+/* QUILL EDITOR */
+.ql-toolbar{background:#1a1414;border:1px solid var(--border)!important;border-radius:4px 4px 0 0;padding:6px 8px;}
+.ql-toolbar button,.ql-toolbar .ql-picker-label{color:var(--text-muted)!important;filter:invert(.7);}
+.ql-toolbar button:hover,.ql-toolbar button.ql-active{color:var(--gold)!important;filter:none;}
+.ql-container{background:#0f0d0d;border:1px solid var(--border)!important;border-top:none!important;border-radius:0 0 4px 4px;font-family:'EB Garamond',serif;font-size:15px;color:var(--text);min-height:80px;}
+.ql-editor{min-height:80px;padding:10px 12px;line-height:1.55;}
+.ql-editor.ql-blank::before{color:var(--text-dim)!important;font-style:italic;}
+.ql-editor p{margin:0 0 4px;}
+.ql-snow .ql-stroke{stroke:var(--text-muted)!important;}
+.ql-snow .ql-fill{fill:var(--text-muted)!important;}
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke{stroke:var(--gold)!important;}
+.ql-picker-options{background:#1a1414!important;border-color:var(--border)!important;}
+
 </style>
 </head>
 <body>
@@ -311,6 +349,30 @@ a{color:var(--gold);}
             </select>
           </div>
         </div>
+        <!-- TIRI SALVEZZA -->
+        <div style="margin-top:16px;">
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">Competenza Tiri Salvezza</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-for" style="accent-color:var(--gold);width:14px;height:14px;"> FOR
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-des" style="accent-color:var(--gold);width:14px;height:14px;"> DES
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-cos" style="accent-color:var(--gold);width:14px;height:14px;"> COS
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-int" style="accent-color:var(--gold);width:14px;height:14px;"> INT
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-sag" style="accent-color:var(--gold);width:14px;height:14px;"> SAG
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-muted);cursor:pointer;background:#0f0d0d;border:1px solid var(--border);border-radius:4px;padding:6px 8px;">
+              <input type="checkbox" id="ts-car" style="accent-color:var(--gold);width:14px;height:14px;"> CAR
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- COMBATTIMENTO -->
@@ -329,10 +391,18 @@ a{color:var(--gold);}
             <label>PF Temporanei</label>
             <input id="sc-pf-tmp" type="number" min="0" placeholder="0">
           </div>
-          <div class="combat-box">
-            <label>CA</label>
-            <input id="sc-ca" type="number" placeholder="10">
+          <div class="combat-box" style="grid-column:span 1">
+            <label>CA Base</label>
+            <input id="sc-ca" type="number" placeholder="10" oninput="updateCA()">
             <div class="calc" id="ca-calc"></div>
+          </div>
+          <div class="combat-box" style="grid-column:span 1">
+            <label style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="sc-scudo" style="accent-color:var(--gold);width:13px;height:13px;" onchange="updateCA()">
+              Scudo (bonus)
+            </label>
+            <input id="sc-scudo-bonus" type="number" placeholder="+2" value="2" oninput="updateCA()">
+            <div class="calc" id="ca-totale" style="color:var(--gold);font-size:14px;margin-top:4px;"></div>
           </div>
           <div class="combat-box">
             <label>Iniziativa</label>
@@ -387,16 +457,16 @@ a{color:var(--gold);}
       <div class="sc-panel">
         <div class="sc-panel-title">Tratti Personaggio</div>
         <div class="sc-field"><label>Tratti di personalità</label>
-          <textarea id="sc-tratti" placeholder="Come si comporta il tuo PG?"></textarea>
+          <div id="sc-tratti" class="ql-target"></div>
         </div>
         <div class="sc-field"><label>Ideali</label>
-          <textarea id="sc-ideali" placeholder="Cosa crede fermamente?" style="min-height:48px"></textarea>
+          <div id="sc-ideali" class="ql-target"></div>
         </div>
         <div class="sc-field"><label>Legami</label>
-          <textarea id="sc-legami" placeholder="A cosa o a chi è legato?" style="min-height:48px"></textarea>
+          <div id="sc-legami" class="ql-target"></div>
         </div>
         <div class="sc-field"><label>Difetti</label>
-          <textarea id="sc-difetti" placeholder="Qual è il suo tallone d'Achille?" style="min-height:48px"></textarea>
+          <div id="sc-difetti" class="ql-target"></div>
         </div>
       </div>
 
@@ -404,22 +474,73 @@ a{color:var(--gold);}
       <div class="sc-panel">
         <div class="sc-panel-title">Competenze & Lingue</div>
         <div class="sc-field"><label>Competenze in armature / armi / strumenti</label>
-          <textarea id="sc-competenze" style="min-height:64px" placeholder="Armature leggere, spade corte…"></textarea>
+          <div id="sc-competenze" class="ql-target"></div>
         </div>
         <div class="sc-field"><label>Lingue</label>
-          <textarea id="sc-lingue" style="min-height:48px" placeholder="Comune, Orchesco…"></textarea>
+          <div id="sc-lingue" class="ql-target"></div>
         </div>
         <div class="sc-field"><label>Caratteristiche speciali / Abilità di classe</label>
-          <textarea id="sc-speciali" style="min-height:80px" placeholder="Rabbia, Difesa Senza Armatura…"></textarea>
+          <div id="sc-speciali" class="ql-target"></div>
         </div>
       </div>
 
       <!-- EQUIPAGGIAMENTO -->
-      <div class="sc-panel sc-full">
-        <div class="sc-panel-title">Equipaggiamento & Inventario</div>
+      <div class="sc-panel">
+        <div class="sc-panel-title">⚔ Equipaggiamento</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Oggetti indossati o impugnati: armi, armatura, scudo, oggetti magici attivi.</div>
         <div class="sc-field">
-          <textarea id="sc-inventario" style="min-height:100px" placeholder="Elenca armi, armature, oggetti magici, kit…"></textarea>
+          <textarea id="sc-equipaggiamento" style="min-height:100px" placeholder="es. Ascia da guerra +1, Armatura di cuoio borchiato, Scudo di quercia…"></textarea>
         </div>
+      </div>
+
+      <!-- INVENTARIO -->
+      <div class="sc-panel">
+        <div class="sc-panel-title">🎒 Inventario</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Tutto ciò che il personaggio trasporta ma non indossa.</div>
+        <div class="sc-field">
+          <div id="sc-inventario" class="ql-target"></div>
+        </div>
+      </div>
+
+      <!-- COUNTER PERSONALIZZATI -->
+      <div class="sc-panel sc-full">
+        <div class="sc-panel-title">⚡ Risorse & Counter</div>
+        <div class="counter-grid" id="counter-grid">
+          <div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessun counter. Aggiungine uno qui sotto.</div>
+        </div>
+        <details class="counter-add-form" id="counter-add-details" style="margin-top:12px;">
+          <summary style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--crimson-bright)">+</span> Aggiungi Counter
+          </summary>
+          <div style="margin-top:12px;">
+            <div class="counter-form-grid">
+              <div class="sc-field" style="margin:0"><label>Nome *</label>
+                <input id="cn-nome" placeholder="es. Usi dell'Ira">
+              </div>
+              <div class="sc-field" style="margin:0"><label>Valore attuale</label>
+                <input id="cn-corrente" type="number" min="0" value="0">
+              </div>
+              <div class="sc-field" style="margin:0"><label>Massimo</label>
+                <input id="cn-massimo" type="number" min="0" value="0">
+              </div>
+            </div>
+            <div class="counter-form-grid2">
+              <div class="sc-field" style="margin:0"><label>Si ricarica con</label>
+                <select id="cn-ricarica">
+                  <option value="manuale">Manuale</option>
+                  <option value="riposo breve">Riposo Breve</option>
+                  <option value="riposo lungo">Riposo Lungo</option>
+                  <option value="alba">Alba</option>
+                  <option value="sessione">Inizio Sessione</option>
+                </select>
+              </div>
+              <div class="sc-field" style="margin:0"><label>Note</label>
+                <input id="cn-note" placeholder="es. +1 con Rabbia Persistente">
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:auto;margin-top:4px;" onclick="addCounter()">⛧ Aggiungi</button>
+          </div>
+        </details>
       </div>
 
       <!-- NOTE PRIVATE -->
@@ -429,7 +550,7 @@ a{color:var(--gold);}
           🔒 Queste note sono visibili solo a te — nessun altro giocatore può leggerle.
         </div>
         <div class="sc-field">
-          <textarea id="sc-note" style="min-height:90px" placeholder="Segreti, obiettivi personali, retroscena…"></textarea>
+          <div id="sc-note" class="ql-target"></div>
         </div>
       </div>
 
@@ -446,7 +567,20 @@ a{color:var(--gold);}
 
 </div><!-- fine screen-app -->
 
+<div class="edit-overlay" id="edit-overlay" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(10,8,8,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-panel);border:1px solid var(--crimson-bright);border-radius:12px;padding:28px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.7);">
+    <h3 id="modal-title" style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#f1e6e6;margin:0 0 18px;"></h3>
+    <div id="modal-body"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px;">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-primary btn-sm" id="modal-save">Salva</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <script type="module">
 import { auth, db } from "./js/firebase-init.js";
@@ -454,12 +588,52 @@ import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
          signInWithEmailAndPassword, createUserWithEmailAndPassword,
          signOut }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, setDoc }
+import { doc, getDoc, setDoc, collection, addDoc,
+         updateDoc, deleteDoc, onSnapshot, query,
+         orderBy, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// Rende disponibili le funzioni Firestore al codice dei counter
+window._firestoreFns = { doc, getDoc, setDoc, collection, addDoc,
+                         updateDoc, deleteDoc, onSnapshot, query,
+                         orderBy, getDocs };
 
 const gp = new GoogleAuthProvider();
 let uid = "";
-let isDirty = false; // true se ci sono modifiche non salvate
+let isDirty = false;
+
+// ── QUILL: configurazione toolbar condivisa ──────────────────
+const QUILL_TOOLBAR = [
+  [{ header: [1, 2, 3, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link'],
+  ['clean']
+];
+
+// Mappa id → istanza Quill
+const quills = {};
+
+// Campi scheda che diventano editor Quill
+const QUILL_FIELDS = [
+  "sc-tratti","sc-ideali","sc-legami","sc-difetti",
+  "sc-competenze","sc-lingue","sc-speciali",
+  "sc-equipaggiamento","sc-inventario","sc-note"
+];
+
+function initQuills(){
+  QUILL_FIELDS.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    quills[id] = new Quill(el, {
+      theme: 'snow',
+      placeholder: '',
+      modules: { toolbar: QUILL_TOOLBAR }
+    });
+    // Segna dirty quando l'utente modifica
+    quills[id].on('text-change', ()=>{ isDirty = true; });
+  });
+}
 
 // Avvisa l'utente se tenta di lasciare la pagina con modifiche non salvate
 window.addEventListener("beforeunload", e => {
@@ -521,12 +695,11 @@ onAuthStateChanged(auth, async user=>{
       document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
       showScreen("screen-app");
       buildSkillsGrid();
-      await loadScheda();
-      showScreen("screen-app");
-      buildSkillsGrid();
+      initQuills();
       await loadScheda();
       // Dopo il caricamento, monitora le modifiche dell'utente
       setupDirtyTracking();
+      listenCounters();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -624,6 +797,17 @@ window.updateAllSkills=()=>{
   });
 };
 
+window.updateCA=()=>{
+  const base=parseInt(document.getElementById("sc-ca")?.value)||0;
+  const scudo=document.getElementById("sc-scudo")?.checked||false;
+  const bonus=parseInt(document.getElementById("sc-scudo-bonus")?.value)||0;
+  const totale=base+(scudo?bonus:0);
+  const el=document.getElementById("ca-totale");
+  if(el){
+    el.textContent=scudo?"CA totale: "+totale:"";
+  }
+};
+
 window.updateHPBar=()=>{
   const max=parseInt(document.getElementById("sc-pf-max")?.value)||0;
   const att=parseInt(document.getElementById("sc-pf-att")?.value)||0;
@@ -650,14 +834,16 @@ window.updatePreview=()=>{
 };
 
 /* ── CAMPI DA SALVARE / CARICARE ── */
+// Campi input/select normali (non Quill)
 const FIELDS = [
   "sc-nome","sc-classe","sc-razza","sc-livello","sc-background","sc-allineamento","sc-pe","sc-prof",
   "sc-for","sc-des","sc-cos","sc-int","sc-sag","sc-car",
   "sc-pf-max","sc-pf-att","sc-pf-tmp","sc-ca","sc-ini","sc-vel","sc-dv","sc-ds-ok","sc-ds-fail",
-  "sc-ispirazione","sc-tratti","sc-ideali","sc-legami","sc-difetti",
-  "sc-competenze","sc-lingue","sc-speciali","sc-inventario","sc-note",
-  "sc-mr","sc-ma","sc-me","sc-mo","sc-mp"
+  "sc-ispirazione",
+  "sc-mr","sc-ma","sc-me","sc-mo","sc-mp",
+  "sc-scudo-bonus"
 ];
+// I campi Quill sono in QUILL_FIELDS e vengono salvati/caricati separatamente
 
 async function loadScheda(){
   try{
@@ -674,6 +860,12 @@ async function loadScheda(){
       const chk=document.getElementById("chk-"+sk.id);
       if(chk&&d["chk-"+sk.id]!=null) chk.checked=d["chk-"+sk.id];
     });
+    // Carica contenuto negli editor Quill
+    QUILL_FIELDS.forEach(id=>{
+      if(quills[id]&&d[id]){
+        quills[id].root.innerHTML = d[id];
+      }
+    });
     // Ricalcola tutto
     ["for","des","cos","int","sag","car"].forEach(updateMod);
     updateAllSkills();
@@ -682,6 +874,15 @@ async function loadScheda(){
     if(d.updatedAt?.toDate){
       document.getElementById("saved-at").textContent=
         "Ultimo salvataggio: "+d.updatedAt.toDate().toLocaleString("it-IT");
+    // Tiri salvezza
+    ["for","des","cos","int","sag","car"].forEach(s=>{
+      const chk=document.getElementById("ts-"+s);
+      if(chk&&d["ts-"+s]!=null) chk.checked=d["ts-"+s];
+    });
+    // Scudo
+    const scudoChk=document.getElementById("sc-scudo");
+    if(scudoChk&&d["sc-scudo"]!=null) scudoChk.checked=d["sc-scudo"];
+    updateCA();
     }
   } catch(e){ console.error(e); toast("Errore caricamento scheda."); }
 }
@@ -708,10 +909,22 @@ window.saveScheda=async()=>{
     const el=document.getElementById(id);
     if(el) data[id]=el.value.trim ? el.value.trim() : el.value;
   });
+  // Salva contenuto degli editor Quill
+  QUILL_FIELDS.forEach(id=>{
+    if(quills[id]) data[id] = quills[id].root.innerHTML;
+  });
   SKILLS.forEach(sk=>{
     const chk=document.getElementById("chk-"+sk.id);
     if(chk) data["chk-"+sk.id]=chk.checked;
   });
+  // Tiri salvezza
+  ["for","des","cos","int","sag","car"].forEach(s=>{
+    const chk=document.getElementById("ts-"+s);
+    if(chk) data["ts-"+s]=chk.checked;
+  });
+  // Scudo
+  const scudoChk=document.getElementById("sc-scudo");
+  if(scudoChk) data["sc-scudo"]=scudoChk.checked;
   try{
     await setDoc(doc(db,"users",uid,"scheda","main"),data,{merge:true});
     const now=new Date().toLocaleTimeString("it-IT");
@@ -742,6 +955,150 @@ window.saveScheda=async()=>{
     document.getElementById("saved-at").textContent="Salvato alle "+now;
     toast("⛧ Scheda salvata!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+/* ── COUNTER ── */
+let countersUnsub = null;
+
+function listenCounters(){
+  if(!uid) return;
+  const { collection, query, orderBy, onSnapshot,
+          addDoc, updateDoc, deleteDoc, doc } = window._firestoreFns;
+  countersUnsub = onSnapshot(
+    query(collection(db,"users",uid,"counters"), orderBy("ordine","asc")),
+    snap => renderCounters(snap.docs.map(d=>({id:d.id,...d.data()}))),
+    e => console.error("Counters:",e)
+  );
+}
+
+function renderCounters(list){
+  const grid = document.getElementById("counter-grid"); if(!grid) return;
+  if(!list.length){
+    grid.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessun counter. Aggiungine uno qui sotto.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(c=>{
+    const curr = Math.max(0, Math.min(c.corrente||0, c.massimo||0));
+    const max  = c.massimo||0;
+    const pips = max > 0 && max <= 20
+      ? '<div class="c-pip-row">'+
+          Array.from({length:max},(_,i)=>
+            `<div class="c-pip ${i<curr?"on":"off"}" onclick="pipClick('${c.id}',${i},${curr},${max})"></div>`
+          ).join("")+
+        '</div>'
+      : "";
+    return `
+      <div class="counter-card">
+        <div class="c-actions">
+          <button class="btn btn-ghost btn-xs" onclick="openEditCounter('${c.id}')">✏</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteCounter('${c.id}')">🗑</button>
+        </div>
+        <div class="c-name" title="${esc(c.nome||"")}">${esc(c.nome||"Counter")}</div>
+        <div class="c-recharge">↺ ${esc(c.ricarica||"manuale")}</div>
+        ${pips}
+        <div class="counter-controls">
+          <button class="c-btn" onclick="changeCounter('${c.id}',${curr-1},${max})">−</button>
+          <div>
+            <span class="c-val">${curr}</span>
+            <span class="c-max"> / ${max}</span>
+          </div>
+          <button class="c-btn" onclick="changeCounter('${c.id}',${curr+1},${max})">+</button>
+        </div>
+        ${c.note?`<div class="c-note">${esc(c.note)}</div>`:""}
+      </div>`;
+  }).join("");
+}
+
+window.pipClick=async(id, idx, curr, max)=>{
+  // Clic su pip pieno → porta il valore a idx, clic su pip vuoto → porta a idx+1
+  const newVal = idx < curr ? idx : idx + 1;
+  await updateCounter(id, newVal, max);
+};
+
+window.changeCounter=async(id, newVal, max)=>{
+  await updateCounter(id, newVal, max);
+};
+
+async function updateCounter(id, newVal, max){
+  const clamped = Math.max(0, Math.min(newVal, max));
+  try{
+    const { doc, updateDoc } = window._firestoreFns;
+    await updateDoc(doc(db,"users",uid,"counters",id),{corrente:clamped});
+  } catch(e){ toast("Errore: "+e.message); }
+}
+
+window.addCounter=async()=>{
+  const nome = document.getElementById("cn-nome")?.value.trim();
+  if(!nome){ toast("Inserisci il nome del counter."); return; }
+  const { collection, addDoc, getDocs } = window._firestoreFns;
+  const existing = await getDocs(collection(db,"users",uid,"counters"));
+  const ordine = existing.size;
+  try{
+    await addDoc(collection(db,"users",uid,"counters"),{
+      nome,
+      corrente: parseInt(document.getElementById("cn-corrente")?.value)||0,
+      massimo:  parseInt(document.getElementById("cn-massimo")?.value)||0,
+      ricarica: document.getElementById("cn-ricarica")?.value||"manuale",
+      note:     document.getElementById("cn-note")?.value.trim()||"",
+      ordine,
+      createdAt: new Date()
+    });
+    ["cn-nome","cn-note"].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=""; });
+    document.getElementById("cn-corrente").value="0";
+    document.getElementById("cn-massimo").value="0";
+    document.getElementById("counter-add-details").removeAttribute("open");
+    toast("Counter aggiunto!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.deleteCounter=async(id)=>{
+  if(!confirm("Eliminare questo counter?")) return;
+  const { doc, deleteDoc } = window._firestoreFns;
+  try{ await deleteDoc(doc(db,"users",uid,"counters",id)); toast("Counter eliminato."); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+
+window.openEditCounter=(id)=>{
+  // Leggi i dati dal DOM già renderizzato (i dati sono nel closure di renderCounters)
+  // Per semplicità rileggiamo da Firestore
+  const { doc, getDoc, updateDoc } = window._firestoreFns;
+  getDoc(doc(db,"users",uid,"counters",id)).then(snap=>{
+    if(!snap.exists()) return;
+    const c = snap.data();
+    // Riusa la modal della scheda se presente, altrimenti alert
+    const body = `
+      <label>Nome</label><input id="ec-nome" value="${esc(c.nome||"")}">
+      <label>Valore attuale</label><input id="ec-corrente" type="number" value="${c.corrente||0}">
+      <label>Massimo</label><input id="ec-massimo" type="number" value="${c.massimo||0}">
+      <label>Si ricarica con</label>
+      <select id="ec-ricarica">
+        ${["manuale","riposo breve","riposo lungo","alba","sessione"]
+          .map(v=>`<option${c.ricarica===v?" selected":""}>${v}</option>`).join("")}
+      </select>
+      <label>Note</label><input id="ec-note" value="${esc(c.note||"")}">
+    `;
+    openModal("Modifica Counter", body, async()=>{
+      await updateDoc(doc(db,"users",uid,"counters",id),{
+        nome:     document.getElementById("ec-nome").value.trim(),
+        corrente: parseInt(document.getElementById("ec-corrente").value)||0,
+        massimo:  parseInt(document.getElementById("ec-massimo").value)||0,
+        ricarica: document.getElementById("ec-ricarica").value,
+        note:     document.getElementById("ec-note").value.trim(),
+      });
+      toast("Counter aggiornato!");
+    });
+  });
+};
+
+function openModal(title, bodyHTML, saveFn){
+  document.getElementById("modal-title").textContent = title;
+  document.getElementById("modal-body").innerHTML = bodyHTML;
+  document.getElementById("modal-save").onclick = async()=>{ await saveFn(); closeModal(); };
+  const ov = document.getElementById("edit-overlay");
+  ov.style.display = "flex";
+}
+window.closeModal=()=>{
+  document.getElementById("edit-overlay").style.display = "none";
 };
 
 </script>
