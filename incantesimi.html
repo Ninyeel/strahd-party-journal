@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incantesimi — La Maledizione di Strahd</title>
+<link rel="stylesheet" href="css/shared.css">
+<link rel="stylesheet" href="css/theme-incantesimi.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="overlay">
+  <div class="spinner"></div>
+  <p>Consultando il libro degli incantesimi…</p>
+</div>
+
+<div id="screen-auth" style="display:none;">
+  <div class="auth-box">
+    <h2>La Maledizione di Strahd</h2>
+    <p class="sub">Accesso riservato al party</p>
+    <div id="auth-error" style="display:none;" class="alert-err"></div>
+    <button class="btn btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908C16.658 14.121 17.64 11.813 17.64 9.205z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Accedi con Google
+    </button>
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-dim);font-size:13px;">
+      <div style="flex:1;height:1px;background:var(--border)"></div>oppure con email<div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="nome@esempio.it"></div>
+    <div class="field"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-waiting" style="display:none;">
+  <div class="waiting-box">
+    <div style="font-size:36px;margin-bottom:12px">✦</div>
+    <h2>In attesa di approvazione</h2>
+    <p>Attendi che Elisa ti approvi.</p>
+    <span style="color:var(--gold);font-style:italic;margin-top:10px;display:block" id="waiting-email"></span>
+    <div style="margin-top:20px"><button class="btn btn-danger btn-sm" onclick="logout()">Esci</button></div>
+  </div>
+</div>
+
+<div id="screen-app" style="display:none;">
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <span class="brand">STRAHD ⛧</span>
+      <a href="index.html">🏠 Home</a>
+      <a href="sessione.html">⚡ Sessione</a>
+      <a href="scheda.html">📋 Scheda</a>
+      <a href="incantesimi.html" class="active">📖 Incantesimi</a>
+      <a href="grimorio.html">📚 Grimorio</a>
+      <span class="nav-spacer"></span>
+      <div class="nav-user">
+        <span onclick="toggleUserMenu()" style="cursor:pointer;color:var(--arcane-glow);border-bottom:1px dashed var(--arcane);padding-bottom:1px">✦ <span id="nav-nick-text"></span> ▾</span>
+        <div id="user-menu" style="display:none;">
+          <button class="user-menu-item" onclick="window.location.href='scheda.html'">🧙 Scheda</button>
+          <button class="user-menu-item" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="title-bar">
+      <h1>✦ Libro degli Incantesimi</h1>
+      <div class="sub" id="pg-name-display">Caricamento…</div>
+    </div>
+
+    <!-- SLOT INCANTESIMO -->
+    <div class="slots-panel">
+      <div class="slots-title">Slot Incantesimo</div>
+      <div class="slots-grid" id="slots-grid">
+        <!-- popolato da JS -->
+      </div>
+      <div class="slots-actions">
+        <button class="btn btn-arcane btn-sm" onclick="riposo()">🌙 Riposo Lungo — Recupera tutti gli slot</button>
+        <span class="rest-info">Gli slot si resettano al massimo impostato per ogni livello.</span>
+      </div>
+    </div>
+
+    <!-- FORM AGGIUNGI INCANTESIMO -->
+    <div style="background:rgba(138,127,209,.08);border:1px solid var(--arcane-dark);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--arcane-glow)">📚 Vuoi aggiungere un incantesimo?</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:2px">Il flusso consigliato è: cerca nel Grimorio condiviso → clicca "+ ai miei incantesimi".</div>
+      </div>
+      <a href="grimorio.html" class="btn btn-arcane btn-sm">Apri il Grimorio →</a>
+    </div>
+    <details class="add-panel" id="add-details">
+      <summary>Aggiungi Incantesimo Manualmente</summary>
+      <div class="add-form-grid">
+        <div class="f-field"><label>Nome *</label><input id="f-nome" placeholder="es. Dardo Incantato"></div>
+        <div class="f-field"><label>Livello (0=trucchetto)</label><input id="f-livello" type="number" min="0" max="9" value="1"></div>
+        <div class="f-field"><label>Scuola</label>
+          <select id="f-scuola">
+            <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+            <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+            <option>Necromanzia</option><option>Trasmutazione</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-form-grid2">
+        <div class="f-field"><label>Tempo di lancio</label><input id="f-tempo" placeholder="1 azione"></div>
+        <div class="f-field"><label>Gittata</label><input id="f-gittata" placeholder="18 m"></div>
+        <div class="f-field"><label>Durata</label><input id="f-durata" placeholder="Istantanea"></div>
+        <div class="f-field"><label>Componenti</label><input id="f-comp" placeholder="V, S, M (...)"></div>
+      </div>
+      <div class="checkrow">
+        <label><input type="checkbox" id="f-conc"> Concentrazione</label>
+        <label><input type="checkbox" id="f-rit"> Rituale</label>
+        <label><input type="checkbox" id="f-prep"> Preparato</label>
+      </div>
+      <div class="f-field" style="margin-top:10px"><label>Descrizione</label>
+        <div id="f-desc" class="ql-target"></div>
+      </div>
+      <div class="f-field"><label>A livelli superiori (Upcast)</label>
+        <div id="f-upcast" class="ql-target"></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-arcane" onclick="addSpell()">✦ Aggiungi Incantesimo</button>
+      </div>
+    </details>
+
+    <!-- FILTRI -->
+    <div class="filter-bar">
+      <input id="f-search" placeholder="🔍 cerca nome o descrizione…" oninput="renderSpells()">
+      <select id="f-lvl" onchange="renderSpells()">
+        <option value="">Tutti i livelli</option>
+        <option value="0">Trucchetti</option>
+        <option value="1">1°</option><option value="2">2°</option><option value="3">3°</option>
+        <option value="4">4°</option><option value="5">5°</option><option value="6">6°</option>
+        <option value="7">7°</option><option value="8">8°</option><option value="9">9°</option>
+      </select>
+      <select id="f-scuola-filter" onchange="renderSpells()">
+        <option value="">Tutte le scuole</option>
+        <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+        <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+        <option>Necromanzia</option><option>Trasmutazione</option>
+      </select>
+      <select id="f-prep-filter" onchange="renderSpells()">
+        <option value="">Tutti</option>
+        <option value="1">Solo preparati</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <!-- LISTA INCANTESIMI -->
+    <div id="spell-list"></div>
+
+    <footer>✦ La magia è l'unica luce che Strahd non può spegnere.</footer>
+  </div>
+</div>
+
+<!-- MODAL MODIFICA -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modal-title">Modifica Incantesimo</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-arcane btn-sm" id="modal-save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+<script type="module">
+import {
+  auth, db, onAuthStateChanged,
+  hideOverlay, showScreen, toast, esc,
+  loginGoogle, loginEmail, registerEmail, logout,
+  toggleUserMenu, initUserMenuClose, loadUserProfile
+} from "./js/common.js";
+import { doc, getDoc, setDoc, collection, addDoc, deleteDoc,
+         updateDoc, onSnapshot, query, orderBy, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// Rende disponibili le funzioni Firestore al codice dei counter
+window._firestoreFns = { doc, getDoc, setDoc, collection, addDoc,
+                         updateDoc, deleteDoc, onSnapshot, query,
+                         orderBy, getDocs };
+
+window.loginGoogle    = loginGoogle;
+window.loginEmail     = loginEmail;
+window.registerEmail  = registerEmail;
+window.logout         = logout;
+window.toggleUserMenu = toggleUserMenu;
+
+initUserMenuClose();
+
+let uid = "";
+let spellsCache = [];
+let slotsData = {};   // { 1: {max:2, used:1}, 2: {max:1, used:0}, … }
+
+const QUILL_TOOLBAR = [
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link'], ['clean']
+];
+let qDesc = null;
+let qUpcast = null;
+
+function initFormQuills(){
+  qDesc   = new Quill('#f-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno…', modules:{toolbar:QUILL_TOOLBAR} });
+  qUpcast = new Quill('#f-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+}
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async user=>{
+  if(!user){ hideOverlay(); showScreen("screen-auth"); return; }
+  try{
+    const data = await loadUserProfile(user.uid);
+    uid = user.uid;
+
+    if(data.approved === true){
+      document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
+      // Mostra nome PG dalla scheda
+      try{
+        const sc=await getDoc(doc(db,"users",uid,"scheda","main"));
+        if(sc.exists()&&sc.data()["sc-nome"]){
+          document.getElementById("pg-name-display").textContent=
+            sc.data()["sc-nome"]+" · "+(sc.data()["sc-classe"]||"")+" Livello "+(sc.data()["sc-livello"]||"?");
+        } else {
+          document.getElementById("pg-name-display").textContent="Compila prima la scheda personaggio";
+        }
+      } catch(e){ document.getElementById("pg-name-display").textContent=""; }
+      showScreen("screen-app");
+      initFormQuills();
+      await loadSlots();
+      buildSlotsGrid();
+      listenSpells();
+    } else {
+      document.getElementById("waiting-email").textContent=user.email;
+      showScreen("screen-waiting");
+    }
+  } catch(e){ console.error(e); toast("Errore: "+e.message); }
+  finally{ hideOverlay(); }
+});
+
+/* ── SLOT ── */
+async function loadSlots(){
+  try{
+    const snap=await getDoc(doc(db,"users",uid,"scheda","slots"));
+    if(snap.exists()) slotsData=snap.data();
+    else{
+      // Inizializza vuoto livelli 1-9
+      for(let i=1;i<=9;i++) slotsData[i]={max:0,used:0};
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function saveSlots(){
+  try{
+    await setDoc(doc(db,"users",uid,"scheda","slots"),slotsData,{merge:true});
+  } catch(e){ console.error("Slot save:",e); }
+}
+
+function buildSlotsGrid(){
+  const grid=document.getElementById("slots-grid");
+  grid.innerHTML="";
+  for(let lv=1;lv<=9;lv++){
+    const s=slotsData[lv]||{max:0,used:0};
+    const col=document.createElement("div"); col.className="slot-col"; col.id="slot-col-"+lv;
+    col.innerHTML=`
+      <label>${lv}°</label>
+      <div class="slot-pips" id="pips-${lv}"></div>
+      <div class="slot-counter" id="counter-${lv}"></div>
+      <div class="slot-max-row">
+        <label>max</label>
+        <input type="number" min="0" max="4" value="${s.max}"
+          onchange="setSlotMax(${lv},this.value)">
+      </div>
+    `;
+    grid.appendChild(col);
+    renderPips(lv);
+  }
+}
+
+function renderPips(lv){
+  const s=slotsData[lv]||{max:0,used:0};
+  const container=document.getElementById("pips-"+lv); if(!container) return;
+  const counter=document.getElementById("counter-"+lv);
+  const avail=Math.max(0,s.max-s.used);
+  container.innerHTML="";
+  const row=document.createElement("div"); row.className="pip-row";
+  for(let i=0;i<s.max;i++){
+    const pip=document.createElement("div");
+    pip.className="pip "+(i<avail?"avail":"used");
+    pip.title=i<avail?"Clicca per usare lo slot":"Slot usato — clicca per recuperare";
+    pip.onclick=()=>togglePip(lv,i,avail);
+    row.appendChild(pip);
+  }
+  if(s.max===0){
+    const empty=document.createElement("div");
+    empty.style.cssText="font-size:11px;color:var(--text-dim);font-style:italic;";
+    empty.textContent="—";
+    row.appendChild(empty);
+  }
+  container.appendChild(row);
+  if(counter) counter.textContent=s.max>0?avail+" / "+s.max:"";
+}
+
+window.togglePip=async(lv,idx,avail)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const s=slotsData[lv];
+  // Se il pip cliccato è disponibile → usalo (aumenta used)
+  // Se è usato → recuperalo (diminuisce used)
+  if(idx<avail){
+    s.used=Math.min(s.max,s.used+1);
+  } else {
+    s.used=Math.max(0,s.used-1);
+  }
+  renderPips(lv);
+  await saveSlots();
+};
+
+window.setSlotMax=async(lv,val)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const max=Math.max(0,parseInt(val)||0);
+  slotsData[lv].max=max;
+  slotsData[lv].used=Math.min(slotsData[lv].used,max);
+  renderPips(lv);
+  await saveSlots();
+};
+
+window.riposo=async()=>{
+  if(!confirm("Riposo Lungo: recuperare tutti gli slot incantesimo?")) return;
+  for(let i=1;i<=9;i++){
+    if(slotsData[i]) slotsData[i].used=0;
+  }
+  for(let i=1;i<=9;i++) renderPips(i);
+  await saveSlots();
+  toast("🌙 Riposo lungo: tutti gli slot recuperati!");
+};
+
+/* ── INCANTESIMI ── */
+function listenSpells(){
+  const ref=query(collection(db,"users",uid,"incantesimi"),orderBy("livello","asc"));
+  onSnapshot(ref,snap=>{
+    spellsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderSpells();
+  },e=>{ console.error(e); toast("Errore: "+e.message); });
+}
+
+window.renderSpells=()=>{
+  const ft=(document.getElementById("f-search")?.value||"").toLowerCase();
+  const fl=document.getElementById("f-lvl")?.value;
+  const fs=document.getElementById("f-scuola-filter")?.value;
+  const fp=document.getElementById("f-prep-filter")?.value;
+
+  let data=spellsCache.filter(s=>
+    (!ft||(s.nome||"").toLowerCase().includes(ft)||(s.descrizione||"").toLowerCase().includes(ft))&&
+    (fl===""||String(s.livello)===fl)&&
+    (!fs||s.scuola===fs)&&
+    (!fp||s.preparato)
+  );
+
+  const countEl=document.getElementById("filter-count");
+  if(countEl) countEl.textContent=data.length+" incantesimi"+(data.length!==spellsCache.length?" (su "+spellsCache.length+")":"");
+
+  const list=document.getElementById("spell-list"); if(!list) return;
+  if(!data.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text-dim);font-style:italic;padding:40px 0">Nessun incantesimo trovato.</div>';
+    return;
+  }
+
+  // Raggruppa per livello
+  const byLevel={};
+  data.forEach(s=>{ const l=s.livello??1; if(!byLevel[l]) byLevel[l]=[]; byLevel[l].push(s); });
+  // Ordine alfabetico per nome all'interno di ogni livello
+  Object.keys(byLevel).forEach(lv=>{
+    byLevel[lv].sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
+  });
+
+  let html='<div class="spell-grid">';
+  Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
+    const count = byLevel[lv].length;
+    const label = +lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
+    html+='<div class="level-header">'
+      +label
+      +'<span style="font-family:\'EB Garamond\',serif;font-size:12px;color:var(--text-dim);font-weight:normal;letter-spacing:0;text-transform:none;margin-left:10px;">'
+      +count+(count===1?" incantesimo":" incantesimi")
+      +'</span></div>';
+    byLevel[lv].forEach(s=>{
+      const badges=
+        (s.preparato?'<span class="badge badge-prep">preparato</span>':"")
+        +(s.concentrazione?'<span class="badge badge-conc">C</span>':"")
+        +(s.rituale?'<span class="badge badge-rit">R</span>':"");
+      html+=`
+        <div class="sp-card${s.preparato?" preparato":""}" id="spc-${s.id}">
+          <div class="sp-card-top">
+            <div>
+              <div class="sp-card-name">${esc(s.nome||"—")}</div>
+              <div class="sp-card-level">${esc(s.scuola||"")} · ${+s.livello===0?"Trucchetto":s.livello+"° liv."}</div>
+            </div>
+          </div>
+          ${badges?'<div class="sp-badges">'+badges+'</div>':""}
+          <div class="sp-meta">
+            <span>⏱ ${esc(s.tempo_lancio||"—")}</span>
+            <span>🎯 ${esc(s.gittata||"—")}</span>
+            <span>⌛ ${esc(s.durata||"—")}</span>
+            ${s.componenti?'<br><span>📦 '+esc(s.componenti)+'</span>':""}
+          </div>
+          ${s.descrizione?`<div class="sp-desc" id="desc-${s.id}">${s.descrizione}</div>`:""}
+          ${s.upcast?`<div class="sp-upcast" id="upcast-${s.id}" style="display:none">↑ ${s.upcast}</div>`:""}
+          <div class="sp-actions">
+            ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
+            <button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteSpell('${s.id}')">🗑</button>
+            <label class="prep-label">
+              <input type="checkbox" ${s.preparato?"checked":""} onchange="togglePrep('${s.id}',this.checked)">
+              preparato
+            </label>
+          </div>
+        </div>`;
+    });
+  });
+  html+='</div>';
+  list.innerHTML=html;
+};
+
+window.toggleDesc=(id)=>{
+  const desc=document.getElementById("desc-"+id);
+  const upcast=document.getElementById("upcast-"+id);
+  if(desc) desc.classList.toggle("open");
+  if(upcast) upcast.style.display=upcast.style.display==="none"?"block":"none";
+};
+
+window.addSpell=async()=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  const nome=document.getElementById("f-nome")?.value.trim();
+  if(!nome){ toast("Inserisci il nome dell'incantesimo."); return; }
+  const spell={
+    nome,
+    livello:parseInt(document.getElementById("f-livello")?.value)||0,
+    scuola:document.getElementById("f-scuola")?.value||"",
+    tempo_lancio:document.getElementById("f-tempo")?.value.trim()||"",
+    gittata:document.getElementById("f-gittata")?.value.trim()||"",
+    durata:document.getElementById("f-durata")?.value.trim()||"",
+    componenti:document.getElementById("f-comp")?.value.trim()||"",
+    concentrazione:document.getElementById("f-conc")?.checked||false,
+    rituale:document.getElementById("f-rit")?.checked||false,
+    preparato:document.getElementById("f-prep")?.checked||false,
+    descrizione: qDesc   ? qDesc.root.innerHTML   : "",
+    upcast:      qUpcast ? qUpcast.root.innerHTML : "",
+    createdAt:new Date()
+  };
+  try{
+    await addDoc(collection(db,"users",uid,"incantesimi"),spell);
+    // Reset form
+    ["f-nome","f-tempo","f-gittata","f-durata","f-comp","f-desc","f-upcast"].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value="";
+    });
+    ["f-conc","f-rit","f-prep"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
+    document.getElementById("f-livello").value="1";
+    if(qDesc)   qDesc.setText("");
+    if(qUpcast) qUpcast.setText("");
+    document.getElementById("add-details").removeAttribute("open");
+    toast("✦ Incantesimo aggiunto!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.togglePrep=async(id,val)=>{
+  if(!uid) return;
+  try{ await updateDoc(doc(db,"users",uid,"incantesimi",id),{preparato:val}); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+
+window.deleteSpell=async(id)=>{
+  if(!confirm("Eliminare questo incantesimo?")) return;
+  try{ await deleteDoc(doc(db,"users",uid,"incantesimi",id)); toast("Incantesimo eliminato."); }
+  catch(e){ toast("Errore: "+e.message); }
+};
+
+window.openEdit=(id)=>{
+  const s=spellsCache.find(x=>x.id===id); if(!s) return;
+  document.getElementById("modal-title").textContent="Modifica — "+esc(s.nome);
+  document.getElementById("modal-body").innerHTML=`
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+      <div><label>Nome</label><input id="me-nome" value="${esc(s.nome||"")}"></div>
+      <div><label>Livello</label><input id="me-livello" type="number" min="0" max="9" value="${s.livello??1}"></div>
+    </div>
+    <label>Scuola</label>
+    <select id="me-scuola">
+      ${["Abiurazione","Ammaliamento","Divinazione","Evocazione","Illusione","Invocazione","Necromanzia","Trasmutazione"]
+        .map(sc=>`<option${s.scuola===sc?" selected":""}>${sc}</option>`).join("")}
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Tempo di lancio</label><input id="me-tempo" value="${esc(s.tempo_lancio||"")}"></div>
+      <div><label>Gittata</label><input id="me-gittata" value="${esc(s.gittata||"")}"></div>
+      <div><label>Durata</label><input id="me-durata" value="${esc(s.durata||"")}"></div>
+      <div><label>Componenti</label><input id="me-comp" value="${esc(s.componenti||"")}"></div>
+    </div>
+    <div style="display:flex;gap:16px;margin:10px 0;font-size:14px">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-conc"${s.concentrazione?" checked":""}> Concentrazione</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-rit"${s.rituale?" checked":""}> Rituale</label>
+    </div>
+    <label>Descrizione</label><div id="me-desc"></div>
+    <label>A livelli superiori (Upcast)</label><div id="me-upcast"></div>
+  `;
+
+  document.getElementById("modal-overlay").classList.add("open");
+  setTimeout(()=>{
+    const qMDesc   = new Quill('#me-desc',   { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    const qMUpcast = new Quill('#me-upcast', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    if(s.descrizione) qMDesc.root.innerHTML   = s.descrizione;
+    if(s.upcast)      qMUpcast.root.innerHTML = s.upcast;
+    document.getElementById("modal-save").onclick = async()=>{
+      await updateDoc(doc(db,"users",uid,"incantesimi",id),{
+        nome:        document.getElementById("me-nome").value.trim(),
+        livello:     parseInt(document.getElementById("me-livello").value)||0,
+        scuola:      document.getElementById("me-scuola").value,
+        tempo_lancio:document.getElementById("me-tempo").value.trim(),
+        gittata:     document.getElementById("me-gittata").value.trim(),
+        durata:      document.getElementById("me-durata").value.trim(),
+        componenti:  document.getElementById("me-comp").value.trim(),
+        concentrazione: document.getElementById("me-conc").checked,
+        rituale:     document.getElementById("me-rit").checked,
+        descrizione: qMDesc.root.innerHTML,
+        upcast:      qMUpcast.root.innerHTML,
+      });
+      toast("Incantesimo aggiornato!");
+      closeModal();
+    };
+  }, 50);
+};
+
+window.closeModal=()=>document.getElementById("modal-overlay").classList.remove("open");
+document.getElementById("modal-overlay").addEventListener("click",e=>{
+  if(e.target===document.getElementById("modal-overlay")) closeModal();
+});
+</script>
+</body>
+</html>
