@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Maledizione di Strahd — Party Journal</title>
@@ -279,6 +280,16 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 .sp-slot-box input{background:transparent;border:none;border-bottom:1px solid #3a3060;color:#c0b8f0;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;width:100%;text-align:center;padding:0;}
 .sp-slot-box input:focus{outline:none;border-bottom-color:#8a7fd1;}
 
+/* QUILL EDITOR */
+.ql-toolbar{background:#1a1414;border:1px solid var(--border)!important;border-radius:4px 4px 0 0;padding:6px 8px;}
+.ql-toolbar button,.ql-toolbar .ql-picker-label{filter:invert(.6);}
+.ql-container{background:#1a1414;border:1px solid var(--border)!important;border-top:none!important;border-radius:0 0 4px 4px;font-family:'EB Garamond',serif;font-size:15px;color:var(--text);min-height:70px;}
+.ql-editor{min-height:70px;padding:9px 12px;line-height:1.5;}
+.ql-editor.ql-blank::before{color:var(--text-dim)!important;font-style:italic;}
+.ql-snow .ql-stroke{stroke:var(--text-muted)!important;}
+.ql-snow .ql-fill{fill:var(--text-muted)!important;}
+.ql-picker-options{background:#1a1414!important;border-color:var(--border)!important;}
+
 </style>
 </head>
 <body>
@@ -389,7 +400,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
           <input id="new-atto-title" placeholder="Titolo atto (es. Atto VIII &mdash; Krezk)">
           <input id="new-atto-sessions" placeholder="Sessioni (es. 50&ndash;55)">
         </div>
-        <div class="form-row"><textarea id="new-atto-events" placeholder="Elenca gli eventi, uno per riga"></textarea></div>
+        <div class="form-row"><div id="new-atto-events" style="width:100%"></div></div>
         <button class="btn btn-primary" style="width:auto" onclick="addAtto()">⛧ Salva Atto</button>
       </div>
       <!-- ATTI STATICI -->
@@ -430,13 +441,12 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <li>Strahd offre aiuto contro le Megere in cambio di 3 bambole.</li>
         <li>Scambio con le Megere: refurtiva recuperata <b>tranne la mappa</b>.</li>
         <li>Imboscata Druidica.</li></ul></div>
-      <div class="atto"><h3>Atto VII &mdash; Villa Argynvostholt <span class="sess">Sessioni 49 &rarr; attuale</span></h3><ul>
+      <div class="atto"><h3>Atto VII &mdash; Villa Argynvostholt <span class="sess">Sessioni 49 &rarr; 53</span></h3><ul>
         <li>Abbiamo trovato un cartello che indica: Krezk, Passo di Tsolenka, Lago Baratok, Berez.</li>
         <li><b>Kraven dissotterra una chiave</b> e una filastrocca rituale.</li>
         <li><b>Savid</b> (elfo crepuscolare ferito).</li>
-        <li><b>Vladimir Orgaard</b> è un &ldquo;Dannato&rdquo;.</li>
+        <li><b>Vladimir Orgaard</b> è un &ldquo;Redivivo&rdquo;.</li>
         <li>Incontro con <b>Esmeralda Davenir</b> e <b>Arrigal</b>.</li>
-        <li><span class="tag-mark">IN CORSO</span> Esplorazione.</li></ul></div>
       <!-- ATTI DINAMICI DA FIREBASE -->
       <div id="atti-dinamici"></div>
     </section>
@@ -509,7 +519,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
           <input id="luogo-nome" placeholder="Nome luogo *">
           <input id="luogo-tipo" placeholder="Tipo (es. dungeon, citt&agrave;&hellip;)">
         </div>
-        <div class="form-row"><textarea id="luogo-note" placeholder="Descrizione, pericoli, indizi scoperti&hellip;"></textarea></div>
+        <div class="form-row"><div id="luogo-note" style="width:100%"></div></div>
         <button class="btn btn-primary" style="width:auto" onclick="addLuogo()">⛧ Salva Luogo</button>
       </div>
     </section>
@@ -543,7 +553,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
       <div class="add-form" style="margin-top:16px">
         <h4>+ Aggiungi Oggetto / Profezia</h4>
         <div class="form-row"><input id="prof-titolo" placeholder="Titolo (es. Spada del Sole) *"></div>
-        <div class="form-row"><textarea id="prof-note" placeholder="Descrizione, effetti, indizi&hellip;"></textarea></div>
+        <div class="form-row"><div id="prof-note" style="width:100%"></div></div>
         <button class="btn btn-primary" style="width:auto" onclick="addProfezia()">⛧ Salva</button>
       </div>
     </section>
@@ -559,7 +569,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <span><span class="dot" style="color:#4fa86e">&#9679;</span> Completata</span>
       </div>
       <ul class="quest-list">
-        <li><span class="dot aperta">&#9679;</span><span>Finire l&rsquo;esplorazione della <b>Villa Argynvostholt</b> (corridoio trappola).</span></li>
+        <li><span class="dot" style="color:#4fa86e">&#9679;</span><span>Esplorazione della <b>Villa Argynvostholt</b>.</span></li>
         <li><span class="dot aperta">&#9679;</span><span>Trovare e restituire le Spoglie di <b>Argynvost</b> al Castello di Ravenloft</span></li>
         <li><span class="dot aperta">&#9679;</span><span>Recuperare i tesori della profezia.</span></li>
         <li><span class="dot aperta">&#9679;</span><span>Localizzare il <b>Tempio d&rsquo;Ambra</b>.</span></li>
@@ -598,7 +608,7 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
         <input id="notedm-titolo" placeholder="Titolo (es. Ireena vs Tatiana) *">
       </div>
       <div class="form-row">
-        <textarea id="notedm-testo" placeholder="Descrizione dell'incongruenza o nota da verificare…"></textarea>
+        <div id="notedm-testo" style="width:100%"></div>
       </div>
       <button class="btn btn-primary" style="width:auto" onclick="addNoteDM()">⛧ Salva Nota</button>
     </div>
@@ -623,6 +633,8 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
 <script type="module">
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, GoogleAuthProvider,
@@ -634,6 +646,27 @@ import { getFirestore, doc, getDoc, setDoc, collection,
          addDoc, deleteDoc, updateDoc, onSnapshot,
          query, orderBy, where, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ── QUILL: configurazione e istanze per i form ── */
+const QUILL_TOOLBAR_FULL = [
+  [{ header: [1, 2, 3, false] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link', 'clean']
+];
+
+// Istanze Quill per i form di aggiunta
+let qAttoEvents  = null;
+let qLuogoNote   = null;
+let qProfNote    = null;
+let qNoteDMTesto = null;
+
+function initIndexQuills(){
+  qAttoEvents  = new Quill('#new-atto-events',  { theme:'snow', placeholder:'Elenca gli eventi, uno per riga', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+  qLuogoNote   = new Quill('#luogo-note',        { theme:'snow', placeholder:'Descrizione, pericoli, indizi scoperti…', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+  qProfNote    = new Quill('#prof-note',         { theme:'snow', placeholder:'Descrizione, effetti, indizi…', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+  qNoteDMTesto = new Quill('#notedm-testo',      { theme:'snow', placeholder:"Descrizione dell'incongruenza o nota da verificare…", modules:{toolbar:QUILL_TOOLBAR_FULL} });
+}
 
 const firebaseConfig = {
   apiKey:"AIzaSyBbZdNw-2bfcNQqMuZ8IjQixRaTmtWChfc",
@@ -688,6 +721,7 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved===true){
       document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
+      initIndexQuills();
       listenNPCs();
       listenAtti();
       listenLuoghi();
@@ -1006,10 +1040,11 @@ window.addAtto=async()=>{
   try{
     await addDoc(collection(db,"campaigns","strahd","atti"),{
       title,sessions:document.getElementById("new-atto-sessions").value.trim(),
-      events:document.getElementById("new-atto-events").value.trim(),
+      events: qAttoEvents ? qAttoEvents.root.innerHTML : "",
       authorId:uid,createdAt:new Date()
     });
-    ["new-atto-title","new-atto-sessions","new-atto-events"].forEach(id=>document.getElementById(id).value="");
+    ["new-atto-title","new-atto-sessions"].forEach(id=>document.getElementById(id).value="");
+    if(qAttoEvents) qAttoEvents.setText("");
     toast("Atto salvato!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
@@ -1022,7 +1057,7 @@ function listenAtti(){
       const lines=(a.events||"").split("\n").filter(Boolean);
       const div=document.createElement("div"); div.className="atto"; div.style.borderLeft="3px solid var(--gold)";
       div.innerHTML='<h3>'+esc(a.title)+(a.sessions?' <span class="sess">'+esc(a.sessions)+'</span>':'')+'</h3>'
-        +'<ul>'+lines.map(l=>'<li>'+esc(l)+'</li>').join("")+'</ul>'
+        +'<div style="font-size:15px;color:var(--text-muted)">'+(a.events||"")+'</div>'
         +(own?'<button class="item-del" onclick="deleteAtto(\''+ds.id+'\')">&#128465;</button>'
             +'<button class="item-edit" onclick="openAttoEdit(\''+ds.id+'\',\''+esc(a.title)+'\',\''+esc(a.sessions||"")+'\',\''+esc(a.events||"")+'\')">&#9999;</button>':"");
       c.appendChild(div);
@@ -1034,16 +1069,22 @@ window.openAttoEdit=(id,title,sessions,events)=>{
   openModal("Modifica Atto",
     '<label>Titolo</label><input id="ae-title" value="'+title+'">'
     +'<label>Sessioni</label><input id="ae-sessions" value="'+sessions+'">'
-    +'<label>Eventi (uno per riga)</label><textarea id="ae-events" style="min-height:140px">'+events+'</textarea>',
+    +'<label>Eventi</label><div id="ae-events" style="min-height:140px"></div>',
     async()=>{
+      const qAE = window._modalQuills?.ae;
       await updateDoc(doc(db,"campaigns","strahd","atti",id),{
         title:document.getElementById("ae-title").value.trim(),
         sessions:document.getElementById("ae-sessions").value.trim(),
-        events:document.getElementById("ae-events").value.trim(),
+        events: qAE ? qAE.root.innerHTML : "",
       });
       toast("Atto aggiornato!");
     }
   );
+  setTimeout(()=>{
+    const qAE = new Quill('#ae-events', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+    qAE.root.innerHTML = events;
+    window._modalQuills = { ae: qAE };
+  }, 50);
 };
 
 /* ── LUOGHI ── */
@@ -1053,10 +1094,11 @@ window.addLuogo=async()=>{
   try{
     await addDoc(collection(db,"campaigns","strahd","luoghi"),{
       nome,tipo:document.getElementById("luogo-tipo").value.trim(),
-      note:document.getElementById("luogo-note").value.trim(),
+      note: qLuogoNote ? qLuogoNote.root.innerHTML : "",
       authorId:uid,createdAt:new Date()
     });
-    ["luogo-nome","luogo-tipo","luogo-note"].forEach(id=>document.getElementById(id).value="");
+    ["luogo-nome","luogo-tipo"].forEach(id=>document.getElementById(id).value="");
+    if(qLuogoNote) qLuogoNote.setText("");
     toast("Luogo salvato!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
@@ -1069,7 +1111,7 @@ function listenLuoghi(){
       const lines=(l.note||"").split("\n").filter(Boolean);
       const div=document.createElement("div"); div.className="luogo"; div.style.borderLeft="3px solid var(--gold)";
       div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
-        +'<ul>'+lines.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>'
+        +'<div style="font-size:14.5px;color:var(--text-muted)">'+(l.note||"")+'</div>'
         +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>'
             +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
@@ -1080,16 +1122,22 @@ window.openLuogoEdit=(id,nome,tipo,note)=>{
   openModal("Modifica Luogo",
     '<label>Nome</label><input id="le-nome" value="'+nome+'">'
     +'<label>Tipo</label><input id="le-tipo" value="'+tipo+'">'
-    +'<label>Note (una per riga)</label><textarea id="le-note" style="min-height:120px">'+note+'</textarea>',
+    +'<label>Note</label><div id="le-note" style="min-height:120px"></div>',
     async()=>{
+      const qLE = window._modalQuills?.le;
       await updateDoc(doc(db,"campaigns","strahd","luoghi",id),{
         nome:document.getElementById("le-nome").value.trim(),
         tipo:document.getElementById("le-tipo").value.trim(),
-        note:document.getElementById("le-note").value.trim(),
+        note: qLE ? qLE.root.innerHTML : "",
       });
       toast("Luogo aggiornato!");
     }
   );
+  setTimeout(()=>{
+    const qLE = new Quill('#le-note', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+    qLE.root.innerHTML = note;
+    window._modalQuills = { le: qLE };
+  }, 50);
 };
 
 /* ── PROFEZIE ── */
@@ -1098,9 +1146,10 @@ window.addProfezia=async()=>{
   if(!titolo){ toast("Inserisci il titolo."); return; }
   try{
     await addDoc(collection(db,"campaigns","strahd","profezie"),{
-      titolo,note:document.getElementById("prof-note").value.trim(),authorId:uid,createdAt:new Date()
+      titolo,note: qProfNote ? qProfNote.root.innerHTML : "",authorId:uid,createdAt:new Date()
     });
-    ["prof-titolo","prof-note"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("prof-titolo").value="";
+    if(qProfNote) qProfNote.setText("");
     toast("Salvato!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
@@ -1112,7 +1161,7 @@ function listenProfezie(){
       const p=ds.data(),own=uid&&uid===p.authorId;
       const div=document.createElement("div");
       div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
-      div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?' &mdash; '+esc(p.note):"")
+      div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?'<div style="margin-top:4px;font-size:14px">'+p.note+'</div>':"")
       +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
           +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
@@ -1122,15 +1171,21 @@ window.deleteProfezia=async id=>{ if(!confirm("Eliminare?")) return; await delet
 window.openProfeziaEdit=(id,titolo,note)=>{
   openModal("Modifica Oggetto / Profezia",
     '<label>Titolo</label><input id="pe-titolo" value="'+titolo+'">'
-    +'<label>Note</label><textarea id="pe-note" style="min-height:100px">'+note+'</textarea>',
+    +'<label>Note</label><div id="pe-note" style="min-height:100px"></div>',
     async()=>{
+      const qPE = window._modalQuills?.pe;
       await updateDoc(doc(db,"campaigns","strahd","profezie",id),{
         titolo:document.getElementById("pe-titolo").value.trim(),
-        note:document.getElementById("pe-note").value.trim(),
+        note: qPE ? qPE.root.innerHTML : "",
       });
       toast("Aggiornato!");
     }
   );
+  setTimeout(()=>{
+    const qPE = new Quill('#pe-note', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+    qPE.root.innerHTML = note;
+    window._modalQuills = { pe: qPE };
+  }, 50);
 };
 
 /* ── QUEST ── */
@@ -1282,11 +1337,12 @@ window.addNoteDM = async () => {
   try {
     await addDoc(collection(db, "campaigns", "strahd", "note-dm"), {
       titolo,
-      testo: document.getElementById("notedm-testo").value.trim(),
+      testo: qNoteDMTesto ? qNoteDMTesto.root.innerHTML : "",
       authorId: uid,
       createdAt: new Date()
     });
-    ["notedm-titolo","notedm-testo"].forEach(id => document.getElementById(id).value = "");
+    document.getElementById("notedm-titolo").value="";
+    if(qNoteDMTesto) qNoteDMTesto.setText("");
     toast("Nota salvata!");
   } catch(e) { toast("Errore: " + e.message); console.error(e); }
 };
@@ -1309,7 +1365,7 @@ function listenNoteDM(){
               +'<button class="btn btn-ghost btn-xs" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999; Modifica</button>'
               +'<button class="btn btn-danger btn-xs" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465; Elimina</button>'
               +'</span>':"")
-          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?' &mdash; '+esc(d.testo):"")+'</span>'
+          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?'<div style="margin-top:4px;font-size:14px">'+d.testo+'</div>':"")+'</span>'
           +'</li>';
       }).join("");
       c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
@@ -1326,15 +1382,21 @@ window.deleteNoteDM=async id=>{
 window.openNoteDMEdit=(id,titolo,testo)=>{
   openModal("Modifica Nota",
     '<label>Titolo</label><input id="ndm-titolo" value="'+titolo+'">'
-    +'<label>Descrizione</label><textarea id="ndm-testo" style="min-height:100px">'+testo+'</textarea>',
+    +'<label>Descrizione</label><div id="ndm-testo" style="min-height:100px"></div>',
     async()=>{
+      const qNDM = window._modalQuills?.ndm;
       await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
         titolo:document.getElementById("ndm-titolo").value.trim(),
-        testo:document.getElementById("ndm-testo").value.trim(),
+        testo: qNDM ? qNDM.root.innerHTML : "",
       });
       toast("Nota aggiornata!");
     }
   );
+  setTimeout(()=>{
+    const qNDM = new Quill('#ndm-testo', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
+    qNDM.root.innerHTML = testo;
+    window._modalQuills = { ndm: qNDM };
+  }, 50);
 };
 
 window.deleteNoteDM = async id => {
