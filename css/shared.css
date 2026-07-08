@@ -131,3 +131,26 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 .totop:hover{background:var(--crimson-bright);}
 
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;animation:none!important;}}
+
+/* RICERCA GLOBALE */
+.search-btn{background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:6px 8px;border-radius:5px;transition:color .15s;}
+.search-btn:hover{color:var(--text);}
+.search-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,8,8,.88);backdrop-filter:blur(6px);padding:60px 16px 20px;}
+.search-overlay.open{display:block;}
+.search-box{max-width:680px;margin:0 auto;}
+.search-input-wrap{display:flex;align-items:center;gap:10px;background:var(--bg-panel);border:1px solid var(--crimson-bright);border-radius:8px;padding:10px 16px;margin-bottom:16px;}
+.search-input-wrap input{background:transparent;border:none;color:var(--text);font-family:'EB Garamond',serif;font-size:18px;flex:1;outline:none;}
+.search-input-wrap input::placeholder{color:var(--text-dim);}
+.search-close{background:transparent;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;padding:0 4px;}
+.search-close:hover{color:var(--text);}
+.search-results{max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.search-group{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.search-group-header{font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);padding:8px 14px;background:var(--bg-raised);border-bottom:1px solid var(--border);}
+.search-result{display:block;padding:10px 14px;border-bottom:1px solid var(--border);text-decoration:none;transition:background .15s;cursor:pointer;}
+.search-result:last-child{border-bottom:none;}
+.search-result:hover{background:rgba(122,13,18,.18);}
+.search-result-name{color:var(--text);font-size:15px;font-weight:600;}
+.search-result-sub{color:var(--text-dim);font-size:13px;margin-top:2px;}
+.search-result-sub mark{background:rgba(196,30,58,.3);color:var(--text);border-radius:2px;padding:0 2px;}
+.search-empty{text-align:center;color:var(--text-dim);font-style:italic;padding:32px 0;font-size:15px;}
+.search-hint{text-align:center;color:var(--text-dim);font-style:italic;padding:20px 0;font-size:14px;}
