@@ -133,8 +133,12 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;animation:none!important;}}
 
 /* RICERCA GLOBALE */
-.search-btn{background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:6px 8px;border-radius:5px;transition:color .15s;}
-.search-btn:hover{color:var(--text);}
+.search-btn{background:transparent;border:1px solid transparent;cursor:pointer;color:var(--text-muted);font-size:18px;padding:6px 10px;border-radius:5px;transition:color .15s,border-color .15s,background .15s;flex-shrink:0;}
+.search-btn:hover{color:var(--text);border-color:var(--crimson);background:rgba(122,13,18,.18);}
+/* Su mobile il pulsante è più grande per essere più facile da toccare */
+@media(max-width:600px){
+  .search-btn{font-size:20px;padding:8px 12px;}
+}
 .search-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(10,8,8,.88);backdrop-filter:blur(6px);padding:60px 16px 20px;}
 .search-overlay.open{display:block;}
 .search-box{max-width:680px;margin:0 auto;}
