@@ -3,441 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Maledizione di Strahd — Party Journal</title>
+<title>Incantesimi — La Maledizione di Strahd</title>
 <link rel="stylesheet" href="css/shared.css">
+<link rel="stylesheet" href="css/theme-incantesimi.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-<style>
-body{
-  background:radial-gradient(ellipse 1200px 600px at 50% -10%,#2a1414 0%,transparent 60%),
-    radial-gradient(ellipse 900px 500px at 90% 100%,#1f1414 0%,transparent 55%),var(--bg);
-}
 
-/* LAYOUT */
-.page{max-width:980px;margin:0 auto;padding:0 18px 90px;}
-
-/* HERO */
-.hero{text-align:center;padding:64px 10px 38px;border-bottom:1px solid var(--border);margin-bottom:46px;}
-.hero-emblem{width:54px;height:54px;margin:0 auto 18px;opacity:.92;filter:drop-shadow(0 0 10px rgba(196,30,58,.45));}
-.hero h1{font-family:'Cinzel Decorative',serif;font-weight:900;font-size:clamp(26px,5vw,44px);margin:0 0 10px;color:#f1e6e6;text-shadow:0 0 22px rgba(196,30,58,.35);}
-.hero .subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--text-muted);font-size:19px;max-width:560px;margin:0 auto;}
-.hero .rule{width:120px;height:1px;margin:22px auto 0;background:linear-gradient(90deg,transparent,var(--crimson-bright),transparent);}
-
-/* SECTIONS */
-section{margin-bottom:64px;scroll-margin-top:78px;}
-.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
-.seal{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:2px solid var(--crimson-bright);display:flex;align-items:center;justify-content:center;font-family:'Cinzel Decorative',serif;font-size:19px;color:var(--crimson-glow);background:radial-gradient(circle at 35% 30%,#2c1818,#1a1212);box-shadow:0 0 0 3px rgba(122,13,18,.18),inset 0 0 8px rgba(0,0,0,.6);}
-.sec-head h2{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(20px,3.2vw,28px);margin:0;color:#f1e6e6;}
-.sec-head .eyebrow{display:block;font-family:'EB Garamond',serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;}
-.divider{height:1px;width:100%;background:linear-gradient(90deg,var(--crimson) 0%,var(--border) 35%,var(--border) 65%,transparent 100%);margin:0 0 26px;}
-
-/* INDEX CARDS */
-.index-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
-.index-card{display:flex;align-items:flex-start;gap:12px;text-decoration:none;background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson);border-radius:8px;padding:16px;transition:transform .15s,border-color .15s,background .15s;}
-.index-card:hover{transform:translateY(-2px);border-left-color:var(--crimson-glow);background:var(--bg-panel-alt);}
-.index-card .num{font-family:'Cinzel Decorative',serif;color:var(--crimson-glow);font-size:20px;flex-shrink:0;}
-.index-card .label{color:var(--text);font-size:16px;font-weight:600;display:block;}
-.index-card .desc{color:var(--text-dim);font-size:13px;display:block;margin-top:2px;}
-
-/* ATTI */
-.atto{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:14px;position:relative;}
-.atto h3{margin:0 0 9px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--gold);}
-.atto h3 .sess{font-family:'EB Garamond',serif;font-size:12px;font-style:italic;color:var(--text-dim);font-weight:400;margin-left:8px;}
-.atto ul{margin:0;padding-left:20px;}
-.atto li{margin-bottom:5px;font-size:15.5px;color:var(--text-muted);}
-.atto li::marker{color:var(--crimson-bright);}
-.atto li b{color:var(--text);}
-.tag-mark{display:inline-block;font-size:11px;color:#1a1212;background:var(--crimson-bright);border-radius:3px;padding:1px 6px;margin-left:6px;vertical-align:1px;}
-
-/* TABLES */
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);}
-table{width:100%;border-collapse:collapse;background:var(--bg-panel);}
-thead th{text-align:left;font-family:'EB Garamond',serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1a1212;background:linear-gradient(180deg,var(--crimson-bright),var(--crimson));padding:10px 14px;}
-tbody td{padding:9px 14px;font-size:15px;border-top:1px solid var(--border);color:var(--text-muted);vertical-align:top;}
-tbody td:first-child{color:var(--text);font-weight:600;white-space:nowrap;}
-tbody tr:nth-child(even){background:var(--bg-panel-alt);}
-tbody tr:hover{background:rgba(122,13,18,.14);}
-.pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;border:1px solid var(--border);color:var(--text-dim);margin-right:3px;}
-.pill.vivo{border-color:#3a5a3a;color:#8fc78f;}
-.pill.morto{border-color:#5a3a3a;color:#c78f8f;}
-.pill.nonmorto{border-color:var(--crimson);color:var(--crimson-glow);}
-
-/* FILTER BAR */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
-.filter-bar input,.filter-bar select{background:#1a1414;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'EB Garamond',serif;font-size:14px;padding:7px 12px;transition:border-color .15s;}
-.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--crimson-bright);}
-.filter-bar input{flex:1;min-width:160px;}
-
-/* LUOGHI */
-.luogo{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:12px;position:relative;display:grid;grid-template-columns:160px 1fr;gap:14px;}
-@media(max-width:560px){.luogo{grid-template-columns:1fr;}}
-.luogo .nome{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:18px;color:#f1e6e6;}
-.luogo .nome small{display:block;font-family:'EB Garamond',serif;font-style:italic;font-size:12px;color:var(--text-dim);margin-top:3px;}
-
-/* LORE LIST */
-.lore-list{list-style:none;margin:18px 0 0;padding:0;}
-.lore-list li{background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;}
-.lore-list li b{color:var(--text);}
-
-/* QUEST */
-.quest-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
-.quest-list li{display:flex;align-items:flex-start;gap:10px;background:var(--bg-panel);border:1px solid var(--border);border-radius:7px;padding:11px 16px;font-size:15px;color:var(--text-muted);position:relative;}
-.quest-list li b{color:var(--text);}
-.dot{flex-shrink:0;font-size:13px;margin-top:3px;}
-.dot.aperta{color:#e2543d;}.dot.sospeso{color:#d8b65a;}.dot.mistero{color:#8a7fd1;}
-.quest-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--text-dim);margin-bottom:16px;}
-
-/* HOVER DEL / EDIT */
-.item-del,.item-edit{background:transparent;border:none;cursor:pointer;color:var(--text-dim);font-size:13px;padding:2px 6px;border-radius:4px;transition:color .15s;opacity:0;position:absolute;}
-.item-del{top:8px;right:8px;}
-.item-edit{top:8px;right:32px;}
-.atto:hover .item-del,.atto:hover .item-edit,
-.luogo:hover .item-del,.luogo:hover .item-edit,
-.lore-list li:hover .item-del,.lore-list li:hover .item-edit{opacity:1;}
-.item-del:hover{color:var(--crimson-bright);}
-.item-edit:hover{color:var(--gold);}
-.quest-del{background:transparent;border:none;cursor:pointer;color:var(--text-dim);font-size:13px;padding:2px 6px;border-radius:4px;transition:color .15s;margin-left:auto;flex-shrink:0;}
-.quest-del:hover{color:var(--crimson-bright);}
-</style>
 </head>
 
 <body>
 
-<!-- OVERLAY BLOCCANTE -->
 <div id="overlay">
   <div class="spinner"></div>
-  <p>Attraversando la nebbia&hellip;</p>
+  <p>Consultando il libro degli incantesimi…</p>
 </div>
 
-<!-- AUTH -->
 <div id="screen-auth" style="display:none;">
   <div class="auth-box">
-    <svg style="width:44px;height:44px;margin:0 auto 14px;display:block;filter:drop-shadow(0 0 8px rgba(196,30,58,.4))" viewBox="0 0 100 100" fill="none">
-      <path d="M50 8C38 8 30 18 30 28C22 26 14 30 12 38C20 38 24 42 24 42C16 46 12 56 16 64C22 58 28 56 28 56C26 66 32 76 42 80C40 72 42 66 42 66C46 72 56 72 60 66C60 66 62 72 60 80C70 76 76 66 74 56C74 56 80 58 86 64C90 56 86 46 78 42C78 42 82 38 90 38C88 30 80 26 72 28C72 18 64 8 50 8Z" fill="#c41e3a" opacity="0.85"/>
-      <circle cx="42" cy="34" r="2.4" fill="#1a1a1a"/><circle cx="58" cy="34" r="2.4" fill="#1a1a1a"/>
-    </svg>
     <h2>La Maledizione di Strahd</h2>
     <p class="sub">Accesso riservato al party</p>
-    <div id="auth-error" class="alert alert-err" style="display:none"></div>
+    <div id="auth-error" style="display:none;" class="alert-err"></div>
     <button class="btn btn-google" onclick="loginGoogle()">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908C16.658 14.121 17.64 11.813 17.64 9.205z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
       Accedi con Google
     </button>
-    <div class="auth-divider">oppure con email</div>
-    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="nome@esempio.it" autocomplete="email"></div>
-    <div class="field"><label>Password</label><input id="auth-password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-dim);font-size:13px;">
+      <div style="flex:1;height:1px;background:var(--border)"></div>oppure con email<div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="nome@esempio.it"></div>
+    <div class="field"><label>Password</label><input id="auth-password" type="password" placeholder="••••••••"></div>
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btn-primary" style="flex:1" onclick="loginEmail()">Entra</button>
       <button class="btn btn-ghost" style="flex:1" onclick="registerEmail()">Registrati</button>
     </div>
-    <div id="reset-msg" style="display:none;margin-top:10px;font-size:14px;text-align:center;color:var(--gold)"></div>
-    <div style="text-align:center;margin-top:10px">
-      <button class="btn btn-ghost btn-sm" onclick="resetPassword()" style="font-size:13px;color:var(--text-dim);border:none;background:none;cursor:pointer;text-decoration:underline">Password dimenticata?</button>
-    </div>
   </div>
 </div>
 
-<!-- WAITING -->
 <div id="screen-waiting" style="display:none;">
   <div class="waiting-box">
-    <div style="font-size:36px;margin-bottom:12px">⛧</div>
+    <div style="font-size:36px;margin-bottom:12px">✦</div>
     <h2>In attesa di approvazione</h2>
-    <p>La tua richiesta &egrave; stata inviata.<br>Attendi che Elisa ti approvi.</p>
-    <span class="email" id="waiting-email"></span>
+    <p>Attendi che Elisa ti approvi.</p>
+    <span style="color:var(--gold);font-style:italic;margin-top:10px;display:block" id="waiting-email"></span>
     <div style="margin-top:20px"><button class="btn btn-danger btn-sm" onclick="logout()">Esci</button></div>
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="screen-app" style="display:none;">
   <nav class="topnav">
     <div class="topnav-inner">
       <span class="brand">STRAHD ⛧</span>
-      <a href="#indice">&#128211; Indice</a>
+      <a href="index.html">🏠 Home</a>
       <a href="sessione.html">⚡ Sessione</a>
-      <a href="#cronologia">&#9203; Cronologia</a>
-      <a href="#personaggi">&#128101; Personaggi</a>
-      <a href="#luoghi">&#127984; Luoghi</a>
-      <a href="#profezie">&#128302; Profezie</a>
-      <a href="#quest">&#128204; Quest</a>
-      <a href="sessione.html#diario">📚 Diario</a>
+      <a href="scheda.html">📋 Scheda</a>
+      <a href="incantesimi.html" class="active">📖 Incantesimi</a>
+      <a href="grimorio.html">📚 Grimorio</a>
       <span class="nav-spacer"></span>
-      <div class="nav-user" style="position:relative">
-        <span id="nav-nickname" onclick="toggleUserMenu()" style="cursor:pointer;user-select:none;color:var(--gold);border-bottom:1px dashed var(--gold);padding-bottom:1px" title="Menu utente">⚔ <span id="nav-nick-text"></span> ▾</span>
+      <div class="nav-user">
+        <span onclick="toggleUserMenu()" style="cursor:pointer;color:var(--arcane-glow);border-bottom:1px dashed var(--arcane);padding-bottom:1px">✦ <span id="nav-nick-text"></span> ▾</span>
         <div id="user-menu" style="display:none;">
-          <button class="user-menu-item" onclick="openChangePassword()">🔑 Cambia password</button>
-          <button class="user-menu-item" onclick="window.location.href='scheda.html'">🧙 Scheda personaggio</button>          
-          <button class="user-menu-item" onclick="window.location.href='incantesimi.html'">📖 Incantesimi</button>          <hr style="border:none;border-top:1px solid var(--border);margin:0">
-          <button class="user-menu-item" style="color:#c78f8f" onclick="logout()">🚪 Logout</button>
+          <button class="user-menu-item" onclick="window.location.href='scheda.html'">🧙 Scheda</button>
+          <button class="user-menu-item" onclick="logout()">🚪 Logout</button>
         </div>
       </div>
     </div>
   </nav>
 
   <div class="page">
-
-    <header class="hero">
-      <svg class="hero-emblem" viewBox="0 0 100 100" fill="none">
-        <path d="M50 8C38 8 30 18 30 28C22 26 14 30 12 38C20 38 24 42 24 42C16 46 12 56 16 64C22 58 28 56 28 56C26 66 32 76 42 80C40 72 42 66 42 66C46 72 56 72 60 66C60 66 62 72 60 80C70 76 76 66 74 56C74 56 80 58 86 64C90 56 86 46 78 42C78 42 82 38 90 38C88 30 80 26 72 28C72 18 64 8 50 8Z" fill="#c41e3a" opacity="0.85"/>
-        <circle cx="42" cy="34" r="2.4" fill="#1a1a1a"/><circle cx="58" cy="34" r="2.4" fill="#1a1a1a"/>
-      </svg>
-      <h1>La Maledizione di Strahd</h1>
-      <p class="subtitle">&ldquo;Dove la luce si spegne. Dove il tempo si ferma. Dove i morti ricordano.&rdquo;</p>
-      <div class="rule"></div>
-    </header>
-
-    <!-- INDICE -->
-    <section id="indice">
-      <div class="sec-head"><div class="seal">I</div><div><span class="eyebrow">Sezione 1</span><h2>&#128211; Indice</h2></div></div>
-      <div class="divider"></div>
-      <div class="index-grid">
-        <a class="index-card" href="sessione.html"><span class="num">I</span><span><span class="label">⚡ Sessione</span><span class="desc">Note condivise in tempo reale</span></span></a>        
-        <a class="index-card" href="#cronologia"><span class="num">II</span><span><span class="label">&#9203; Cronologia</span><span class="desc">Gli eventi atto per atto</span></span></a>
-        <a class="index-card" href="#personaggi"><span class="num">III</span><span><span class="label">&#128101; Personaggi</span><span class="desc">PG e PNG: ruolo, stato, posizione</span></span></a>
-        <a class="index-card" href="#luoghi"><span class="num">IV</span><span><span class="label">&#127984; Luoghi</span><span class="desc">Macro-aree, indizi, pericoli</span></span></a>
-        <a class="index-card" href="#profezie"><span class="num">V</span><span><span class="label">&#128302; Profezie</span><span class="desc">Tarocchi, tesori, reliquie</span></span></a>
-        <a class="index-card" href="#quest"><span class="num">VI</span><span><span class="label">&#128204; Quest</span><span class="desc">Missioni aperte e misteri</span></span></a>
-        <a class="index-card" href="sessione.html#diario"><span class="num">VII</span><span><span class="label">📚 Diario</span><span class="desc">Archivio sessioni e note passate</span></span></a>    
-      </section>
-
-    <!-- CRONOLOGIA -->
-    <section id="cronologia">
-      <div class="sec-head"><div class="seal">II</div><div><span class="eyebrow">Sezione 2</span><h2>&#9203; Cronologia e Diario</h2></div></div>
-      <div class="divider"></div>
-      <div class="add-form">
-        <h4>+ Aggiungi nuovo atto / evento</h4>
-        <div class="form-row">
-          <input id="new-atto-title" placeholder="Titolo atto (es. Atto VIII &mdash; Krezk)">
-          <input id="new-atto-sessions" placeholder="Sessioni (es. 50&ndash;55)">
-        </div>
-        <div class="form-row"><div id="new-atto-events" style="width:100%"></div></div>
-        <button class="btn btn-primary" style="width:auto" onclick="addAtto()">⛧ Salva Atto</button>
-      </div>
-      <!-- ATTI STATICI -->
-      <div class="atto"><h3>Atto 0 &mdash; Prima della nebbia <span class="sess">Sessione 1</span></h3><ul>
-        <li><b>Ketrina</b>, figlia del Sig. <b>Algor</b>; oste <b>Baldor</b> all&rsquo;&ldquo;Occhio della Notte&rdquo;.</li>
-        <li>Sparizioni nella foresta, colpevole un falegname.</li></ul></div>
-      <div class="atto"><h3>Atto I &mdash; Casa Darst <span class="sess">Sessioni 2&ndash;7</span></h3><ul>
-        <li><b>Ireena</b> trovata in fasce a Barovia, cresciuta con <b>Ismark</b> (fratello adottivo).</li>
-        <li>Ingresso a Barovia tra cancelli sorvegliati da statue senza testa; torre infestata da zombie.</li>
-        <li>Villaggio deserto; bimbi fantasma <b>Rose</b> e <b>Thorn</b>: &ldquo;C&rsquo;&egrave; un mostro in casa nostra&rdquo;.</li>
-        <li>Casa Darst: Culto di Osybus, specchio profetico, ombre, ghoul, Mimic, Cumulo Strisciante.</li>
-        <li>Rose e Thorn sepolti; fuga dalla soffitta tra ghigliottine e topi.</li></ul></div>
-      <div class="atto"><h3>Atto II &mdash; Il villaggio di Barovia <span class="sess">Sessioni 8&ndash;11</span></h3><ul>
-        <li>Il Borgomastro trovato morto: lettera sulla figlia morsa da un vampiro.</li>
-        <li>Taverna &ldquo;Sangue della Vita&rdquo;; <b>Ismark</b>; prete <b>Donovich</b> e il figlio <b>Doru</b> (progenie vampirica).</li>
-        <li>Sepoltura del Borgomastro &mdash; <b>Strahd appare di persona</b> con un mazzo di rose nere.</li>
-        <li>Lettura dei Tarocchi di <b>Madame Eva</b>; scorta a <b>Ireena</b> verso Vallaki.</li></ul></div>
-      <div class="atto"><h3>Atto III &mdash; Vistani e Castello di Ravenloft <span class="sess">Sessioni 12&ndash;17</span></h3><ul>
-        <li>Accampamento alla Pozza di Zer: trovati il <b>Medaglione di Ravenkind</b> e una piuma runata.</li>
-        <li>Invito a cena di Strahd; carrozza guidata dall&rsquo;elfo <b>Rahadin</b>.</li>
-        <li>Vecchia con gatto ha addormentato <b>Haldir</b>. Visione condivisa.</li></ul></div>
-      <div class="atto"><h3>Atto IV &mdash; Il rapimento di Ireena <span class="sess">Sessioni 17&ndash;21</span></h3><ul>
-        <li>Il branco di licantropi di <b>Bartok</b> rapisce Ireena.</li>
-        <li>Scontro con uno Spaventapasseri; scoperto il <b>Vecchio Macinaossa</b> (Megere Morganta, Bella, Ofalia).</li>
-        <li>Prigionia onirica nel mulino delle Megere; <b>Doru</b> libera il gruppo dalle catene.</li></ul></div>
-      <div class="atto"><h3>Atto V &mdash; Vallaki <span class="sess">Sessioni 21&ndash;38</span></h3><ul>
-        <li><b>Ossa di San Andral</b> trafugate da <b>Milliboj</b> su commissione di Vasily Von Holtz.</li>
-        <li><b>Arabelle</b> rapita da Bluto, ma <b>la salviamo</b> dal lago dove un pescatore stava per annegarla; <b>Kraven uccide Bluto</b>.</li>
-        <li><span class="tag-mark">CURSED</span> Kraven inizia a trasformarsi in <b>Corvo Mannaro</b>.</li>
-        <li>Bardo <b>Rictavio</b>: pellicce di lupo, corvi magici, passaggio segreto; tigre che dice &ldquo;Strahd&rdquo;.</li>
-        <li><b>Izek ucciso</b>. Qualche giorno dopo la folla (?) giustizia il Borgomastro <b>Vargas</b>.</li>
-        <li><b>Frik e Mirtle</b> lasciati alle cure di Padre Lucian a Vallaki.</li>
-        <li>Sconfitta un'<b>Idra</b> a 5 teste nel lago.</li>
-        <li><b>Trappola delle Megere.</b>, ci svegliamo nudi e senza i nostri averi.</li></ul></div>
-      <div class="atto"><h3>Atto VI &mdash; Vecchio Macinaossa e Druidi <span class="sess">Sessioni 39&ndash;48</span></h3><ul>
-        <li>Madame Eva spiega le congreghe;</li>
-        <li><span class="tag-mark">CURSED</span><b>marchio misterioso</b> sul collo del party a seguito di un combattimento con un <b>Redivivo</b>.</li>
-        <li>Strahd offre aiuto contro le Megere in cambio di 3 bambole.</li>
-        <li>Scambio con le Megere: refurtiva recuperata <b>tranne la mappa</b>.</li>
-        <li>Imboscata Druidica.</li></ul></div>
-      <div class="atto"><h3>Atto VII &mdash; Villa Argynvostholt <span class="sess">Sessioni 49 &rarr; 53</span></h3><ul>
-        <li>Abbiamo trovato un cartello che indica: Krezk, Passo di Tsolenka, Lago Baratok, Berez.</li>
-        <li><b>Kraven dissotterra una chiave</b> e una filastrocca rituale.</li>
-        <li><b>Savid</b> (elfo crepuscolare ferito).</li>
-        <li><b>Vladimir Orgaard</b> è un &ldquo;Redivivo&rdquo;.</li>
-        <li>Incontro con <b>Esmeralda Davenir</b> e <b>Arrigal</b>.</li>
-      <!-- ATTI DINAMICI DA FIREBASE -->
-      <div id="atti-dinamici"></div>
-    </section>
-
-    <!-- PERSONAGGI -->
-    <section id="personaggi">
-      <div class="sec-head"><div class="seal">III</div><div><span class="eyebrow">Sezione 3</span><h2>&#128101; Personaggi</h2></div></div>
-      <div class="divider"></div>
-      <div class="filter-bar">
-        <input id="npc-filter-text" placeholder="&#128269; Cerca per nome o ruolo&hellip;" oninput="renderNPCTable()">
-        <select id="npc-filter-status" onchange="renderNPCTable()">
-          <option value="">Tutti gli stati</option>
-          <option>vivo</option><option>viva</option><option>morto</option><option>morta</option>
-          <option>non-morto</option><option>spirito imprigionato</option><option>sconfitta</option>
-        </select>
-        <select id="npc-filter-loc" onchange="renderNPCTable()">
-          <option value="">Tutte le posizioni</option>
-          <option>col gruppo</option><option>Barovia</option><option>Vallaki</option>
-          <option>Castello di Ravenloft</option><option>Villa Argynvostholt</option><option>accampamento Vistani</option>
-        </select>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>
-            <th style="cursor:pointer" onclick="sortNPC('name')">Nome &#8645;</th>
-            <th>Fazione / Ruolo</th>
-            <th style="cursor:pointer" onclick="sortNPC('stato')">Stato &#8645;</th>
-            <th style="cursor:pointer" onclick="sortNPC('location')">Posizione &#8645;</th>
-            <th></th>
-          </tr></thead>
-          <tbody id="npc-table-body"></tbody>
-        </table>
-      </div>
-      <div class="add-form" style="margin-top:20px">
-        <h4>+ Aggiungi / Aggiorna Personaggio</h4>
-        <div class="form-row">
-          <input id="npc-name" placeholder="Nome *">
-          <input id="npc-role" placeholder="Ruolo / Fazione">
-        </div>
-        <div class="form-row">
-          <select id="npc-stato">
-            <option value="">-- Stato --</option>
-            <option>vivo</option><option>viva</option><option>morto</option><option>morta</option>
-            <option>non-morto</option><option>spirito imprigionato</option><option>sconfitta</option><option>sconosciuto</option>
-          </select>
-          <input id="npc-location" placeholder="Posizione">
-        </div>
-        <div class="form-row"><textarea id="npc-notes" placeholder="Note aggiuntive&hellip;"></textarea></div>
-        <button class="btn btn-primary" style="width:auto" onclick="addNPC()">⛧ Salva Personaggio</button>
-      </div>
-    </section>
-
-    <!-- LUOGHI -->
-    <section id="luoghi">
-      <div class="sec-head"><div class="seal">IV</div><div><span class="eyebrow">Sezione 4</span><h2>&#127984; Luoghi Scoperti</h2></div></div>
-      <div class="divider"></div>
-      <!-- LUOGHI STATICI -->
-      <div class="luogo"><div class="nome">Villaggio di Barovia<small>punto di partenza</small></div><ul><li>Taverna &ldquo;Sangue della Vita&rdquo;, chiesa con cripta (covo di Doru), Casa Darst (esplorata e collassata).</li><li><b>Pericoli:</b> branchi di lupi, nebbia, Strahd pu&ograve; comparire in qualunque momento.</li></ul></div>
-      <div class="luogo"><div class="nome">Pozza di Zer<small>accampamento Vistano</small></div><ul><li>Tenda di Madame Eva.</li><li><b>Indizi:</b> Medaglione di Ravenkind, carillon e piuma runata.</li></ul></div>
-      <div class="luogo"><div class="nome">Castello di Ravenloft<small>dimora di Strahd</small></div><ul><li>Sala dell&rsquo;organo, sala da pranzo con 3 enormi specchi, 8 gargoyle.</li><li><b>Novit&agrave; riferita da Haldir e Lucien:</b> contabile parla male di Strahd; vecchia col gatto; spirito di Patrina imprigionato.</li><li><b>Pericoli:</b> 4 draghi rossi guardiani, sonno indotto, trappole OVUNQUE.</li></ul></div>
-      <div class="luogo"><div class="nome">Vecchio Macinaossa<small>mulino delle Megere</small></div><ul><li>4 monoliti stagionali, cerchio di pietre.</li></ul></div>
-      <div class="luogo"><div class="nome">Vallaki<small>citt&agrave; murata</small></div><ul><li>Chiesa (cripta Ossa di San Andral), casa del Borgomastro, casa Wachter.</li><li>Carro di Rictavio: tigre corazzata che dice &ldquo;Strahd&rdquo;.</li><li><b>Mistero:</b> marchio sul collo del party; specchio da attivare.</li></ul></div>
-      <div class="luogo"><div class="nome">Villa Argynvostholt<small>magione del Drago d&rsquo;Argento</small></div><ul><li>Atrio con 4 statue. Cappella del Culto dell&rsquo;Aurora, Mausoleo vuoto.</li><li><b>Pericoli:</b> cavalieri fantasma, Vladimir Orgaard (&ldquo;Dannato&rdquo;). Corridoio trappola in corso.</li><li><b>Indizio:</b> riportare le spoglie di Argynvost al Mausoleo.</li></ul></div>
-      <div class="luogo"><div class="nome">Mappa regionale<small>non ancora visitati</small></div><ul><li>Krezk, Passo di Tsolenka, Lago Baratok, Berez &mdash; solo visti in un cartello.</li><li><b>Tempio d&rsquo;Ambra:</b> posizione ignota. Custodisce il segreto per battere Strahd.</li></ul></div>
-      <!-- LUOGHI DINAMICI -->
-      <div id="luoghi-dinamici"></div>
-      <div class="add-form">
-        <h4>+ Aggiungi Luogo</h4>
-        <div class="form-row">
-          <input id="luogo-nome" placeholder="Nome luogo *">
-          <input id="luogo-tipo" placeholder="Tipo (es. dungeon, citt&agrave;&hellip;)">
-        </div>
-        <div class="form-row"><div id="luogo-note" style="width:100%"></div></div>
-        <button class="btn btn-primary" style="width:auto" onclick="addLuogo()">⛧ Salva Luogo</button>
-      </div>
-    </section>
-
-    <!-- PROFEZIE -->
-    <section id="profezie">
-      <div class="sec-head"><div class="seal">V</div><div><span class="eyebrow">Sezione 5</span><h2>&#128302; Profezie e Oggetti</h2></div></div>
-      <div class="divider"></div>
-      <div class="atto" style="margin-bottom:18px"><h3>&#9876; Come interrompere la Maledizione</h3><ul><li><b>Sconfiggere Strahd</b> in combattimento; oppure</li><li><b>Sostituirlo come regnante</b> di Barovia &mdash; anche consensualmente.</li></ul></div>
-      <div class="atto" style="margin-bottom:18px"><h3>&#128214; Lore di Strahd</h3><ul><li>Nato nel <b>306</b>, regna dal <b>347</b>. Castello costruito per la madre.</li><li>Amava <b>Tatiana</b> (lei amava Sergei &mdash; il fratello di Strahd). <b>Patrina Velikofna</b>: lapidata, spirito prigioniero.</li><li>Per vendetta uccise tutte le donne e i bambini e <b>evir&ograve; tutti gli elfi</b>.</li></ul></div>
-      <div class="table-wrap" style="margin-bottom:18px">
-        <table>
-          <thead><tr><th>Elemento</th><th>Carta</th><th>Indizio ricevuto</th></tr></thead>
-          <tbody>
-            <tr><td>Narrativa per conoscere il passato</td><td>Soldato</td><td>raggiungere le montagne, scalare la Torre Bianca sorvegliata dai Cavalieri Dorati</td></tr>
-            <tr><td>Potente forza protettiva</td><td>Indovina</td><td>Guarda colei che vede ogni cosa, il tesoro è nascosto nel suo stesso accampamento</td></tr>
-            <tr><td>Forza e potere</td><td>Gufo</td><td>Spada di loce solare, nascosta dietro il sole di una santa</td></tr>
-            <tr><td>Persona di grande aiuto</td><td>Fantasma</td><td>La sposa del male &mdash; Patrina? Ireena? Tatiana?</td></tr>
-            <tr><td>Nemico che ti condurrà da lui</td><td>Infelice</td><td>Infesta la tomba dell&rsquo;uomo che pi&ugrave; invidiava &mdash; Argynvost?</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <ul class="lore-list">
-        <li><b>Simbolo Sacro di Ravenkind</b> &mdash; sole d&rsquo;argento e rubino. 10 cariche, recupera 4+1d6/alba. Bloccare Vampiri (1c), Scacciare Non-morti (3c), Luce Solare (5c).</li>
-        <li><b>Marchio misterioso</b> &mdash; sul collo di tutto il party. Madame Eva ne conosce il significato ma non lo rivela.</li>
-        <li><b>Filastrocca rituale</b> trovata da Kraven &mdash; probabile chiave per lo specchio a Vallaki?</li>
-        <li><b>Diario di Rictavio</b> &mdash; avventura con Drusilla contro pianta mangia-uomini dalla voce soave.</li>
-        <li><b>3 bambole</b> richieste da Strahd per le Megere.</li>
-      </ul>
-      <div id="profezie-dinamiche"></div>
-      <div class="add-form" style="margin-top:16px">
-        <h4>+ Aggiungi Oggetto / Profezia</h4>
-        <div class="form-row"><input id="prof-titolo" placeholder="Titolo (es. Spada del Sole) *"></div>
-        <div class="form-row"><div id="prof-note" style="width:100%"></div></div>
-        <button class="btn btn-primary" style="width:auto" onclick="addProfezia()">⛧ Salva</button>
-      </div>
-    </section>
-
-    <!-- QUEST -->
-    <section id="quest">
-      <div class="sec-head"><div class="seal">VI</div><div><span class="eyebrow">Sezione 6</span><h2>&#128204; Quest Attive</h2></div></div>
-      <div class="divider"></div>
-      <div class="quest-legend">
-        <span><span class="dot aperta">&#9679;</span> Attiva</span>
-        <span><span class="dot sospeso">&#9679;</span> In sospeso</span>
-        <span><span class="dot mistero">&#9679;</span> Mistero irrisolto</span>
-        <span><span class="dot" style="color:#4fa86e">&#9679;</span> Completata</span>
-      </div>
-      <ul class="quest-list">
-        <li><span class="dot" style="color:#4fa86e">&#9679;</span><span>Esplorazione della <b>Villa Argynvostholt</b>.</span></li>
-        <li><span class="dot aperta">&#9679;</span><span>Trovare e restituire le Spoglie di <b>Argynvost</b> al Castello di Ravenloft</span></li>
-        <li><span class="dot aperta">&#9679;</span><span>Recuperare i tesori della profezia.</span></li>
-        <li><span class="dot aperta">&#9679;</span><span>Localizzare il <b>Tempio d&rsquo;Ambra</b>.</span></li>
-        <li><span class="dot sospeso">&#9679;</span><span>Recuperare la <b>mappa</b> ancora in mano alle Megere.</span></li>
-        <li><span class="dot sospeso">&#9679;</span><span>Risolvere il caso di Stella (che si crede un gatto).</span></li>
-        <li><span class="dot" style="color:#4fa86e">&#9679;</span><span>Portare <b>Frik e Mirtle</b> da Ireena (promessa fatta).</span></li>
-        <li><span class="dot sospeso">&#9679;</span><span>Indagare lo <b>spirito di Patrina Velikofna</b> &mdash; potrebbe essere un&rsquo;alleata?</span></li>
-        <li><span class="dot mistero">&#9679;</span><span>Significato del <b>marchio</b> sul collo del party (localizzazione per il Redivivo?).</span></li>
-        <li><span class="dot mistero">&#9679;</span><span><b>Mago misterioso</b> del lago Zarovich &mdash; Mago Folle?.</span></li>
-      </ul>
-      <ul class="quest-list" id="quest-dinamiche" style="margin-top:10px"></ul>
-      <div class="add-form" style="margin-top:16px">
-        <h4>+ Aggiungi Quest</h4>
-        <div class="form-row">
-          <select id="quest-tipo">
-            <option value="aperta">&#9679; Attiva</option>
-            <option value="sospeso">&#9679; In sospeso</option>
-            <option value="mistero">&#9679; Mistero</option>
-            <option value="completata">&#9679; Completata</option>
-          </select>
-          <input id="quest-testo" placeholder="Descrizione quest *">
-        </div>
-        <button class="btn btn-primary" style="width:auto" onclick="addQuest()">⛧ Salva Quest</button>
-      </div>
-    </section>
-
-    <!-- NOTE DM -->
-    <section id="note-dm" style="scroll-margin-top:78px;margin-bottom:64px;">
-      <div class="sec-head"><div class="seal" style="font-size:14px">&#9888;</div><div><span class="eyebrow">Appendice</span><h2>&#128221; Incongruenze da verificare</h2></div></div>
-      <div class="divider"></div>
-    <div id="note-dm-lista"></div>
-
-    <div class="add-form" style="margin-top:16px">
-      <h4>+ Aggiungi Incongruenza / Nota</h4>
-      <div class="form-row">
-        <input id="notedm-titolo" placeholder="Titolo (es. Ireena vs Tatiana) *">
-      </div>
-      <div class="form-row">
-        <div id="notedm-testo" style="width:100%"></div>
-      </div>
-      <button class="btn btn-primary" style="width:auto" onclick="addNoteDM()">⛧ Salva Nota</button>
+    <div class="title-bar">
+      <h1>✦ Libro degli Incantesimi</h1>
+      <div class="sub" id="pg-name-display">Caricamento…</div>
     </div>
-    </section>
 
-    <footer>La nebbia ci ha trovati. E Barovia ha chiuso le sue porte.</footer>
+    <!-- SLOT INCANTESIMO -->
+    <div class="slots-panel">
+      <div class="slots-title">Slot Incantesimo</div>
+      <div class="slots-grid" id="slots-grid">
+        <!-- popolato da JS -->
+      </div>
+      <div class="slots-actions">
+        <button class="btn btn-arcane btn-sm" onclick="riposo()">🌙 Riposo Lungo — Recupera tutti gli slot</button>
+        <span class="rest-info">Gli slot si resettano al massimo impostato per ogni livello.</span>
+      </div>
+    </div>
+
+    <!-- FORM AGGIUNGI INCANTESIMO -->
+    <div style="background:rgba(138,127,209,.08);border:1px solid var(--arcane-dark);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--arcane-glow)">📚 Vuoi aggiungere un incantesimo?</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:2px">Il flusso consigliato è: cerca nel Grimorio condiviso → clicca "+ ai miei incantesimi".</div>
+      </div>
+      <a href="grimorio.html" class="btn btn-arcane btn-sm">Apri il Grimorio →</a>
+    </div>
+    <details class="add-panel" id="add-details">
+      <summary>Aggiungi Incantesimo Manualmente</summary>
+      <div class="add-form-grid">
+        <div class="f-field"><label>Nome *</label><input id="f-nome" placeholder="es. Dardo Incantato"></div>
+        <div class="f-field"><label>Livello (0=trucchetto)</label><input id="f-livello" type="number" min="0" max="9" value="1"></div>
+        <div class="f-field"><label>Scuola</label>
+          <select id="f-scuola">
+            <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+            <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+            <option>Necromanzia</option><option>Trasmutazione</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-form-grid2">
+        <div class="f-field"><label>Tempo di lancio</label><input id="f-tempo" placeholder="1 azione"></div>
+        <div class="f-field"><label>Gittata</label><input id="f-gittata" placeholder="18 m"></div>
+        <div class="f-field"><label>Durata</label><input id="f-durata" placeholder="Istantanea"></div>
+        <div class="f-field"><label>Componenti</label><input id="f-comp" placeholder="V, S, M (...)"></div>
+      </div>
+      <div class="checkrow">
+        <label><input type="checkbox" id="f-conc"> Concentrazione</label>
+        <label><input type="checkbox" id="f-rit"> Rituale</label>
+        <label><input type="checkbox" id="f-prep"> Preparato</label>
+      </div>
+      <div class="f-field" style="margin-top:10px"><label>Descrizione</label>
+        <div id="f-desc" class="ql-target"></div>
+      </div>
+      <div class="f-field"><label>A livelli superiori (Upcast)</label>
+        <div id="f-upcast" class="ql-target"></div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-arcane" onclick="addSpell()">✦ Aggiungi Incantesimo</button>
+      </div>
+    </details>
+
+    <!-- FILTRI -->
+    <div class="filter-bar">
+      <input id="f-search" placeholder="🔍 cerca nome o descrizione…" oninput="renderSpells()">
+      <select id="f-lvl" onchange="renderSpells()">
+        <option value="">Tutti i livelli</option>
+        <option value="0">Trucchetti</option>
+        <option value="1">1°</option><option value="2">2°</option><option value="3">3°</option>
+        <option value="4">4°</option><option value="5">5°</option><option value="6">6°</option>
+        <option value="7">7°</option><option value="8">8°</option><option value="9">9°</option>
+      </select>
+      <select id="f-scuola-filter" onchange="renderSpells()">
+        <option value="">Tutte le scuole</option>
+        <option>Abiurazione</option><option>Ammaliamento</option><option>Divinazione</option>
+        <option>Evocazione</option><option>Illusione</option><option>Invocazione</option>
+        <option>Necromanzia</option><option>Trasmutazione</option>
+      </select>
+      <select id="f-prep-filter" onchange="renderSpells()">
+        <option value="">Tutti</option>
+        <option value="1">Solo preparati</option>
+      </select>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+
+    <!-- LISTA INCANTESIMI -->
+    <div id="spell-list"></div>
+
+    <footer>✦ La magia è l'unica luce che Strahd non può spegnere.</footer>
   </div>
-  <a class="totop" href="#indice">⛧</a>
 </div>
 
 <!-- MODAL MODIFICA -->
-<div class="edit-overlay" id="edit-overlay">
-  <div class="edit-modal">
-    <h3 id="edit-modal-title">Modifica</h3>
-    <div id="edit-modal-body"></div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <h3 id="modal-title">Modifica Incantesimo</h3>
+    <div id="modal-body"></div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeEditModal()">Annulla</button>
-      <button class="btn btn-primary" id="edit-modal-save">Salva</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-arcane btn-sm" id="modal-save">Salva</button>
     </div>
   </div>
 </div>
@@ -454,798 +185,416 @@ import {
   toggleUserMenu, initUserMenuClose, loadUserProfile,
   initGlobalSearch
 } from "./js/common.js";
-import {
-  collection, addDoc, deleteDoc, updateDoc,
-  onSnapshot, query, orderBy, where, getDocs,
-  doc, getDoc, setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, collection, addDoc, deleteDoc,
+         updateDoc, onSnapshot, query, orderBy, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ── QUILL: configurazione e istanze per i form ── */
-const QUILL_TOOLBAR_FULL = [
-  [{ header: [1, 2, 3, false] }],
-  ['bold', 'italic', 'underline', 'strike'],
-  [{ list: 'ordered' }, { list: 'bullet' }],
-  ['link', 'clean']
-];
+// Rende disponibili le funzioni Firestore al codice dei counter
+window._firestoreFns = { doc, getDoc, setDoc, collection, addDoc,
+                         updateDoc, deleteDoc, onSnapshot, query,
+                         orderBy, getDocs };
 
-// Istanze Quill per i form di aggiunta
-let qAttoEvents  = null;
-let qLuogoNote   = null;
-let qProfNote    = null;
-let qNoteDMTesto = null;
-
-function initIndexQuills(){
-  qAttoEvents  = new Quill('#new-atto-events',  { theme:'snow', placeholder:'Elenca gli eventi, uno per riga', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-  qLuogoNote   = new Quill('#luogo-note',        { theme:'snow', placeholder:'Descrizione, pericoli, indizi scoperti…', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-  qProfNote    = new Quill('#prof-note',         { theme:'snow', placeholder:'Descrizione, effetti, indizi…', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-  qNoteDMTesto = new Quill('#notedm-testo',      { theme:'snow', placeholder:"Descrizione dell'incongruenza o nota da verificare…", modules:{toolbar:QUILL_TOOLBAR_FULL} });
-}
-
-/* STATO */
-let sessionId    = null;
-let notesUnsub   = null;
-let nickname     = "";
-let uid          = "";
-
-// ── FUNZIONE DI RICERCA LOCALE ───────────────────────────────
-function searchLocal(q){
-  const ql = q.toLowerCase();
-
-  const npcs = npcCache.filter(n=>
-    (n.name||"").toLowerCase().includes(ql)||
-    (n.role||"").toLowerCase().includes(ql)||
-    (n.notes||"").toLowerCase().includes(ql)
-  ).map(n=>({
-    name: n.name,
-    sub:  (n.role||"")+(n.location?" · "+n.location:""),
-    href: "index.html#personaggi"
-  }));
-
-  // Per atti, luoghi, profezie, quest, note-DM
-  // usiamo le cache Firestore già in memoria tramite snapshot
-  // Le colleghiamo tramite variabili globali aggiornate dai listener
-  const atti = (window._attiCache||[]).filter(a=>
-    (a.title||"").toLowerCase().includes(ql)||
-    (a.events||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
-  ).map(a=>({
-    name: a.title||"Atto senza titolo",
-    sub:  (a.events||"").replace(/<[^>]+>/g,""),
-    href: "index.html#cronologia"
-  }));
-
-  const luoghi = (window._luoghiCache||[]).filter(l=>
-    (l.nome||"").toLowerCase().includes(ql)||
-    (l.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
-  ).map(l=>({
-    name: l.nome,
-    sub:  (l.tipo||"")+" — "+(l.note||"").replace(/<[^>]+>/g,""),
-    href: "index.html#luoghi"
-  }));
-
-  const profezie = (window._profezieCache||[]).filter(p=>
-    (p.titolo||"").toLowerCase().includes(ql)||
-    (p.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
-  ).map(p=>({
-    name: p.titolo,
-    sub:  (p.note||"").replace(/<[^>]+>/g,""),
-    href: "index.html#profezie"
-  }));
-
-  const quest = (window._questCache||[]).filter(q2=>
-    (q2.testo||"").toLowerCase().includes(ql)
-  ).map(q2=>({
-    name: q2.testo,
-    sub:  q2.tipo||"",
-    href: "index.html#quest"
-  }));
-
-  const notedm = (window._notedmCache||[]).filter(n=>
-    (n.titolo||"").toLowerCase().includes(ql)||
-    (n.testo||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
-  ).map(n=>({
-    name: n.titolo,
-    sub:  (n.testo||"").replace(/<[^>]+>/g,""),
-    href: "index.html#note-dm"
-  }));
-
-  return [
-    { label:"👥 Personaggi",  items: npcs },
-    { label:"⏰ Cronologia",  items: atti },
-    { label:"🏰 Luoghi",      items: luoghi },
-    { label:"🔮 Profezie",    items: profezie },
-    { label:"📌 Quest",       items: quest },
-    { label:"⚠ Note",        items: notedm },
-  ];
-}
-
-// Formatta "aggiornato da X il GG/MM/AAAA alle HH:MM"
-function fmtUpdate(data){
-  if(!data.updatedAt && !data.createdAt) return "";
-  const ts = data.updatedAt || data.createdAt;
-  const d  = ts?.toDate ? ts.toDate() : new Date(ts);
-  const chi = data.updatedBy || data.authorId || "?";
-  const quando = d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})
-    +" alle "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-  return `<span style="font-size:11px;color:var(--text-dim);font-style:italic;">✎ ${esc(chi)} · ${quando}</span>`;
-}
-
-let npcCache     = [];
-let sortKey      = "name";
-let sortAsc      = true;
-
-// Esponi le funzioni comuni ai pulsanti HTML (onclick)
 window.loginGoogle    = loginGoogle;
 window.loginEmail     = loginEmail;
 window.registerEmail  = registerEmail;
 window.logout         = logout;
 window.toggleUserMenu = toggleUserMenu;
+
 initUserMenuClose();
 
-/* ── AUTH STATE ── */
+let uid = "";
+let spellsCache = [];
+let slotsData = {};   // { 1: {max:2, used:1}, 2: {max:1, used:0}, … }
+
+// Ricerca globale: interroga Firestore per NPC, luoghi e grimorio
+async function searchRemote(q){
+  const ql = q.toLowerCase();
+  const results = [];
+
+  try{
+    // NPC
+    const npcsSnap = await getDocs(collection(db,"campaigns","strahd","npcs"));
+    const npcs = npcsSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(n=>(n.name||"").toLowerCase().includes(ql)||(n.role||"").toLowerCase().includes(ql))
+      .map(n=>({ name:n.name, sub:n.role||"", href:"index.html#personaggi" }));
+    results.push({ label:"👥 Personaggi", items:npcs });
+
+    // Luoghi
+    const luoghiSnap = await getDocs(collection(db,"campaigns","strahd","luoghi"));
+    const luoghi = luoghiSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(l=>(l.nome||"").toLowerCase().includes(ql)||(l.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql))
+      .map(l=>({ name:l.nome, sub:l.tipo||"", href:"index.html#luoghi" }));
+    results.push({ label:"🏰 Luoghi", items:luoghi });
+
+    // Grimorio
+    const grimSnap = await getDocs(collection(db,"campaigns","strahd","grimorio"));
+    const grim = grimSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(s=>(s.nome||"").toLowerCase().includes(ql)||(s.descrizione||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql))
+      .map(s=>({ name:s.nome, sub:(s.scuola||"")+" · "+(+s.livello===0?"Trucchetto":s.livello+"° liv."), href:"grimorio.html" }));
+    results.push({ label:"📚 Grimorio", items:grim });
+
+  } catch(e){ console.error("Search error:",e); }
+
+  return results;
+}
+
+function searchFnWrapper(q){
+  const container = document.getElementById("search-results");
+  if(container) container.innerHTML = '<div class="search-hint">Ricerca in corso…</div>';
+  searchRemote(q).then(results=>{
+    // Importa renderSearchResults da common.js non è possibile direttamente,
+    // quindi triggeriamo un evento custom
+    window._lastSearchResults = results;
+    window._lastSearchQuery   = q;
+    document.dispatchEvent(new CustomEvent("searchready"));
+  });
+  return []; // ritorna vuoto subito, i risultati arrivano via evento
+}
+
+const QUILL_TOOLBAR = [
+  [{ header: [1, 2, false] }],
+  ['bold', 'italic', 'underline'],
+  [{ list: 'ordered' }, { list: 'bullet' }],
+  ['link'], ['clean']
+];
+let qDesc = null;
+let qUpcast = null;
+
+// Lazy init: Quill viene inizializzato solo quando il form viene aperto
+document.getElementById("add-details").addEventListener("toggle", function(){
+  if(this.open && !qDesc){
+    qDesc   = new Quill('#f-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno…', modules:{toolbar:QUILL_TOOLBAR} });
+    qUpcast = new Quill('#f-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+  }
+});
+
+/* ── AUTH ── */
 onAuthStateChanged(auth, async user=>{
   if(!user){ hideOverlay(); showScreen("screen-auth"); return; }
   try{
-    const data=await loadUserProfile(user.uid);
-    nickname=data.nickname||user.email.split("@")[0];
-    uid=user.uid;
-    if(data.approved===true){
-      document.getElementById("nav-nick-text").textContent=nickname;
+    const data = await loadUserProfile(user.uid);
+    uid = user.uid;
+
+    if(data.approved === true){
+      document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
+      // Mostra nome PG dalla scheda
+      try{
+        const sc=await getDoc(doc(db,"users",uid,"scheda","main"));
+        if(sc.exists()&&sc.data()["sc-nome"]){
+          document.getElementById("pg-name-display").textContent=
+            sc.data()["sc-nome"]+" · "+(sc.data()["sc-classe"]||"")+" Livello "+(sc.data()["sc-livello"]||"?");
+        } else {
+          document.getElementById("pg-name-display").textContent="Compila prima la scheda personaggio";
+        }
+      } catch(e){ document.getElementById("pg-name-display").textContent=""; }
       showScreen("screen-app");
-      initGlobalSearch(searchFnWrapper);
-      initIndexQuills();
-      listenNPCs();
       initGlobalSearch(searchLocal);
-      listenAtti();
-      listenLuoghi();
-      listenProfezie();
-      listenQuest();
-      listenNoteDM();
+      await loadSlots();
+      buildSlotsGrid();
+      listenSpells();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
     }
-  } catch(e){ console.error(e); toast("Errore caricamento: "+e.message); }
+  } catch(e){ console.error(e); toast("Errore: "+e.message); }
   finally{ hideOverlay(); }
 });
 
-/* ── LOGIN ── */
-window.openChangePassword=()=>{
-  document.getElementById("user-menu").style.display="none";
-  openModal("Cambia Password",
-    '<label>Nuova password (min. 6 caratteri)</label><input id="new-pwd" type="password" placeholder="••••••••">'
-    +'<label>Conferma password</label><input id="new-pwd2" type="password" placeholder="••••••••">',
-    async()=>{
-      const { updatePassword, reauthenticateWithCredential, EmailAuthProvider } =
-        await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
-      const p1=document.getElementById("new-pwd").value;
-      const p2=document.getElementById("new-pwd2").value;
-      if(p1.length<6){ toast("Password troppo corta."); throw new Error("short"); }
-      if(p1!==p2){ toast("Le password non coincidono."); throw new Error("mismatch"); }
-      try{ await updatePassword(auth.currentUser,p1); toast("Password aggiornata!"); }
-      catch(e){ if(e.code==="auth/requires-recent-login"){ toast("Ri-effettua il login prima di cambiare la password."); } else { toast("Errore: "+e.message); } throw e; }
+/* ── SLOT ── */
+async function loadSlots(){
+  try{
+    const snap=await getDoc(doc(db,"users",uid,"scheda","slots"));
+    if(snap.exists()) slotsData=snap.data();
+    else{
+      // Inizializza vuoto livelli 1-9
+      for(let i=1;i<=9;i++) slotsData[i]={max:0,used:0};
     }
-  );
-};
-
-/* ── SESSIONE ── */
-function listenSession(){
-  const q=query(collection(db,"sessions"),where("status","==","open"));
-  onSnapshot(q,snap=>{
-    if(!snap.empty){
-      const s=snap.docs[0];
-      sessionId=s.id;
-      const d=s.data();
-      const ds=d.createdAt?.toDate
-        ? d.createdAt.toDate().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"})
-        : "Sessione attiva";
-      document.getElementById("session-display").innerHTML=
-        '<span class="live-badge"><span class="live-dot"></span> LIVE</span>&nbsp; '+ds;
-      document.getElementById("note-warning").style.display="none";
-      listenNotes(sessionId);
-    } else {
-      sessionId=null;
-      document.getElementById("session-display").innerHTML=
-        '<span style="color:var(--text-dim);font-style:italic;font-size:16px">Nessuna sessione attiva</span>';
-      document.getElementById("notes-list").innerHTML=
-        '<div class="empty-msg">Nessuna sessione aperta. Le note delle sessioni precedenti sono nel <a href="#diario" style="color:var(--gold)">📖 Diario di Campagna</a>.</div>';
-      if(notesUnsub){ notesUnsub(); notesUnsub=null; }
-    }
-  },e=>console.error("Session listener:",e));
+  } catch(e){ console.error(e); }
 }
 
-window.startSession=async()=>{
+async function saveSlots(){
   try{
-    const q=query(collection(db,"sessions"),where("status","==","open"));
-    const s=await getDocs(q);
-    if(!s.empty){ toast("C'e' gia' una sessione aperta!"); return; }
-    await addDoc(collection(db,"sessions"),{status:"open",createdAt:new Date()});
-    toast("Nuova sessione aperta!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-
-window.closeSession=async()=>{
-  if(!sessionId){ toast("Nessuna sessione aperta."); return; }
-  if(!confirm("Chiudere la sessione corrente?")) return;
-  try{
-    await setDoc(doc(db,"sessions",sessionId),{status:"closed",closedAt:new Date()},{merge:true});
-    toast("Sessione chiusa.");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-
-/* ── NOTE ── */
-function listenNotes(sid){
-  if(notesUnsub){ notesUnsub(); notesUnsub=null; }
-  const q=query(collection(db,"sessions",sid,"notes"),orderBy("timestamp","desc"));
-  notesUnsub=onSnapshot(q,snap=>{
-    const c=document.getElementById("notes-list"); if(!c) return;
-    if(snap.empty){ c.innerHTML='<div class="empty-msg">Nessuna nota ancora. Aggiungine una sopra!</div>'; return; }
-    c.innerHTML="";
-    snap.forEach(ds=>{
-      const n=ds.data();
-      const t=n.timestamp?.toDate ? n.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}) : "";
-      const own=uid&&uid===n.authorId;
-      const div=document.createElement("div"); div.className="note-card";
-      div.innerHTML='<div class="note-text">'+esc(n.text)+'</div>'
-        +'<div class="note-meta"><span class="note-tag">'+esc(n.tag||"generale")+'</span>'
-        +'<span class="note-author">'+esc(n.authorNickname||"?")+'</span>'
-        +'<span class="note-time">'+t+'</span></div>'
-        +(own?'<button class="note-del" onclick="deleteNote(\''+ds.id+'\')" title="Elimina">&#128465;</button>':"");
-      c.appendChild(div);
-    });
-  },e=>console.error("Notes listener:",e));
+    await setDoc(doc(db,"users",uid,"scheda","slots"),slotsData,{merge:true});
+  } catch(e){ console.error("Slot save:",e); }
 }
 
-window.addNote=async()=>{
-  const text=document.getElementById("note-text").value.trim();
-  const tag=document.getElementById("note-tag").value.trim();
-  if(!text){ toast("Scrivi qualcosa prima."); return; }
-  if(!sessionId){ document.getElementById("note-warning").style.display="block"; toast("Apri prima una sessione!"); return; }
-  try{
-    await addDoc(collection(db,"sessions",sessionId,"notes"),{
-      text,tag:tag||"generale",authorNickname:nickname,authorId:uid,
-      timestamp:new Date(),sessionId
-    });
-    document.getElementById("note-text").value="";
-    document.getElementById("note-tag").value="";
-    toast("Nota aggiunta!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-
-window.deleteNote=async id=>{
-  if(!sessionId||!confirm("Eliminare questa nota?")) return;
-  try{ await deleteDoc(doc(db,"sessions",sessionId,"notes",id)); toast("Nota eliminata."); }
-  catch(e){ toast("Errore: "+e.message); }
-};
-
-/* ── NPC ── */
-window.addNPC=async()=>{
-  const name=document.getElementById("npc-name").value.trim();
-  if(!name){ toast("Inserisci almeno il nome."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","npcs"),{
-      name,role:document.getElementById("npc-role").value.trim(),
-      stato:document.getElementById("npc-stato").value,
-      location:document.getElementById("npc-location").value.trim(),
-      notes:document.getElementById("npc-notes").value.trim(),
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    ["npc-name","npc-role","npc-location","npc-notes"].forEach(id=>document.getElementById(id).value="");
-    document.getElementById("npc-stato").value="";
-    toast("Personaggio salvato!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenNPCs(){
-  const STATIC_NPCS = [
-    {id:"s01",name:"Haldir",role:"PG — Mezzelfo, Chierico della Tomba.",stato:"vivo",location:"col gruppo",notes:"",_static:true},
-    {id:"s02",name:"Lucien",role:"PG — Umano, Mago Ammaliatore",stato:"vivo",location:"col gruppo",notes:"",_static:true},
-    {id:"s03",name:"Yan",role:"PG — Mezzelfa, Warlock. Libro dei sogni e visioni.",stato:"viva",location:"col gruppo",notes:"",_static:true},
-    {id:"s04",name:"Kraven",role:"PG — Dragonide rosso, Paladino della Vendetta. Corvo Mannaro.",stato:"vivo",location:"col gruppo",notes:"",_static:true},
-    {id:"s05",name:"Zel",role:"PG — Mezzorca, Barbaro Cammino Totemico.",stato:"viva",location:"col gruppo",notes:"",_static:true},
-    {id:"s06",name:"Strahd von Zarovich",role:"Signore Vampiro. Nato 306, regna dal 347.",stato:"non-morto",location:"Castello di Ravenloft",notes:"",_static:true},
-    {id:"s07",name:"Madame Eva",role:"Veggente Vistana",stato:"viva",location:"villaggio Vistani / Krezk",notes:"",_static:true},
-    {id:"s08",name:"Ismark",role:"Alleato — fratello adottivo di Ireena",stato:"vivo",location:"Barovia",notes:"",_static:true},
-    {id:"s09",name:"Ireena",role:"Sorella adottiva di Ismark",stato:"viva",location:"chiesa di Vallaki",notes:"",_static:true},
-    {id:"s10",name:"Borgomastro di Barovia",role:"Governo di Barovia (defunto)",stato:"morto",location:"—",notes:"",_static:true},
-    {id:"s11",name:"Doru",role:"Figlio di Donovich — progenie vampirica",stato:"non-morto",location:"Barovia",notes:"",_static:true},
-    {id:"s12",name:"Padre Donovich",role:"Sacerdote di Barovia",stato:"vivo",location:"chiesa di Barovia",notes:"",_static:true},
-    {id:"s13",name:"Rahadin",role:"Maggiordomo di Strahd, elfo crepuscolare",stato:"vivo",location:"Castello di Ravenloft",notes:"",_static:true},
-    {id:"s14",name:"Rose & Thorn",role:"Spiriti infantili, famiglia Darst",stato:"in pace",location:"—",notes:"sepolti",_static:true},
-    {id:"s15",name:"Bartok",role:"Capobranco licantropo",stato:"vivo",location:"foresta presso Vallaki",notes:"",_static:true},
-    {id:"s16",name:"Giorgio",role:"Alchimista Vistano",stato:"vivo",location:"Pozza di Zer",notes:"",_static:true},
-    {id:"s17",name:"Borgomastro Vargas",role:"Governo di Vallaki",stato:"morto",location:"—",notes:"linciato dalla folla?",_static:true},
-    {id:"s18",name:"Izek il Barone",role:"Capo delle guardie di Vargas",stato:"morto",location:"—",notes:"",_static:true},
-    {id:"s19",name:"Padre Lucian",role:"Sacerdote di Vallaki",stato:"vivo",location:"chiesa di Vallaki",notes:"",_static:true},
-    {id:"s20",name:"Yashka",role:"Chierichetto",stato:"vivo",location:"chiesa di Vallaki",notes:"",_static:true},
-    {id:"s21",name:"Vasily Von Holtz",role:"Capo progenie vampirica",stato:"sconfitta",location:"—",notes:"",_static:true},
-    {id:"s22",name:"Lady Fiona Wachter",role:"Nobile, rivale di Vargas, alleata di Strahd",stato:"viva",location:"Vallaki",notes:"",_static:true},
-    {id:"s23",name:"Nicolai & Carl",role:"Figli di Lady Wachter",stato:"morti",location:"—",notes:"",_static:true},
-    {id:"s24",name:"Stella",role:"Figlia di Lady Wachter, si crede un gatto",stato:"viva",location:"casa Wachter",notes:"",_static:true},
-    {id:"s25",name:"Rictavio",role:"Bardo della Costa della Spada",stato:"vivo",location:"Vallaki / dintorni",notes:"",_static:true},
-    {id:"s26",name:"Bluto Crogarov",role:"Pescatore — aveva rapito Arabelle. Ucciso da Kraven.",stato:"morto",location:"—",notes:"",_static:true},
-    {id:"s27",name:"Luigi",role:"Conoscente — comunica con Zel tramite Pietra Magica",stato:"vivo",location:"Vallaki",notes:"",_static:true},
-    {id:"s28",name:"Mario",role:"Fratello di Luigi",stato:"morto",location:"Vallaki",notes:"",_static:true},
-    {id:"s29",name:"Milliboj",role:"Becchino — ha trafugato le Ossa di San Andral",stato:"vivo",location:"Vallaki",notes:"",_static:true},
-    {id:"s30",name:"Casimir Velikov",role:"Capo campo Vistano, elfo crepuscolare. Sorella: Patrina.",stato:"vivo",location:"collina presso Vallaki",notes:"",_static:true},
-    {id:"s31",name:"Luvash & Arrigal",role:"Co-capi accampamento Vistani",stato:"vivi",location:"accampamento Vistani",notes:"",_static:true},
-    {id:"s32",name:"Arabelle",role:"Figlia di Luvash, salvata dal lago",stato:"viva",location:"accampamento Vistani",notes:"",_static:true},
-    {id:"s33",name:"Patrina Velikofna",role:"Sorella di Casimir. Spirito imprigionato.",stato:"spirito imprigionato",location:"Castello di Ravenloft",notes:"",_static:true},
-    {id:"s34",name:"Savid",role:"Elfo crepuscolare ferito",stato:"vivo",location:"pressi del campo vistano",notes:"",_static:true},
-    {id:"s35",name:"Esmeralda Davenir",role:"Allieva di Van Richten. Devota all'Ordine dei Draghi d'Argento",stato:"viva",location:"sconosciuto",notes:"",_static:true},
-    {id:"s36",name:"Morganta, Bella, Ofalia",role:"Congrega di Megere",stato:"vive",location:"Vecchio Macinaossa",notes:"",_static:true},
-    {id:"s37",name:"Vladimir Orgaard",role:"Ex cavaliere, ora Dannato",stato:"non-morto",location:"Villa Argynvostholt",notes:"",_static:true},
-    {id:"s38",name:"Argynvost",role:"Drago d'argento, fondatore Ordine",stato:"morto",location:"Villa Argynvostholt",notes:"appare in spirito",_static:true},
-    {id:"s39",name:"Rudolf Van Richten",role:"Cacciatore di Vampiri",stato:"sconosciuto",location:"sconosciuto",notes:"",_static:true},
-  ];
-  // Senza orderBy: include tutti i doc Firebase anche senza createdAt
-  onSnapshot(collection(db,"campaigns","strahd","npcs"),snap=>{
-    const fbNPCs=snap.docs.map(d=>({id:d.id,...d.data(),_static:false}));
-    const fbNames=new Set(fbNPCs.map(n=>(n.name||"").toLowerCase()));
-    // Statici non duplicati + tutti i Firebase
-    npcCache=[
-      ...STATIC_NPCS.filter(s=>!fbNames.has(s.name.toLowerCase())),
-      ...fbNPCs
-    ];
-    renderNPCTable();
-  });
-}
-window.sortNPC=key=>{ if(sortKey===key) sortAsc=!sortAsc; else{sortKey=key;sortAsc=true;} renderNPCTable(); };
-window.renderNPCTable=()=>{
-  const ft=(document.getElementById("npc-filter-text")?.value||"").toLowerCase();
-  const fs=document.getElementById("npc-filter-status")?.value||"";
-  const fl=document.getElementById("npc-filter-loc")?.value||"";
-  let data=npcCache.filter(n=>
-    (!ft||(n.name||"").toLowerCase().includes(ft)||(n.role||"").toLowerCase().includes(ft))&&
-    (!fs||(n.stato||"").includes(fs))&&
-    (!fl||(n.location||"").toLowerCase().includes(fl.toLowerCase()))
-  );
-  data.sort((a,b)=>{
-    const av=(a[sortKey]||"").toLowerCase(),bv=(b[sortKey]||"").toLowerCase();
-    return sortAsc?av.localeCompare(bv):bv.localeCompare(av);
-  });
-  const tbody=document.getElementById("npc-table-body"); if(!tbody) return;
-  if(!data.length){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text-dim);font-style:italic;padding:20px">Nessun personaggio trovato.</td></tr>'; return; }
-  tbody.innerHTML=data.map(n=>{
-    const own=uid&&uid===n.authorId;
-    const pc=n.stato?.includes("morto")||n.stato?.includes("morta")?"morto":n.stato?.includes("vivo")||n.stato?.includes("viva")?"vivo":n.stato?.includes("spirito")||n.stato?.includes("non-morto")?"nonmorto":"";
-    return '<tr>'
-      +'<td title="'+( n.updatedBy ? '✎ '+n.updatedBy : '')+'">'
-        +esc(n.name)
-        +(n.updatedBy?'<br><span style="font-size:10px;color:var(--text-dim);font-style:italic">✎ '+esc(n.updatedBy)+'</span>':"")
-      +'</td>'
-      +'<td style="font-size:14px">'+esc(n.role||"—")+'</td>'
-      +'<td><span class="pill '+pc+'">'+esc(n.stato||"—")+'</span></td>'
-      +'<td style="font-size:13px">'+esc(n.location||"—")+'</td>'
-      +'<td style="display:flex;gap:4px">'
-        +(own&&!n._static?'<button class="btn btn-danger btn-xs" onclick="deleteNPC(\''+n.id+'\')">&#128465;</button>':"")
-        +(!n._static?'<button class="btn btn-ghost btn-xs" onclick="openNPCEdit(\''+n.id+'\')">&#9999;</button>':"")
-      +'</td>'
-      +'</tr>';
-  }).join("");
-};
-window.deleteNPC=async id=>{
-  if(!confirm("Eliminare questo personaggio?")) return;
-  await deleteDoc(doc(db,"campaigns","strahd","npcs",id)); toast("Eliminato.");
-};
-window.openNPCEdit=id=>{
-  const n=npcCache.find(x=>x.id===id); if(!n) return;
-  openModal("Modifica Personaggio",
-    '<label>Nome</label><input id="me-name" value="'+esc(n.name)+'">'
-    +'<label>Ruolo / Fazione</label><input id="me-role" value="'+esc(n.role||"")+'">'
-    +'<label>Stato</label><select id="me-stato">'
-    +["vivo","viva","morto","morta","non-morto","spirito imprigionato","sconfitta","sconosciuto"]
-      .map(v=>'<option'+(n.stato===v?" selected":"")+'>'+v+'</option>').join("")
-    +'</select>'
-    +'<label>Posizione</label><input id="me-loc" value="'+esc(n.location||"")+'">'
-    +'<label>Note</label><textarea id="me-notes">'+esc(n.notes||"")+'</textarea>',
-    async()=>{
-      await updateDoc(doc(db,"campaigns","strahd","npcs",id),{
-        name:document.getElementById("me-name").value.trim(),
-        role:document.getElementById("me-role").value.trim(),
-        stato:document.getElementById("me-stato").value,
-        location:document.getElementById("me-loc").value.trim(),
-        notes:document.getElementById("me-notes").value.trim(),
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Personaggio aggiornato!");
-    }
-  );
-};
-
-/* ── ATTI ── */
-window.addAtto=async()=>{
-  const title=document.getElementById("new-atto-title").value.trim();
-  if(!title){ toast("Inserisci il titolo dell'atto."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","atti"),{
-      title,sessions:document.getElementById("new-atto-sessions").value.trim(),
-      events: qAttoEvents ? qAttoEvents.root.innerHTML : "",
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    ["new-atto-title","new-atto-sessions"].forEach(id=>document.getElementById(id).value="");
-    if(qAttoEvents) qAttoEvents.setText("");
-    toast("Atto salvato!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenAtti(){
-  onSnapshot(query(collection(db,"campaigns","strahd","atti"),orderBy("createdAt","asc")),snap=>{
-    const c=document.getElementById("atti-dinamici"); if(!c) return;
-    c.innerHTML="";
-    window._attiCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    snap.forEach(ds=>{
-      const a=ds.data(),own=uid&&uid===a.authorId;
-      const lines=(a.events||"").split("\n").filter(Boolean);
-      const div=document.createElement("div"); div.className="atto"; div.style.borderLeft="3px solid var(--gold)";
-      div.innerHTML =
-        '<h3>'+esc(a.title)+(a.sessions?' <span class="sess">'+esc(a.sessions)+'</span>':'')+'</h3>'
-        +'<div style="font-size:15px;color:var(--text-muted)">'+(a.events||"")+'</div>'
-        +'<div style="margin-top:8px">'+fmtUpdate(a)+'</div>'
-        +(own?'<button class="item-del" onclick="deleteAtto(\''+ds.id+'\')">&#128465;</button>'
-          +'<button class="item-edit" onclick="openAttoEdit(\''+ds.id+'\',\''+esc(a.title)+'\',\''+esc(a.sessions||"")+'\',\''+esc(a.events||"")+'\')">&#9999;</button>'
-          :"");
-      c.appendChild(div);
-    });
-  });
-}
-window.deleteAtto=async id=>{ if(!confirm("Eliminare questo atto?")) return; await deleteDoc(doc(db,"campaigns","strahd","atti",id)); toast("Atto eliminato."); };
-window.openAttoEdit=(id,title,sessions,events)=>{
-  openModal("Modifica Atto",
-    '<label>Titolo</label><input id="ae-title" value="'+title+'">'
-    +'<label>Sessioni</label><input id="ae-sessions" value="'+sessions+'">'
-    +'<label>Eventi</label><div id="ae-events" style="min-height:140px"></div>',
-    async()=>{
-      const qAE = window._modalQuills?.ae;
-      await updateDoc(doc(db,"campaigns","strahd","atti",id),{
-        title:document.getElementById("ae-title").value.trim(),
-        sessions:document.getElementById("ae-sessions").value.trim(),
-        events: qAE ? qAE.root.innerHTML : "",
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Atto aggiornato!");
-    }
-  );
-  setTimeout(()=>{
-    const qAE = new Quill('#ae-events', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-    qAE.root.innerHTML = events;
-    window._modalQuills = { ae: qAE };
-  }, 50);
-};
-
-/* ── LUOGHI ── */
-window.addLuogo=async()=>{
-  const nome=document.getElementById("luogo-nome").value.trim();
-  if(!nome){ toast("Inserisci il nome del luogo."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","luoghi"),{
-      nome,tipo:document.getElementById("luogo-tipo").value.trim(),
-      note: qLuogoNote ? qLuogoNote.root.innerHTML : "",
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    ["luogo-nome","luogo-tipo"].forEach(id=>document.getElementById(id).value="");
-    if(qLuogoNote) qLuogoNote.setText("");
-    toast("Luogo salvato!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenLuoghi(){
-  onSnapshot(query(collection(db,"campaigns","strahd","luoghi"),orderBy("createdAt","asc")),snap=>{
-    const c=document.getElementById("luoghi-dinamici"); if(!c) return;
-    c.innerHTML="";
-    window._luoghiCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    snap.forEach(ds=>{
-      const l=ds.data(),own=uid&&uid===l.authorId;
-      const lines=(l.note||"").split("\n").filter(Boolean);
-      const div=document.createElement("div"); div.className="luogo"; div.style.borderLeft="3px solid var(--gold)";
-      div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
-        +'<div style="font-size:14.5px;color:var(--text-muted)">'+(l.note||"")+'</div>'
-        +'<div style="margin-top:6px">'+fmtUpdate(l)+'</div>'
-        +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>'
-            +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
-    });
-  });
-}
-window.deleteLuogo=async id=>{ if(!confirm("Eliminare questo luogo?")) return; await deleteDoc(doc(db,"campaigns","strahd","luoghi",id)); toast("Luogo eliminato."); };
-window.openLuogoEdit=(id,nome,tipo,note)=>{
-  openModal("Modifica Luogo",
-    '<label>Nome</label><input id="le-nome" value="'+nome+'">'
-    +'<label>Tipo</label><input id="le-tipo" value="'+tipo+'">'
-    +'<label>Note</label><div id="le-note" style="min-height:120px"></div>',
-    async()=>{
-      const qLE = window._modalQuills?.le;
-      await updateDoc(doc(db,"campaigns","strahd","luoghi",id),{
-        nome:document.getElementById("le-nome").value.trim(),
-        tipo:document.getElementById("le-tipo").value.trim(),
-        note: qLE ? qLE.root.innerHTML : "",
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Luogo aggiornato!");
-    }
-  );
-  setTimeout(()=>{
-    const qLE = new Quill('#le-note', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-    qLE.root.innerHTML = note;
-    window._modalQuills = { le: qLE };
-  }, 50);
-};
-
-/* ── PROFEZIE ── */
-window.addProfezia=async()=>{
-  const titolo=document.getElementById("prof-titolo").value.trim();
-  if(!titolo){ toast("Inserisci il titolo."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","profezie"),{
-      titolo,note:qProfNote ? qProfNote.root.innerHTML : "",
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    document.getElementById("prof-titolo").value="";
-    if(qProfNote) qProfNote.setText("");
-    toast("Salvato!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenProfezie(){
-  onSnapshot(query(collection(db,"campaigns","strahd","profezie"),orderBy("createdAt","asc")),snap=>{
-    const c=document.getElementById("profezie-dinamiche"); if(!c) return;
-    c.innerHTML="";
-    window._profezieCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    snap.forEach(ds=>{
-      const p=ds.data(),own=uid&&uid===p.authorId;
-      const div=document.createElement("div");
-      div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
-      div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?'<div style="margin-top:4px;font-size:14px">'+p.note+'</div>':"")
-        +'<div style="margin-top:6px">'+fmtUpdate(p)+'</div>'
-      +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
-          +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
-    });
-  });
-}
-window.deleteProfezia=async id=>{ if(!confirm("Eliminare?")) return; await deleteDoc(doc(db,"campaigns","strahd","profezie",id)); toast("Eliminato."); };
-window.openProfeziaEdit=(id,titolo,note)=>{
-  openModal("Modifica Oggetto / Profezia",
-    '<label>Titolo</label><input id="pe-titolo" value="'+titolo+'">'
-    +'<label>Note</label><div id="pe-note" style="min-height:100px"></div>',
-    async()=>{
-      const qPE = window._modalQuills?.pe;
-      await updateDoc(doc(db,"campaigns","strahd","profezie",id),{
-        titolo:document.getElementById("pe-titolo").value.trim(),
-        note: qPE ? qPE.root.innerHTML : "",
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Aggiornato!");
-    }
-  );
-  setTimeout(()=>{
-    const qPE = new Quill('#pe-note', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-    qPE.root.innerHTML = note;
-    window._modalQuills = { pe: qPE };
-  }, 50);
-};
-
-/* ── QUEST ── */
-window.addQuest=async()=>{
-  const testo=document.getElementById("quest-testo").value.trim();
-  if(!testo){ toast("Inserisci la descrizione."); return; }
-  try{
-    await addDoc(collection(db,"campaigns","strahd","quests"),{
-      testo,tipo:document.getElementById("quest-tipo").value,
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    document.getElementById("quest-testo").value=""; toast("Quest aggiunta!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
-};
-function listenQuest(){
-  onSnapshot(query(collection(db,"campaigns","strahd","quests"),orderBy("createdAt","asc")),snap=>{
-    const ul=document.getElementById("quest-dinamiche"); if(!ul) return;
-    ul.innerHTML="";
-    window._questCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    snap.forEach(ds=>{
-      const q=ds.data(),own=uid&&uid===q.authorId;
-      const colors={aperta:"#e2543d",sospeso:"#d8b65a",mistero:"#8a7fd1",completata:"#4fa86e"};
-      const col=colors[q.tipo]||"#e2543d";
-      const li=document.createElement("li");
-      li.innerHTML='<span class="dot" style="color:'+col+'">&#9679;</span>'
-        +'<span style="flex:1">'+esc(q.testo)+'</span>'
-        +(own?'<span style="display:flex;gap:4px;flex-shrink:0">'
-            +'<button class="quest-del" style="color:var(--gold);margin-left:0" onclick="openQuestEdit(\''+ds.id+'\',\''+esc(q.testo)+'\',\''+q.tipo+'\')">&#9999;</button>'
-            +'<button class="quest-del" style="margin-left:0" onclick="deleteQuest(\''+ds.id+'\')">&#128465;</button>'
-            +'</span>':"");
-      ul.appendChild(li);
-    });
-  });
-}
-window.deleteQuest=async id=>{ if(!confirm("Eliminare questa quest?")) return; await deleteDoc(doc(db,"campaigns","strahd","quests",id)); toast("Quest eliminata."); };
-window.openQuestEdit=(id,testo,tipo)=>{
-  openModal("Modifica Quest",
-    '<label>Stato</label><select id="qe-tipo">'
-    +[["aperta","Attiva"],["sospeso","In sospeso"],["mistero","Mistero"],["completata","Completata"]]
-      .map(([v,l])=>'<option value="'+v+'"'+(tipo===v?" selected":"")+'>'+l+'</option>').join("")
-    +'</select><label>Descrizione</label><textarea id="qe-testo" style="min-height:80px">'+testo+'</textarea>',
-    async()=>{
-      await updateDoc(doc(db,"campaigns","strahd","quests",id),{
-        testo:document.getElementById("qe-testo").value.trim(),
-        tipo:document.getElementById("qe-tipo").value,
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Quest aggiornata!");
-    }
-  );
-};
-
-/* ── ARCHIVIO SESSIONI ── */
-function listenArchivio(){
-  const q=query(collection(db,"sessions"),orderBy("createdAt","desc"));
-  onSnapshot(q,snap=>{
-    const c=document.getElementById("archivio-sessioni"); if(!c) return;
-    // Filtro lato client: teniamo solo le sessioni chiuse
-    const closed=snap.docs.filter(ds=>ds.data().status==="closed");
-    if(!closed.length){ c.innerHTML='<div class="empty-msg">Nessuna sessione archiviata.</div>'; return; }
-    c.innerHTML="";
-    closed.forEach(ds=>{
-      const s=ds.data();
-      const dateStr=s.createdAt?.toDate
-        ? s.createdAt.toDate().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric"})
-        : ds.id;
-      const wrap=document.createElement("div");
-      wrap.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--text-dim);border-radius:8px;margin-bottom:14px;overflow:hidden;";
-      wrap.innerHTML='<div style="padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:\'Cormorant Garamond\',serif;color:var(--text-muted);" onclick="toggleArchivio(this)">'
-        +'<span>📄 '+esc(dateStr)+'</span>'
-        +'<span style="font-size:13px;color:var(--text-dim)">▼ espandi</span>'
-        +'</div>'
-        +'<div class="arch-notes" style="display:none;padding:0 16px 12px" data-sid="'+ds.id+'"></div>';
-      c.appendChild(wrap);
-    });
-  },e=>{ console.error("Archivio:",e); });
-}
-
-window.toggleArchivio=function(header){
-  const notesDiv=header.nextElementSibling;
-  const sid=notesDiv.dataset.sid;
-  if(notesDiv.style.display==="none"){
-    notesDiv.style.display="block";
-    header.querySelector("span:last-child").textContent="▲ chiudi";
-    if(!notesDiv.dataset.loaded){
-      notesDiv.dataset.loaded="1";
-      notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Caricamento…</div>';
-      getDocs(query(collection(db,"sessions",sid,"notes"),orderBy("timestamp","asc"))).then(snap=>{
-        if(snap.empty){ notesDiv.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessuna nota.</div>'; return; }
-        notesDiv.innerHTML="";
-        snap.forEach(ds=>{
-          const n=ds.data();
-          const t=n.timestamp?.toDate?n.timestamp.toDate().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):"";
-          const d=document.createElement("div");
-          d.style.cssText="background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-bottom:8px;";
-          const ownNote = uid && uid === n.authorId;
-          d.innerHTML='<div style="font-size:15px;color:var(--text);margin-bottom:4px;padding-right:'+(ownNote?'64px':'0')+'">'+esc(n.text)+'</div>'
-            +'<div style="display:flex;gap:10px;font-size:12px;color:var(--text-dim)">'
-            +'<span style="border:1px solid var(--crimson);color:var(--crimson-glow);padding:1px 7px;border-radius:10px">'+esc(n.tag||"generale")+'</span>'
-            +'<span>'+esc(n.authorNickname||"?")+'</span><span>'+t+'</span></div>'
-            +(ownNote
-              ?'<div style="display:flex;gap:6px;margin-top:8px">'
-               +'<button class="btn btn-ghost btn-xs" onclick="openArchiveNoteEdit(\''+sid+'\',\''+ds.id+'\',\''+esc(n.text)+'\',\''+esc(n.tag||'generale')+'\')">✏ Modifica</button>'
-               +'<button class="btn btn-danger btn-xs" onclick="deleteArchiveNote(\''+sid+'\',\''+ds.id+'\')">🗑 Elimina</button>'
-               +'</div>'
-              :"");
-          notesDiv.appendChild(d);
-        });
-      }).catch(e=>{ notesDiv.innerHTML='<div style="color:#c78f8f;font-size:14px">Errore: '+esc(e.message)+'</div>'; });
-    }
-  } else {
-    notesDiv.style.display="none";
-    header.querySelector("span:last-child").textContent="▼ espandi";
+function buildSlotsGrid(){
+  const grid=document.getElementById("slots-grid");
+  grid.innerHTML="";
+  for(let lv=1;lv<=9;lv++){
+    const s=slotsData[lv]||{max:0,used:0};
+    const col=document.createElement("div"); col.className="slot-col"; col.id="slot-col-"+lv;
+    col.innerHTML=`
+      <label>${lv}°</label>
+      <div class="slot-pips" id="pips-${lv}"></div>
+      <div class="slot-counter" id="counter-${lv}"></div>
+      <div class="slot-max-row">
+        <label>max</label>
+        <input type="number" min="0" max="4" value="${s.max}"
+          onchange="setSlotMax(${lv},this.value)">
+      </div>
+    `;
+    grid.appendChild(col);
+    renderPips(lv);
   }
+}
+
+function renderPips(lv){
+  const s=slotsData[lv]||{max:0,used:0};
+  const container=document.getElementById("pips-"+lv); if(!container) return;
+  const counter=document.getElementById("counter-"+lv);
+  const avail=Math.max(0,s.max-s.used);
+  container.innerHTML="";
+  const row=document.createElement("div"); row.className="pip-row";
+  for(let i=0;i<s.max;i++){
+    const pip=document.createElement("div");
+    pip.className="pip "+(i<avail?"avail":"used");
+    pip.title=i<avail?"Clicca per usare lo slot":"Slot usato — clicca per recuperare";
+    pip.onclick=()=>togglePip(lv,i,avail);
+    row.appendChild(pip);
+  }
+  if(s.max===0){
+    const empty=document.createElement("div");
+    empty.style.cssText="font-size:11px;color:var(--text-dim);font-style:italic;";
+    empty.textContent="—";
+    row.appendChild(empty);
+  }
+  container.appendChild(row);
+  if(counter) counter.textContent=s.max>0?avail+" / "+s.max:"";
+}
+
+window.togglePip=async(lv,idx,avail)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const s=slotsData[lv];
+  // Se il pip cliccato è disponibile → usalo (aumenta used)
+  // Se è usato → recuperalo (diminuisce used)
+  if(idx<avail){
+    s.used=Math.min(s.max,s.used+1);
+  } else {
+    s.used=Math.max(0,s.used-1);
+  }
+  renderPips(lv);
+  await saveSlots();
 };
 
-window.deleteArchiveNote=async(sid,nid)=>{
-  if(!confirm("Eliminare questa nota dall'archivio?")) return;
-  try{ await deleteDoc(doc(db,"sessions",sid,"notes",nid)); toast("Nota eliminata."); }
+window.setSlotMax=async(lv,val)=>{
+  if(!slotsData[lv]) slotsData[lv]={max:0,used:0};
+  const max=Math.max(0,parseInt(val)||0);
+  slotsData[lv].max=max;
+  slotsData[lv].used=Math.min(slotsData[lv].used,max);
+  renderPips(lv);
+  await saveSlots();
+};
+
+window.riposo=async()=>{
+  if(!confirm("Riposo Lungo: recuperare tutti gli slot incantesimo?")) return;
+  for(let i=1;i<=9;i++){
+    if(slotsData[i]) slotsData[i].used=0;
+  }
+  for(let i=1;i<=9;i++) renderPips(i);
+  await saveSlots();
+  toast("🌙 Riposo lungo: tutti gli slot recuperati!");
+};
+
+/* ── INCANTESIMI ── */
+function listenSpells(){
+  const ref=query(collection(db,"users",uid,"incantesimi"),orderBy("livello","asc"));
+  onSnapshot(ref,snap=>{
+    spellsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderSpells();
+  },e=>{ console.error(e); toast("Errore: "+e.message); });
+}
+
+window.renderSpells=()=>{
+  const ft=(document.getElementById("f-search")?.value||"").toLowerCase();
+  const fl=document.getElementById("f-lvl")?.value;
+  const fs=document.getElementById("f-scuola-filter")?.value;
+  const fp=document.getElementById("f-prep-filter")?.value;
+
+  let data=spellsCache.filter(s=>
+    (!ft||(s.nome||"").toLowerCase().includes(ft)||(s.descrizione||"").toLowerCase().includes(ft))&&
+    (fl===""||String(s.livello)===fl)&&
+    (!fs||s.scuola===fs)&&
+    (!fp||s.preparato)
+  );
+
+  const countEl=document.getElementById("filter-count");
+  if(countEl) countEl.textContent=data.length+" incantesimi"+(data.length!==spellsCache.length?" (su "+spellsCache.length+")":"");
+
+  const list=document.getElementById("spell-list"); if(!list) return;
+  if(!data.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text-dim);font-style:italic;padding:40px 0">Nessun incantesimo trovato.</div>';
+    return;
+  }
+
+  // Raggruppa per livello
+  const byLevel={};
+  data.forEach(s=>{ const l=s.livello??1; if(!byLevel[l]) byLevel[l]=[]; byLevel[l].push(s); });
+  // Ordine alfabetico per nome all'interno di ogni livello
+  Object.keys(byLevel).forEach(lv=>{
+    byLevel[lv].sort((a,b)=>(a.nome||"").localeCompare(b.nome||"","it"));
+  });
+
+  let html='<div class="spell-grid">';
+  Object.keys(byLevel).sort((a,b)=>+a-+b).forEach(lv=>{
+    const count = byLevel[lv].length;
+    const label = +lv===0?"✦ Trucchetti":"✦ "+lv+"° Livello";
+    html+='<div class="level-header">'
+      +label
+      +'<span style="font-family:\'EB Garamond\',serif;font-size:12px;color:var(--text-dim);font-weight:normal;letter-spacing:0;text-transform:none;margin-left:10px;">'
+      +count+(count===1?" incantesimo":" incantesimi")
+      +'</span></div>';
+    byLevel[lv].forEach(s=>{
+      const badges=
+        (s.preparato?'<span class="badge badge-prep">preparato</span>':"")
+        +(s.concentrazione?'<span class="badge badge-conc">C</span>':"")
+        +(s.rituale?'<span class="badge badge-rit">R</span>':"");
+      html+=`
+        <div class="sp-card${s.preparato?" preparato":""}" id="spc-${s.id}">
+          <div class="sp-card-top">
+            <div>
+              <div class="sp-card-name">${esc(s.nome||"—")}</div>
+              <div class="sp-card-level">${esc(s.scuola||"")} · ${+s.livello===0?"Trucchetto":s.livello+"° liv."}</div>
+            </div>
+          </div>
+          ${badges?'<div class="sp-badges">'+badges+'</div>':""}
+          <div class="sp-meta">
+            <span>⏱ ${esc(s.tempo_lancio||"—")}</span>
+            <span>🎯 ${esc(s.gittata||"—")}</span>
+            <span>⌛ ${esc(s.durata||"—")}</span>
+            ${s.componenti?'<br><span>📦 '+esc(s.componenti)+'</span>':""}
+          </div>
+          ${s.descrizione?`<div class="sp-desc" id="desc-${s.id}">${s.descrizione}</div>`:""}
+          ${s.upcast?`<div class="sp-upcast" id="upcast-${s.id}" style="display:none">↑ ${s.upcast}</div>`:""}
+          <div class="sp-actions">
+            ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
+            <button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>
+            <button class="btn btn-danger btn-xs" onclick="deleteSpell('${s.id}')">🗑</button>
+            <label class="prep-label">
+              <input type="checkbox" ${s.preparato?"checked":""} onchange="togglePrep('${s.id}',this.checked)">
+              preparato
+            </label>
+          </div>
+        </div>`;
+    });
+  });
+  html+='</div>';
+  list.innerHTML=html;
+};
+
+window.toggleDesc=(id)=>{
+  const desc=document.getElementById("desc-"+id);
+  const upcast=document.getElementById("upcast-"+id);
+  if(desc) desc.classList.toggle("open");
+  if(upcast) upcast.style.display=upcast.style.display==="none"?"block":"none";
+};
+
+window.addSpell=async()=>{
+  if(!uid){ toast("Non autenticato."); return; }
+  const nome=document.getElementById("f-nome")?.value.trim();
+  if(!nome){ toast("Inserisci il nome dell'incantesimo."); return; }
+  const spell={
+    nome,
+    livello:parseInt(document.getElementById("f-livello")?.value)||0,
+    scuola:document.getElementById("f-scuola")?.value||"",
+    tempo_lancio:document.getElementById("f-tempo")?.value.trim()||"",
+    gittata:document.getElementById("f-gittata")?.value.trim()||"",
+    durata:document.getElementById("f-durata")?.value.trim()||"",
+    componenti:document.getElementById("f-comp")?.value.trim()||"",
+    concentrazione:document.getElementById("f-conc")?.checked||false,
+    rituale:document.getElementById("f-rit")?.checked||false,
+    preparato:document.getElementById("f-prep")?.checked||false,
+    descrizione: qDesc   ? qDesc.root.innerHTML   : "",
+    upcast:      qUpcast ? qUpcast.root.innerHTML : "",
+    createdAt:new Date()
+  };
+  try{
+    await addDoc(collection(db,"users",uid,"incantesimi"),spell);
+    // Reset form
+    ["f-nome","f-tempo","f-gittata","f-durata","f-comp","f-desc","f-upcast"].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value="";
+    });
+    ["f-conc","f-rit","f-prep"].forEach(id=>{ const el=document.getElementById(id); if(el) el.checked=false; });
+    document.getElementById("f-livello").value="1";
+    if(qDesc)   qDesc.setText("");
+    if(qUpcast) qUpcast.setText("");
+    document.getElementById("add-details").removeAttribute("open");
+    toast("✦ Incantesimo aggiunto!");
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
+
+window.togglePrep=async(id,val)=>{
+  if(!uid) return;
+  try{ await updateDoc(doc(db,"users",uid,"incantesimi",id),{preparato:val}); }
   catch(e){ toast("Errore: "+e.message); }
 };
-window.openArchiveNoteEdit=(sid,nid,text,tag)=>{
-  openModal("Modifica Nota Archiviata",
-    '<label>Testo</label><textarea id="an-text" style="min-height:90px">'+text+'</textarea>'
-    +'<label>Tag</label><input id="an-tag" value="'+tag+'">',
-    async()=>{
-      await updateDoc(doc(db,"sessions",sid,"notes",nid),{
-        text:document.getElementById("an-text").value.trim(),
-        tag:document.getElementById("an-tag").value.trim()||"generale",
-      });
-      toast("Nota aggiornata!");
-    }
-  );
+
+window.deleteSpell=async(id)=>{
+  if(!confirm("Eliminare questo incantesimo?")) return;
+  try{ await deleteDoc(doc(db,"users",uid,"incantesimi",id)); toast("Incantesimo eliminato."); }
+  catch(e){ toast("Errore: "+e.message); }
 };
 
-/* ── MODAL ── */
-function openModal(title,bodyHTML,saveFn){
-  document.getElementById("edit-modal-title").textContent=title;
-  document.getElementById("edit-modal-body").innerHTML=bodyHTML;
-  document.getElementById("edit-modal-save").onclick=async()=>{ await saveFn(); closeEditModal(); };
-  document.getElementById("edit-overlay").classList.add("open");
-}
-window.closeEditModal=()=>document.getElementById("edit-overlay").classList.remove("open");
-document.getElementById("edit-overlay").addEventListener("click",e=>{
-  if(e.target===document.getElementById("edit-overlay")) closeEditModal();
-});
+window.openEdit=(id)=>{
+  const s=spellsCache.find(x=>x.id===id); if(!s) return;
+  document.getElementById("modal-title").textContent="Modifica — "+esc(s.nome);
+  document.getElementById("modal-body").innerHTML=`
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+      <div><label>Nome</label><input id="me-nome" value="${esc(s.nome||"")}"></div>
+      <div><label>Livello</label><input id="me-livello" type="number" min="0" max="9" value="${s.livello??1}"></div>
+    </div>
+    <label>Scuola</label>
+    <select id="me-scuola">
+      ${["Abiurazione","Ammaliamento","Divinazione","Evocazione","Illusione","Invocazione","Necromanzia","Trasmutazione"]
+        .map(sc=>`<option${s.scuola===sc?" selected":""}>${sc}</option>`).join("")}
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label>Tempo di lancio</label><input id="me-tempo" value="${esc(s.tempo_lancio||"")}"></div>
+      <div><label>Gittata</label><input id="me-gittata" value="${esc(s.gittata||"")}"></div>
+      <div><label>Durata</label><input id="me-durata" value="${esc(s.durata||"")}"></div>
+      <div><label>Componenti</label><input id="me-comp" value="${esc(s.componenti||"")}"></div>
+    </div>
+    <div style="display:flex;gap:16px;margin:10px 0;font-size:14px">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-conc"${s.concentrazione?" checked":""}> Concentrazione</label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="me-rit"${s.rituale?" checked":""}> Rituale</label>
+    </div>
+    <label>Descrizione</label><div id="me-desc"></div>
+    <label>A livelli superiori (Upcast)</label><div id="me-upcast"></div>
+  `;
 
-/* ── NOTE DM ── */
-window.addNoteDM = async () => {
-  const titolo = document.getElementById("notedm-titolo").value.trim();
-  if (!titolo) { toast("Inserisci il titolo."); return; }
-  try {
-    await addDoc(collection(db,"campaigns","strahd","note-dm"),{
-      titolo,
-      testo: qNoteDMTesto ? qNoteDMTesto.root.innerHTML : "",
-      authorId:uid,createdAt:new Date(),
-      updatedAt:new Date(),updatedBy:nickname
-    });
-    document.getElementById("notedm-titolo").value="";
-    if(qNoteDMTesto) qNoteDMTesto.setText("");
-    toast("Nota salvata!");
-  } catch(e) { toast("Errore: " + e.message); console.error(e); }
-};
-
-function listenNoteDM(){
-  const STATIC_NOTEDM=[
-    ["Mappa della regione","La mappa mancante è ancora in mano alle Megere?"],
-  ];
-  onSnapshot(
-    query(collection(db,"campaigns","strahd","note-dm"),orderBy("createdAt","asc")),
-    snap=>{
-      const c=document.getElementById("note-dm-lista"); if(!c) return;
-      window._notedmCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-      const staticHTML=STATIC_NOTEDM.map(([b,t])=>
-        '<li><b>'+esc(b)+'</b> &mdash; '+esc(t)+'</li>'
-      ).join("");
-      const dynHTML=snap.docs.map(ds=>{
-        const d=ds.data(),own=uid&&uid===d.authorId;
-        return '<li style="border-left-color:var(--crimson-bright);display:flex;flex-direction:column;gap:6px">'
-          +(own?'<span style="display:flex;gap:4px">'
-              +'<button class="btn btn-ghost btn-xs" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999; Modifica</button>'
-              +'<button class="btn btn-danger btn-xs" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465; Elimina</button>'
-              +'</span>':"")
-          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?'<div style="margin-top:4px;font-size:14px">'+d.testo+'</div>':"")
-          +'<div style="margin-top:6px">'+fmtUpdate(d)+'</div></span>'
-          +'</li>';
-      }).join("");
-      c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
-    },
-    e=>console.error("NoteDM listener:",e)
-  );
-}
-
-window.deleteNoteDM=async id=>{
-  if(!confirm("Eliminare questa nota?")) return;
-  await deleteDoc(doc(db,"campaigns","strahd","note-dm",id)); toast("Nota eliminata.");
-};
-
-window.openNoteDMEdit=(id,titolo,testo)=>{
-  openModal("Modifica Nota",
-    '<label>Titolo</label><input id="ndm-titolo" value="'+titolo+'">'
-    +'<label>Descrizione</label><div id="ndm-testo" style="min-height:100px"></div>',
-    async()=>{
-      const qNDM = window._modalQuills?.ndm;
-      await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
-        titolo:document.getElementById("ndm-titolo").value.trim(),
-        testo: qNDM ? qNDM.root.innerHTML : "",
-        updatedAt:new Date(),updatedBy:nickname
-      });
-      toast("Nota aggiornata!");
-    }
-  );
+  document.getElementById("modal-overlay").classList.add("open");
   setTimeout(()=>{
-    const qNDM = new Quill('#ndm-testo', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR_FULL} });
-    qNDM.root.innerHTML = testo;
-    window._modalQuills = { ndm: qNDM };
+    const qMDesc   = new Quill('#me-desc',   { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    const qMUpcast = new Quill('#me-upcast', { theme:'snow', modules:{toolbar:QUILL_TOOLBAR} });
+    if(s.descrizione) qMDesc.root.innerHTML   = s.descrizione;
+    if(s.upcast)      qMUpcast.root.innerHTML = s.upcast;
+    document.getElementById("modal-save").onclick = async()=>{
+      await updateDoc(doc(db,"users",uid,"incantesimi",id),{
+        nome:        document.getElementById("me-nome").value.trim(),
+        livello:     parseInt(document.getElementById("me-livello").value)||0,
+        scuola:      document.getElementById("me-scuola").value,
+        tempo_lancio:document.getElementById("me-tempo").value.trim(),
+        gittata:     document.getElementById("me-gittata").value.trim(),
+        durata:      document.getElementById("me-durata").value.trim(),
+        componenti:  document.getElementById("me-comp").value.trim(),
+        concentrazione: document.getElementById("me-conc").checked,
+        rituale:     document.getElementById("me-rit").checked,
+        descrizione: qMDesc.root.innerHTML,
+        upcast:      qMUpcast.root.innerHTML,
+      });
+      toast("Incantesimo aggiornato!");
+      closeModal();
+    };
   }, 50);
 };
 
-window.deleteNoteDM = async id => {
-  if (!confirm("Eliminare questa nota?")) return;
-  await deleteDoc(doc(db, "campaigns", "strahd", "note-dm", id));
-  toast("Nota eliminata.");
-};
-
+window.closeModal=()=>document.getElementById("modal-overlay").classList.remove("open");
+document.getElementById("modal-overlay").addEventListener("click",e=>{
+  if(e.target===document.getElementById("modal-overlay")) closeModal();
+});
 </script>
 </body>
 </html>
