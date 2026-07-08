@@ -273,6 +273,7 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved === true){
       document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
       showScreen("screen-app");
+      initGlobalSearch(searchFnWrapper);
       await loadMySpellIds();
       await loadGrimorio();
     } else {
