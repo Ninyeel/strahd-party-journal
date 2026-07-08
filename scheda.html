@@ -317,6 +317,20 @@
         <div class="counter-grid" id="counter-grid">
           <div style="color:var(--text-dim);font-style:italic;font-size:14px;padding:8px 0">Nessun counter. Aggiungine uno qui sotto.</div>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+          <button class="btn btn-ghost btn-sm" onclick="riposoCounter('riposo breve')">
+            ☽ Riposo Breve
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="riposoCounter('riposo lungo')">
+            🌙 Riposo Lungo
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="riposoCounter('alba')">
+            ☀ Alba
+          </button>
+          <span style="font-size:13px;color:var(--text-dim);align-self:center;font-style:italic;">
+            Resetta i counter con quella impostazione di ricarica.
+          </span>
+        </div>
         <details class="counter-add-form" id="counter-add-details" style="margin-top:12px;">
           <summary style="font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;">
             <span style="color:var(--crimson-bright)">+</span> Aggiungi Counter
@@ -804,6 +818,45 @@ async function updateCounter(id, newVal, max){
     await updateDoc(doc(db,"users",uid,"counters",id),{corrente:clamped});
   } catch(e){ toast("Errore: "+e.message); }
 }
+
+window.riposoCounter=async(tipo)=>{
+  if(!uid) return;
+  const { collection, getDocs, doc, updateDoc } = window._firestoreFns;
+
+  // Trova tutti i counter con quella impostazione di ricarica
+  const snap = await getDocs(collection(db,"users",uid,"counters"));
+  const toReset = snap.docs.filter(d => d.data().ricarica === tipo);
+
+  if(!toReset.length){
+    toast("Nessun counter con ricarica \""+tipo+"\".");
+    return;
+  }
+
+  // Se è riposo lungo, resetta anche i counter "riposo breve"
+  // (un riposo lungo include sempre un riposo breve)
+  let targets = toReset;
+  if(tipo === "riposo lungo"){
+    const alsoShort = snap.docs.filter(d => d.data().ricarica === "riposo breve");
+    targets = [...new Map([...toReset,...alsoShort].map(d=>[d.id,d])).values()];
+  }
+
+  const label = {
+    "riposo breve": "Riposo Breve",
+    "riposo lungo": "Riposo Lungo",
+    "alba":         "Alba"
+  }[tipo] || tipo;
+
+  if(!confirm(`${label}: resettare ${targets.length} counter al massimo?`)) return;
+
+  try{
+    await Promise.all(targets.map(d =>
+      updateDoc(doc(db,"users",uid,"counters",d.id),{
+        corrente: d.data().massimo || 0
+      })
+    ));
+    toast(`✓ ${label}: ${targets.length} counter ripristinati.`);
+  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+};
 
 window.addCounter=async()=>{
   const nome = document.getElementById("cn-nome")?.value.trim();
