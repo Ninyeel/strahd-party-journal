@@ -291,6 +291,7 @@ onAuthStateChanged(auth, async user=>{
         }
       } catch(e){ document.getElementById("pg-name-display").textContent=""; }
       showScreen("screen-app");
+      initGlobalSearch(searchFnWrapper);
       await loadSlots();
       buildSlotsGrid();
       listenSpells();
