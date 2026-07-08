@@ -418,6 +418,16 @@ initUserMenuClose();
 
 let uid = "";
 let isDirty = false;
+let autoSaveTimer = null;
+
+function startAutoSave(){
+  if(autoSaveTimer) clearInterval(autoSaveTimer);
+  autoSaveTimer = setInterval(async()=>{
+    if(isDirty && uid){
+      await saveScheda(true); // true = salvataggio silenzioso
+    }
+  }, 60000); // ogni 60 secondi
+}
 
 // ── QUILL: configurazione toolbar condivisa ──────────────────
 const QUILL_TOOLBAR = [
@@ -498,6 +508,7 @@ onAuthStateChanged(auth, async user=>{
       // Dopo il caricamento, monitora le modifiche dell'utente
       setupDirtyTracking();
       listenCounters();
+      startAutoSave();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -664,12 +675,11 @@ function setupDirtyTracking(){
   });
 }
 
-window.saveScheda=async()=>{
-  if(!uid){ toast("Non autenticato."); return; }
+window.saveScheda=async(silent=false)=>{
+  if(!uid){ if(!silent) toast("Non autenticato."); return; }
 
-  // Feedback visivo: disabilita il pulsante durante il salvataggio
   const btn = document.querySelector('.sc-footer button.btn-primary');
-  if(btn){ btn.disabled = true; btn.textContent = "Salvataggio…"; }
+  if(!silent && btn){ btn.disabled = true; btn.textContent = "Salvataggio…"; }
 
   const data={ updatedAt: new Date() };
   FIELDS.forEach(id=>{
@@ -695,14 +705,15 @@ window.saveScheda=async()=>{
   try{
     await setDoc(doc(db,"users",uid,"scheda","main"),data,{merge:true});
     const now=new Date().toLocaleTimeString("it-IT");
-    document.getElementById("saved-at").textContent="Salvato alle "+now;
-    toast("⛧ Scheda salvata!");
-    isDirty = false; // segnala che non ci sono modifiche non salvate
+    document.getElementById("saved-at").textContent=
+      (silent?"↺ Salvataggio automatico alle ":"Salvato alle ")+now;
+    if(!silent) toast("⛧ Scheda salvata!");
+    isDirty = false;
   } catch(e){
-    toast("Errore: "+e.message); console.error(e);
+    if(!silent) toast("Errore: "+e.message);
+    console.error(e);
   } finally{
-    // Ripristina il pulsante in ogni caso
-    if(btn){ btn.disabled = false; btn.textContent = "⛧ Salva Scheda"; }
+    if(!silent && btn){ btn.disabled = false; btn.textContent = "⛧ Salva Scheda"; }
   };
 
   // Campi semplici
