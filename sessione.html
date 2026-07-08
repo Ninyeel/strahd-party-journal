@@ -227,7 +227,8 @@ import {
   auth, db, onAuthStateChanged,
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
-  toggleUserMenu, initUserMenuClose, loadUserProfile
+  toggleUserMenu, initUserMenuClose, loadUserProfile,
+  initGlobalSearch
 } from "./js/common.js";
 
 import {
@@ -250,6 +251,54 @@ let notesUnsub = null;
 let nickname   = "";
 let uid        = "";
 let isOnline   = navigator.onLine;
+
+// Ricerca globale: interroga Firestore per NPC, luoghi e grimorio
+async function searchRemote(q){
+  const ql = q.toLowerCase();
+  const results = [];
+
+  try{
+    // NPC
+    const npcsSnap = await getDocs(collection(db,"campaigns","strahd","npcs"));
+    const npcs = npcsSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(n=>(n.name||"").toLowerCase().includes(ql)||(n.role||"").toLowerCase().includes(ql))
+      .map(n=>({ name:n.name, sub:n.role||"", href:"index.html#personaggi" }));
+    results.push({ label:"👥 Personaggi", items:npcs });
+
+    // Luoghi
+    const luoghiSnap = await getDocs(collection(db,"campaigns","strahd","luoghi"));
+    const luoghi = luoghiSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(l=>(l.nome||"").toLowerCase().includes(ql)||(l.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql))
+      .map(l=>({ name:l.nome, sub:l.tipo||"", href:"index.html#luoghi" }));
+    results.push({ label:"🏰 Luoghi", items:luoghi });
+
+    // Grimorio
+    const grimSnap = await getDocs(collection(db,"campaigns","strahd","grimorio"));
+    const grim = grimSnap.docs
+      .map(d=>({id:d.id,...d.data()}))
+      .filter(s=>(s.nome||"").toLowerCase().includes(ql)||(s.descrizione||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql))
+      .map(s=>({ name:s.nome, sub:(s.scuola||"")+" · "+(+s.livello===0?"Trucchetto":s.livello+"° liv."), href:"grimorio.html" }));
+    results.push({ label:"📚 Grimorio", items:grim });
+
+  } catch(e){ console.error("Search error:",e); }
+
+  return results;
+}
+
+function searchFnWrapper(q){
+  const container = document.getElementById("search-results");
+  if(container) container.innerHTML = '<div class="search-hint">Ricerca in corso…</div>';
+  searchRemote(q).then(results=>{
+    // Importa renderSearchResults da common.js non è possibile direttamente,
+    // quindi triggeriamo un evento custom
+    window._lastSearchResults = results;
+    window._lastSearchQuery   = q;
+    document.dispatchEvent(new CustomEvent("searchready"));
+  });
+  return []; // ritorna vuoto subito, i risultati arrivano via evento
+}
 
 /* ── GESTIONE RETE ───────────────────────────────────────────── */
 function updateNetworkBanner(){
