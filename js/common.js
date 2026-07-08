@@ -176,6 +176,13 @@ export function initGlobalSearch(searchFn){
     }
     if(e.key === "Escape") closeGlobalSearch();
   });
+
+  // Supporto ricerca asincrona (pagine non-index)
+  document.addEventListener("searchready", ()=>{
+    if(window._lastSearchResults && window._lastSearchQuery){
+      renderSearchResults(window._lastSearchResults, window._lastSearchQuery);
+    }
+  });
 }
 
 function openGlobalSearch(){
