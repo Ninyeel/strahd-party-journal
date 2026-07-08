@@ -150,6 +150,11 @@ section{margin-bottom:64px;scroll-margin-top:78px;}
         </div>
       </div>
 
+      <div id="network-banner" style="display:none;background:rgba(122,13,18,.25);border:1px solid var(--crimson);border-radius:7px;padding:10px 16px;margin-bottom:14px;font-size:14px;color:#e09090;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px">⚠</span>
+        <span>Connessione assente. Le note vengono salvate localmente e sincronizzate quando la rete torna.</span>
+      </div>
+
       <div class="note-form">
         <h3>📝 Aggiungi Nota</h3>
         <div id="note-warning" style="display:none;" class="alert-err">
@@ -240,10 +245,84 @@ window.toggleUserMenu = toggleUserMenu;
 // Inizializza la chiusura del menu utente
 initUserMenuClose();
 
-let sessionId = null;
+let sessionId  = null;
 let notesUnsub = null;
-let nickname = "";
-let uid = "";
+let nickname   = "";
+let uid        = "";
+let isOnline   = navigator.onLine;
+
+/* ── GESTIONE RETE ───────────────────────────────────────────── */
+function updateNetworkBanner(){
+  const banner = document.getElementById("network-banner");
+  if(!banner) return;
+  banner.style.display = isOnline ? "none" : "flex";
+}
+
+window.addEventListener("online", async ()=>{
+  isOnline = true;
+  updateNetworkBanner();
+  toast("✓ Connessione ripristinata. Sincronizzazione in corso…");
+  await syncLocalBuffer();
+});
+
+window.addEventListener("offline", ()=>{
+  isOnline = false;
+  updateNetworkBanner();
+  toast("⚠ Connessione assente. Le note vengono salvate localmente.");
+});
+
+/* ── LOCAL BUFFER ────────────────────────────────────────────── */
+const BUFFER_KEY = "strahd_notes_buffer";
+
+function getBuffer(){
+  try{
+    return JSON.parse(localStorage.getItem(BUFFER_KEY) || "[]");
+  } catch(e){ return []; }
+}
+
+function addToBuffer(note){
+  const buffer = getBuffer();
+  buffer.push({ ...note, bufferedAt: new Date().toISOString() });
+  localStorage.setItem(BUFFER_KEY, JSON.stringify(buffer));
+}
+
+function clearBuffer(){
+  localStorage.removeItem(BUFFER_KEY);
+}
+
+async function syncLocalBuffer(){
+  if(!uid || !sessionId) return;
+  const buffer = getBuffer();
+  if(!buffer.length) return;
+
+  let synced = 0;
+  const failed = [];
+
+  for(const note of buffer){
+    try{
+      await addDoc(collection(db,"sessions",note.sessionId,"notes"),{
+        text:           note.text,
+        tag:            note.tag || "generale",
+        authorNickname: note.authorNickname,
+        authorId:       note.authorId,
+        timestamp:      new Date(note.timestamp),
+        sessionId:      note.sessionId
+      });
+      synced++;
+    } catch(e){
+      failed.push(note);
+      console.error("Sync failed for note:", e);
+    }
+  }
+
+  if(failed.length){
+    localStorage.setItem(BUFFER_KEY, JSON.stringify(failed));
+    toast(`⚠ ${synced} note sincronizzate, ${failed.length} fallite.`);
+  } else {
+    clearBuffer();
+    toast(`✓ ${synced} note sincronizzate con successo.`);
+  }
+}
 
 const NOTE_TOOLBAR = [
   ['bold', 'italic', 'underline'],
@@ -276,6 +355,9 @@ onAuthStateChanged(auth, async user=>{
       initNoteEditor();
       listenSession();
       listenArchivio();
+      // Sincronizza eventuali note in buffer dalla sessione precedente
+      updateNetworkBanner();
+      if(isOnline) await syncLocalBuffer();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -357,17 +439,69 @@ window.addNote=async()=>{
   const plainText=qNote ? qNote.getText().trim() : "";
   const tag=document.getElementById("note-tag").value.trim();
   if(!plainText){ toast("Scrivi qualcosa prima."); return; }
-  if(!sessionId){ document.getElementById("note-warning").style.display="block"; toast("Apri prima una sessione!"); return; }
+  if(!sessionId){
+    document.getElementById("note-warning").style.display="block";
+    toast("Apri prima una sessione!");
+    return;
+  }
+
+  const noteData = {
+    text,
+    tag: tag||"generale",
+    authorNickname: nickname,
+    authorId: uid,
+    timestamp: new Date().toISOString(),
+    sessionId
+  };
+
+  // Se offline, salva nel buffer locale
+  if(!isOnline){
+    addToBuffer(noteData);
+    if(qNote) qNote.setText("");
+    toast("⚠ Offline: nota salvata localmente.");
+    // Mostra la nota nel DOM immediatamente anche se non è su Firestore
+    renderBufferedNote(noteData);
+    return;
+  }
+
   try{
     await addDoc(collection(db,"sessions",sessionId,"notes"),{
-      text,tag:tag||"generale",authorNickname:nickname,authorId:uid,
-      timestamp:new Date(),sessionId
+      ...noteData,
+      timestamp: new Date()
     });
     if(qNote) qNote.setText("");
-    // Non resettare il tag — comodo tenerlo per note consecutive dello stesso tipo
     toast("Nota aggiunta!");
-  } catch(e){ toast("Errore: "+e.message); console.error(e); }
+  } catch(e){
+    // Firestore ha fallito — salva nel buffer
+    addToBuffer(noteData);
+    if(qNote) qNote.setText("");
+    toast("⚠ Errore di rete: nota salvata localmente.");
+    renderBufferedNote(noteData);
+    console.error(e);
+  }
 };
+
+// Mostra una nota bufferizzata nel DOM con indicatore visivo
+function renderBufferedNote(note){
+  const c = document.getElementById("notes-list");
+  if(!c) return;
+  // Rimuovi il messaggio "nessuna nota" se presente
+  const empty = c.querySelector(".empty-msg");
+  if(empty) empty.remove();
+
+  const div = document.createElement("div");
+  div.className = "note-card";
+  div.style.borderLeft = "3px solid var(--gold)";
+  div.innerHTML =
+    '<div class="note-text">'+(note.text||"")+'</div>'
+    +'<div class="note-meta">'
+    +'<span class="note-tag">'+esc(note.tag||"generale")+'</span>'
+    +'<span class="note-author">'+esc(note.authorNickname||"?")+'</span>'
+    +'<span style="font-size:11px;color:var(--gold);border:1px solid var(--gold);padding:1px 6px;border-radius:10px;">⚠ locale</span>'
+    +'</div>';
+  // Inserisci in cima
+  c.insertBefore(div, c.firstChild);
+}
 
 window.deleteNote=async id=>{
   if(!sessionId||!confirm("Eliminare questa nota?")) return;
