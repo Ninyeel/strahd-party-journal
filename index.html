@@ -485,9 +485,22 @@ let sessionId    = null;
 let notesUnsub   = null;
 let nickname     = "";
 let uid          = "";
+
+// Formatta "aggiornato da X il GG/MM/AAAA alle HH:MM"
+function fmtUpdate(data){
+  if(!data.updatedAt && !data.createdAt) return "";
+  const ts = data.updatedAt || data.createdAt;
+  const d  = ts?.toDate ? ts.toDate() : new Date(ts);
+  const chi = data.updatedBy || data.authorId || "?";
+  const quando = d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})
+    +" alle "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  return `<span style="font-size:11px;color:var(--text-dim);font-style:italic;">✎ ${esc(chi)} · ${quando}</span>`;
+}
+
 let npcCache     = [];
 let sortKey      = "name";
 let sortAsc      = true;
+
 // Esponi le funzioni comuni ai pulsanti HTML (onclick)
 window.loginGoogle    = loginGoogle;
 window.loginEmail     = loginEmail;
@@ -640,7 +653,8 @@ window.addNPC=async()=>{
       stato:document.getElementById("npc-stato").value,
       location:document.getElementById("npc-location").value.trim(),
       notes:document.getElementById("npc-notes").value.trim(),
-      authorId:uid,createdAt:new Date()
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     ["npc-name","npc-role","npc-location","npc-notes"].forEach(id=>document.getElementById(id).value="");
     document.getElementById("npc-stato").value="";
@@ -721,7 +735,10 @@ window.renderNPCTable=()=>{
     const own=uid&&uid===n.authorId;
     const pc=n.stato?.includes("morto")||n.stato?.includes("morta")?"morto":n.stato?.includes("vivo")||n.stato?.includes("viva")?"vivo":n.stato?.includes("spirito")||n.stato?.includes("non-morto")?"nonmorto":"";
     return '<tr>'
-      +'<td>'+esc(n.name)+'</td>'
+      +'<td title="'+( n.updatedBy ? '✎ '+n.updatedBy : '')+'">'
+        +esc(n.name)
+        +(n.updatedBy?'<br><span style="font-size:10px;color:var(--text-dim);font-style:italic">✎ '+esc(n.updatedBy)+'</span>':"")
+      +'</td>'
       +'<td style="font-size:14px">'+esc(n.role||"—")+'</td>'
       +'<td><span class="pill '+pc+'">'+esc(n.stato||"—")+'</span></td>'
       +'<td style="font-size:13px">'+esc(n.location||"—")+'</td>'
@@ -754,6 +771,7 @@ window.openNPCEdit=id=>{
         stato:document.getElementById("me-stato").value,
         location:document.getElementById("me-loc").value.trim(),
         notes:document.getElementById("me-notes").value.trim(),
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Personaggio aggiornato!");
     }
@@ -768,7 +786,8 @@ window.addAtto=async()=>{
     await addDoc(collection(db,"campaigns","strahd","atti"),{
       title,sessions:document.getElementById("new-atto-sessions").value.trim(),
       events: qAttoEvents ? qAttoEvents.root.innerHTML : "",
-      authorId:uid,createdAt:new Date()
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     ["new-atto-title","new-atto-sessions"].forEach(id=>document.getElementById(id).value="");
     if(qAttoEvents) qAttoEvents.setText("");
@@ -783,10 +802,13 @@ function listenAtti(){
       const a=ds.data(),own=uid&&uid===a.authorId;
       const lines=(a.events||"").split("\n").filter(Boolean);
       const div=document.createElement("div"); div.className="atto"; div.style.borderLeft="3px solid var(--gold)";
-      div.innerHTML='<h3>'+esc(a.title)+(a.sessions?' <span class="sess">'+esc(a.sessions)+'</span>':'')+'</h3>'
+      div.innerHTML =
+        '<h3>'+esc(a.title)+(a.sessions?' <span class="sess">'+esc(a.sessions)+'</span>':'')+'</h3>'
         +'<div style="font-size:15px;color:var(--text-muted)">'+(a.events||"")+'</div>'
+        +'<div style="margin-top:8px">'+fmtUpdate(a)+'</div>'
         +(own?'<button class="item-del" onclick="deleteAtto(\''+ds.id+'\')">&#128465;</button>'
-            +'<button class="item-edit" onclick="openAttoEdit(\''+ds.id+'\',\''+esc(a.title)+'\',\''+esc(a.sessions||"")+'\',\''+esc(a.events||"")+'\')">&#9999;</button>':"");
+          +'<button class="item-edit" onclick="openAttoEdit(\''+ds.id+'\',\''+esc(a.title)+'\',\''+esc(a.sessions||"")+'\',\''+esc(a.events||"")+'\')">&#9999;</button>'
+          :"");
       c.appendChild(div);
     });
   });
@@ -803,6 +825,7 @@ window.openAttoEdit=(id,title,sessions,events)=>{
         title:document.getElementById("ae-title").value.trim(),
         sessions:document.getElementById("ae-sessions").value.trim(),
         events: qAE ? qAE.root.innerHTML : "",
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Atto aggiornato!");
     }
@@ -822,7 +845,8 @@ window.addLuogo=async()=>{
     await addDoc(collection(db,"campaigns","strahd","luoghi"),{
       nome,tipo:document.getElementById("luogo-tipo").value.trim(),
       note: qLuogoNote ? qLuogoNote.root.innerHTML : "",
-      authorId:uid,createdAt:new Date()
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     ["luogo-nome","luogo-tipo"].forEach(id=>document.getElementById(id).value="");
     if(qLuogoNote) qLuogoNote.setText("");
@@ -839,6 +863,7 @@ function listenLuoghi(){
       const div=document.createElement("div"); div.className="luogo"; div.style.borderLeft="3px solid var(--gold)";
       div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
         +'<div style="font-size:14.5px;color:var(--text-muted)">'+(l.note||"")+'</div>'
+        +'<div style="margin-top:6px">'+fmtUpdate(l)+'</div>'
         +(own?'<button class="item-del" onclick="deleteLuogo(\''+ds.id+'\')">&#128465;</button>'
             +'<button class="item-edit" onclick="openLuogoEdit(\''+ds.id+'\',\''+esc(l.nome)+'\',\''+esc(l.tipo||"")+'\',\''+esc(l.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
@@ -856,6 +881,7 @@ window.openLuogoEdit=(id,nome,tipo,note)=>{
         nome:document.getElementById("le-nome").value.trim(),
         tipo:document.getElementById("le-tipo").value.trim(),
         note: qLE ? qLE.root.innerHTML : "",
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Luogo aggiornato!");
     }
@@ -873,7 +899,9 @@ window.addProfezia=async()=>{
   if(!titolo){ toast("Inserisci il titolo."); return; }
   try{
     await addDoc(collection(db,"campaigns","strahd","profezie"),{
-      titolo,note: qProfNote ? qProfNote.root.innerHTML : "",authorId:uid,createdAt:new Date()
+      titolo,note:qProfNote ? qProfNote.root.innerHTML : "",
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     document.getElementById("prof-titolo").value="";
     if(qProfNote) qProfNote.setText("");
@@ -889,6 +917,7 @@ function listenProfezie(){
       const div=document.createElement("div");
       div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
       div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?'<div style="margin-top:4px;font-size:14px">'+p.note+'</div>':"")
+        +'<div style="margin-top:6px">'+fmtUpdate(p)+'</div>'
       +(own?'<button class="item-del" onclick="deleteProfezia(\''+ds.id+'\')">&#128465;</button>'
           +'<button class="item-edit" onclick="openProfeziaEdit(\''+ds.id+'\',\''+esc(p.titolo)+'\',\''+esc(p.note||"")+'\')">&#9999;</button>':"");      c.appendChild(div);
     });
@@ -904,6 +933,7 @@ window.openProfeziaEdit=(id,titolo,note)=>{
       await updateDoc(doc(db,"campaigns","strahd","profezie",id),{
         titolo:document.getElementById("pe-titolo").value.trim(),
         note: qPE ? qPE.root.innerHTML : "",
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Aggiornato!");
     }
@@ -921,7 +951,9 @@ window.addQuest=async()=>{
   if(!testo){ toast("Inserisci la descrizione."); return; }
   try{
     await addDoc(collection(db,"campaigns","strahd","quests"),{
-      testo,tipo:document.getElementById("quest-tipo").value,authorId:uid,createdAt:new Date()
+      testo,tipo:document.getElementById("quest-tipo").value,
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     document.getElementById("quest-testo").value=""; toast("Quest aggiunta!");
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
@@ -956,6 +988,7 @@ window.openQuestEdit=(id,testo,tipo)=>{
       await updateDoc(doc(db,"campaigns","strahd","quests",id),{
         testo:document.getElementById("qe-testo").value.trim(),
         tipo:document.getElementById("qe-tipo").value,
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Quest aggiornata!");
     }
@@ -1062,11 +1095,11 @@ window.addNoteDM = async () => {
   const titolo = document.getElementById("notedm-titolo").value.trim();
   if (!titolo) { toast("Inserisci il titolo."); return; }
   try {
-    await addDoc(collection(db, "campaigns", "strahd", "note-dm"), {
+    await addDoc(collection(db,"campaigns","strahd","note-dm"),{
       titolo,
       testo: qNoteDMTesto ? qNoteDMTesto.root.innerHTML : "",
-      authorId: uid,
-      createdAt: new Date()
+      authorId:uid,createdAt:new Date(),
+      updatedAt:new Date(),updatedBy:nickname
     });
     document.getElementById("notedm-titolo").value="";
     if(qNoteDMTesto) qNoteDMTesto.setText("");
@@ -1092,7 +1125,8 @@ function listenNoteDM(){
               +'<button class="btn btn-ghost btn-xs" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999; Modifica</button>'
               +'<button class="btn btn-danger btn-xs" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465; Elimina</button>'
               +'</span>':"")
-          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?'<div style="margin-top:4px;font-size:14px">'+d.testo+'</div>':"")+'</span>'
+          +'<span><b>'+esc(d.titolo)+'</b>'+(d.testo?'<div style="margin-top:4px;font-size:14px">'+d.testo+'</div>':"")
+          +'<div style="margin-top:6px">'+fmtUpdate(d)+'</div></span>'
           +'</li>';
       }).join("");
       c.innerHTML='<ul class="lore-list">'+staticHTML+dynHTML+'</ul>';
@@ -1115,6 +1149,7 @@ window.openNoteDMEdit=(id,titolo,testo)=>{
       await updateDoc(doc(db,"campaigns","strahd","note-dm",id),{
         titolo:document.getElementById("ndm-titolo").value.trim(),
         testo: qNDM ? qNDM.root.innerHTML : "",
+        updatedAt:new Date(),updatedBy:nickname
       });
       toast("Nota aggiornata!");
     }
