@@ -75,6 +75,7 @@
     <div class="title-bar">
       <h1>📚 Grimorio della Campagna</h1>
       <div class="sub">Archivio condiviso — visibile a tutto il party · <span id="spell-count-total">0</span> incantesimi</div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="loadGrimorio()">↻ Aggiorna</button>
     </div>
 
     <!-- FORM AGGIUNGI AL GRIMORIO -->
@@ -175,9 +176,10 @@ import {
   loginGoogle, loginEmail, registerEmail, logout,
   toggleUserMenu, initUserMenuClose, loadUserProfile
 } from "./js/common.js";
-import { doc, getDoc, setDoc, collection, addDoc, deleteDoc,
-         updateDoc, onSnapshot, query, orderBy, getDocs, where }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  collection, addDoc, deleteDoc, updateDoc,
+  query, orderBy, getDocs, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Esponi le funzioni al contesto globale per gli onclick dell'HTML
 window.loginGoogle = loginGoogle;
@@ -204,10 +206,13 @@ const QUILL_TOOLBAR = [
 let qDesc = null;
 let qUpcast = null;
 
-function initFormQuills(){
-  qDesc   = new Quill('#g-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno, area…', modules:{toolbar:QUILL_TOOLBAR} });
-  qUpcast = new Quill('#g-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
-}
+// Lazy init: Quill viene inizializzato solo quando il form viene aperto
+document.getElementById("add-details").addEventListener("toggle", function(){
+  if(this.open && !qDesc){
+    qDesc   = new Quill('#g-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno, area…', modules:{toolbar:QUILL_TOOLBAR} });
+    qUpcast = new Quill('#g-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+  }
+});
 
 /* ── AUTH ── */
 onAuthStateChanged(auth, async user=>{
@@ -221,7 +226,7 @@ onAuthStateChanged(auth, async user=>{
       showScreen("screen-app");
       initFormQuills();
       await loadMySpellIds();
-      listenGrimorio();
+      await loadGrimorio();
     } else {
       document.getElementById("waiting-email").textContent=user.email;
       showScreen("screen-waiting");
@@ -241,18 +246,20 @@ async function loadMySpellIds(){
 }
 
 /* ── GRIMORIO (realtime) ── */
-function listenGrimorio(){
-  const ref=query(
-    collection(db,"campaigns","strahd","grimorio"),
-    orderBy("livello","asc")
-  );
-  onSnapshot(ref,snap=>{
+async function loadGrimorio(){
+  try{
+    const snap=await getDocs(query(
+      collection(db,"campaigns","strahd","grimorio"),
+      orderBy("livello","asc")
+    ));
     grimorioCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     const tot=document.getElementById("spell-count-total");
     if(tot) tot.textContent=grimorioCache.length;
     renderGrimorio();
-  },e=>{ console.error(e); toast("Errore grimorio: "+e.message); });
+  } catch(e){ console.error(e); toast("Errore grimorio: "+e.message); }
 }
+
+window.loadGrimorio = loadGrimorio;
 
 window.renderGrimorio=()=>{
   const ft=(document.getElementById("g-search")?.value||"").toLowerCase();
@@ -383,6 +390,7 @@ window.addToGrimorio=async()=>{
     if(qUpcast) qUpcast.setText("");
     document.getElementById("add-details").removeAttribute("open");
     toast("✦ Incantesimo aggiunto al Grimorio!");
+    await loadGrimorio();
   } catch(e){ toast("Errore: "+e.message); console.error(e); }
 };
 
@@ -480,6 +488,7 @@ window.deleteFromGrimorio=async(id)=>{
   try{
     await deleteDoc(doc(db,"campaigns","strahd","grimorio",id));
     toast("Eliminato dal Grimorio.");
+    await loadGrimorio();
   } catch(e){ toast("Errore: "+e.message); }
 };
 
