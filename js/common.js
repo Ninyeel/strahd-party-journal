@@ -119,6 +119,23 @@ export async function ensureUser(user){
 }
 
 /* ── RICERCA GLOBALE ─────────────────────────────────────────── */
+function openGlobalSearch(){
+  document.getElementById("search-overlay")?.classList.add("open");
+  setTimeout(()=>document.getElementById("search-input")?.focus(), 50);
+}
+
+function closeGlobalSearch(){
+  document.getElementById("search-overlay")?.classList.remove("open");
+  if(document.getElementById("search-input"))
+    document.getElementById("search-input").value = "";
+  if(document.getElementById("search-results"))
+    document.getElementById("search-results").innerHTML =
+      '<div class="search-hint">Inizia a digitare per cercare NPC, luoghi, incantesimi…</div>';
+}
+
+window.openGlobalSearch  = openGlobalSearch;
+window.closeGlobalSearch = closeGlobalSearch;
+
 export function initGlobalSearch(searchFn){
   // Inietta il pulsante nel nav se non esiste già
   const navUser = document.querySelector(".nav-user");
@@ -188,23 +205,6 @@ export function initGlobalSearch(searchFn){
     }
   });
 }
-
-function openGlobalSearch(){
-  document.getElementById("search-overlay")?.classList.add("open");
-  setTimeout(()=>document.getElementById("search-input")?.focus(), 50);
-}
-
-function closeGlobalSearch(){
-  document.getElementById("search-overlay")?.classList.remove("open");
-  if(document.getElementById("search-input"))
-    document.getElementById("search-input").value = "";
-  if(document.getElementById("search-results"))
-    document.getElementById("search-results").innerHTML =
-      '<div class="search-hint">Inizia a digitare per cercare NPC, luoghi, incantesimi…</div>';
-}
-
-window.closeGlobalSearch = closeGlobalSearch;
-window.openGlobalSearch  = openGlobalSearch;
 
 function highlight(text, q){
   if(!text) return "";
