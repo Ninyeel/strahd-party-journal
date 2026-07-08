@@ -128,8 +128,12 @@ export function initGlobalSearch(searchFn){
   btn.className = "search-btn";
   btn.id = "global-search-btn";
   btn.title = "Cerca (/)";
+  btn.setAttribute("aria-label", "Apri ricerca globale");
   btn.innerHTML = "🔍";
-  btn.onclick = openGlobalSearch;
+  btn.addEventListener("click", e=>{
+    e.stopPropagation();
+    openGlobalSearch();
+  });
   navUser.parentElement.insertBefore(btn, navUser);
 
   // Inietta il pannello di ricerca nel body
