@@ -195,6 +195,16 @@ let uid = "";
 let grimorioCache = [];
 let mySpellIds = new Set();
 
+function fmtUpdate(data){
+  if(!data.updatedAt && !data.createdAt) return "";
+  const ts = data.updatedAt || data.createdAt;
+  const d  = ts?.toDate ? ts.toDate() : new Date(ts);
+  const chi = data.updatedBy || "?";
+  const quando = d.toLocaleDateString("it-IT",{day:"numeric",month:"short"})
+    +" alle "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  return `<span style="font-size:11px;color:var(--text-dim);font-style:italic;">✎ ${esc(chi)} · ${quando}</span>`;
+}
+
 const QUILL_TOOLBAR = [
   [{ header: [1, 2, false] }],
   ['bold', 'italic', 'underline'],
@@ -336,6 +346,7 @@ window.renderGrimorio=()=>{
           </div>
           ${s.descrizione?`<div class="sp-desc" id="gdesc-${s.id}">${s.descrizione}</div>`:""}
           ${s.upcast?`<div class="sp-upcast" id="gupcast-${s.id}">↑ ${s.upcast}</div>`:""}
+          <div style="margin-top:4px">${fmtUpdate(s)}</div>
           <div class="sp-actions">
             ${s.descrizione?`<button class="btn btn-ghost btn-xs" onclick="toggleDesc('${s.id}')">dettagli</button>`:""}
             <button class="btn btn-import${alreadyImported?" done":""}"
@@ -377,7 +388,8 @@ window.addToGrimorio=async()=>{
     descrizione: qDesc   ? qDesc.root.innerHTML   : "",
     upcast:      qUpcast ? qUpcast.root.innerHTML : "",
     authorId:uid,
-    createdAt:new Date()
+    createdAt:new Date(),
+    updatedAt:new Date(),updatedBy:nickname
   };
   try{
     await addDoc(collection(db,"campaigns","strahd","grimorio"),spell);
@@ -475,6 +487,7 @@ window.openEdit=(id)=>{
         rituale:  document.getElementById("me-rit").checked,
         descrizione: qMDesc.root.innerHTML,
         upcast:      qMUpcast.root.innerHTML,
+        updatedAt: new Date(), updatedBy: nickname,
       });
       toast("Grimorio aggiornato!");
       closeModal();
