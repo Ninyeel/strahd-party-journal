@@ -401,6 +401,7 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved===true){
       document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
+      initGlobalSearch(searchFnWrapper);
       initNoteEditor();
       listenSession();
       listenArchivio();
