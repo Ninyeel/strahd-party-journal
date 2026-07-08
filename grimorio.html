@@ -178,7 +178,7 @@ import {
 } from "./js/common.js";
 import {
   collection, addDoc, deleteDoc, updateDoc,
-  query, orderBy, getDocs, doc, getDoc
+  query, orderBy, getDocs, doc, getDoc, setDoc, getCountFromServer
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Esponi le funzioni al contesto globale per gli onclick dell'HTML
@@ -244,7 +244,27 @@ async function loadMySpellIds(){
   } catch(e){ console.error(e); }
 }
 
+// Carica il conteggio delle importazioni per ogni incantesimo
+async function loadImportCounts(){
+  const counts={};
+  try{
+    await Promise.all(grimorioCache.map(async s=>{
+      const ref=collection(db,"campaigns","strahd","grimorio",s.id,"imports");
+      const snap=await getCountFromServer(ref);
+      counts[s.id]=snap.data().count;
+    }));
+  } catch(e){ console.error("Import counts:",e); }
+  return counts;
+}
+
 /* ── GRIMORIO (realtime) ── */
+let importCounts = {};
+
+function formatImportCount(n){
+  if(!n) return "";
+  return n===1 ? "1 giocatore" : n+" giocatori";
+}
+
 async function loadGrimorio(){
   try{
     const snap=await getDocs(query(
@@ -254,10 +274,11 @@ async function loadGrimorio(){
     grimorioCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     const tot=document.getElementById("spell-count-total");
     if(tot) tot.textContent=grimorioCache.length;
+    // Carica i contatori in parallelo al render
+    importCounts = await loadImportCounts();
     renderGrimorio();
   } catch(e){ console.error(e); toast("Errore grimorio: "+e.message); }
 }
-
 window.loadGrimorio = loadGrimorio;
 
 window.renderGrimorio=()=>{
@@ -343,6 +364,12 @@ window.renderGrimorio=()=>{
               ${alreadyImported?'disabled title="Già nei tuoi incantesimi"':''}>
               ${alreadyImported?"✓ importato":"+ ai miei incantesimi"}
             </button>
+            ${importCounts[s.id]
+              ? `<span class="import-count" style="font-size:11px;color:var(--text-dim);font-style:italic;align-self:center;">
+                  👥 ${formatImportCount(importCounts[s.id])}
+                </span>`
+              : `<span class="import-count" style="font-size:11px;color:var(--text-dim);font-style:italic;align-self:center;"></span>`
+            }
             ${isOwner?`<button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>`:""}
             ${isOwner?`<button class="btn btn-danger btn-xs" onclick="deleteFromGrimorio('${s.id}')">🗑</button>`:""}
           </div>
@@ -413,6 +440,18 @@ window.importSpell=async(grimorioId)=>{
   try{
     await addDoc(collection(db,"users",uid,"incantesimi"),personalCopy);
     mySpellIds.add(grimorioId);
+    // Registra l'importazione nella sottocollezione
+    try{
+      await setDoc(
+        doc(db,"campaigns","strahd","grimorio",grimorioId,"imports",uid),
+        { importedAt: new Date(), nickname }
+      );
+      // Aggiorna il contatore locale
+      importCounts[grimorioId] = (importCounts[grimorioId]||0) + 1;
+      // Aggiorna il badge sulla card
+      const badge = document.querySelector(`#gpc-${grimorioId} .import-count`);
+      if(badge) badge.textContent = formatImportCount(importCounts[grimorioId]);
+    } catch(e){ console.error("Import tracking:",e); }
     // Aggiorna il pulsante sulla card senza re-render completo
     const btn=document.querySelector(`#gpc-${grimorioId} .btn-import`);
     if(btn){
