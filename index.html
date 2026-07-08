@@ -451,7 +451,8 @@ import {
   auth, db, onAuthStateChanged,
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
-  toggleUserMenu, initUserMenuClose, loadUserProfile
+  toggleUserMenu, initUserMenuClose, loadUserProfile,
+  initGlobalSearch
 } from "./js/common.js";
 import {
   collection, addDoc, deleteDoc, updateDoc,
@@ -485,6 +486,77 @@ let sessionId    = null;
 let notesUnsub   = null;
 let nickname     = "";
 let uid          = "";
+
+// ── FUNZIONE DI RICERCA LOCALE ───────────────────────────────
+function searchLocal(q){
+  const ql = q.toLowerCase();
+
+  const npcs = npcCache.filter(n=>
+    (n.name||"").toLowerCase().includes(ql)||
+    (n.role||"").toLowerCase().includes(ql)||
+    (n.notes||"").toLowerCase().includes(ql)
+  ).map(n=>({
+    name: n.name,
+    sub:  (n.role||"")+(n.location?" · "+n.location:""),
+    href: "index.html#personaggi"
+  }));
+
+  // Per atti, luoghi, profezie, quest, note-DM
+  // usiamo le cache Firestore già in memoria tramite snapshot
+  // Le colleghiamo tramite variabili globali aggiornate dai listener
+  const atti = (window._attiCache||[]).filter(a=>
+    (a.title||"").toLowerCase().includes(ql)||
+    (a.events||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
+  ).map(a=>({
+    name: a.title||"Atto senza titolo",
+    sub:  (a.events||"").replace(/<[^>]+>/g,""),
+    href: "index.html#cronologia"
+  }));
+
+  const luoghi = (window._luoghiCache||[]).filter(l=>
+    (l.nome||"").toLowerCase().includes(ql)||
+    (l.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
+  ).map(l=>({
+    name: l.nome,
+    sub:  (l.tipo||"")+" — "+(l.note||"").replace(/<[^>]+>/g,""),
+    href: "index.html#luoghi"
+  }));
+
+  const profezie = (window._profezieCache||[]).filter(p=>
+    (p.titolo||"").toLowerCase().includes(ql)||
+    (p.note||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
+  ).map(p=>({
+    name: p.titolo,
+    sub:  (p.note||"").replace(/<[^>]+>/g,""),
+    href: "index.html#profezie"
+  }));
+
+  const quest = (window._questCache||[]).filter(q2=>
+    (q2.testo||"").toLowerCase().includes(ql)
+  ).map(q2=>({
+    name: q2.testo,
+    sub:  q2.tipo||"",
+    href: "index.html#quest"
+  }));
+
+  const notedm = (window._notedmCache||[]).filter(n=>
+    (n.titolo||"").toLowerCase().includes(ql)||
+    (n.testo||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
+  ).map(n=>({
+    name: n.titolo,
+    sub:  (n.testo||"").replace(/<[^>]+>/g,""),
+    href: "index.html#note-dm"
+  }));
+
+  return [
+    { label:"👥 Personaggi",  items: npcs },
+    { label:"⏰ Cronologia",  items: atti },
+    { label:"🏰 Luoghi",      items: luoghi },
+    { label:"🔮 Profezie",    items: profezie },
+    { label:"📌 Quest",       items: quest },
+    { label:"⚠ Note",        items: notedm },
+  ];
+}
 
 // Formatta "aggiornato da X il GG/MM/AAAA alle HH:MM"
 function fmtUpdate(data){
@@ -521,6 +593,7 @@ onAuthStateChanged(auth, async user=>{
       showScreen("screen-app");
       initIndexQuills();
       listenNPCs();
+      initGlobalSearch(searchLocal);
       listenAtti();
       listenLuoghi();
       listenProfezie();
@@ -798,6 +871,7 @@ function listenAtti(){
   onSnapshot(query(collection(db,"campaigns","strahd","atti"),orderBy("createdAt","asc")),snap=>{
     const c=document.getElementById("atti-dinamici"); if(!c) return;
     c.innerHTML="";
+    window._attiCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     snap.forEach(ds=>{
       const a=ds.data(),own=uid&&uid===a.authorId;
       const lines=(a.events||"").split("\n").filter(Boolean);
@@ -857,6 +931,7 @@ function listenLuoghi(){
   onSnapshot(query(collection(db,"campaigns","strahd","luoghi"),orderBy("createdAt","asc")),snap=>{
     const c=document.getElementById("luoghi-dinamici"); if(!c) return;
     c.innerHTML="";
+    window._luoghiCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     snap.forEach(ds=>{
       const l=ds.data(),own=uid&&uid===l.authorId;
       const lines=(l.note||"").split("\n").filter(Boolean);
@@ -912,6 +987,7 @@ function listenProfezie(){
   onSnapshot(query(collection(db,"campaigns","strahd","profezie"),orderBy("createdAt","asc")),snap=>{
     const c=document.getElementById("profezie-dinamiche"); if(!c) return;
     c.innerHTML="";
+    window._profezieCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     snap.forEach(ds=>{
       const p=ds.data(),own=uid&&uid===p.authorId;
       const div=document.createElement("div");
@@ -962,6 +1038,7 @@ function listenQuest(){
   onSnapshot(query(collection(db,"campaigns","strahd","quests"),orderBy("createdAt","asc")),snap=>{
     const ul=document.getElementById("quest-dinamiche"); if(!ul) return;
     ul.innerHTML="";
+    window._questCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     snap.forEach(ds=>{
       const q=ds.data(),own=uid&&uid===q.authorId;
       const colors={aperta:"#e2543d",sospeso:"#d8b65a",mistero:"#8a7fd1",completata:"#4fa86e"};
@@ -1115,6 +1192,7 @@ function listenNoteDM(){
     query(collection(db,"campaigns","strahd","note-dm"),orderBy("createdAt","asc")),
     snap=>{
       const c=document.getElementById("note-dm-lista"); if(!c) return;
+      window._notedmCache = snap.docs.map(d=>({id:d.id,...d.data()}));
       const staticHTML=STATIC_NOTEDM.map(([b,t])=>
         '<li><b>'+esc(b)+'</b> &mdash; '+esc(t)+'</li>'
       ).join("");
