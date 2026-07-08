@@ -214,10 +214,13 @@ const QUILL_TOOLBAR = [
 let qDesc = null;
 let qUpcast = null;
 
-function initFormQuills(){
-  qDesc   = new Quill('#f-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno…', modules:{toolbar:QUILL_TOOLBAR} });
-  qUpcast = new Quill('#f-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
-}
+// Lazy init: Quill viene inizializzato solo quando il form viene aperto
+document.getElementById("add-details").addEventListener("toggle", function(){
+  if(this.open && !qDesc){
+    qDesc   = new Quill('#f-desc',   { theme:'snow', placeholder:'Effetto, tiro salvezza, danno…', modules:{toolbar:QUILL_TOOLBAR} });
+    qUpcast = new Quill('#f-upcast', { theme:'snow', placeholder:'Quando lanci questo incantesimo usando uno slot di livello superiore…', modules:{toolbar:QUILL_TOOLBAR} });
+  }
+});
 
 /* ── AUTH ── */
 onAuthStateChanged(auth, async user=>{
@@ -239,7 +242,6 @@ onAuthStateChanged(auth, async user=>{
         }
       } catch(e){ document.getElementById("pg-name-display").textContent=""; }
       showScreen("screen-app");
-      initFormQuills();
       await loadSlots();
       buildSlotsGrid();
       listenSpells();
