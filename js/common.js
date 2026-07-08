@@ -117,3 +117,121 @@ export async function ensureUser(user){
     await setDoc(ref,{email:user.email,nickname:n,approved:false,createdAt:new Date()});
   }
 }
+
+/* ── RICERCA GLOBALE ─────────────────────────────────────────── */
+export function initGlobalSearch(searchFn){
+  // Inietta il pulsante nel nav se non esiste già
+  const navUser = document.querySelector(".nav-user");
+  if(!navUser || document.getElementById("global-search-btn")) return;
+
+  const btn = document.createElement("button");
+  btn.className = "search-btn";
+  btn.id = "global-search-btn";
+  btn.title = "Cerca (/)";
+  btn.innerHTML = "🔍";
+  btn.onclick = openGlobalSearch;
+  navUser.parentElement.insertBefore(btn, navUser);
+
+  // Inietta il pannello di ricerca nel body
+  if(!document.getElementById("search-overlay")){
+    const overlay = document.createElement("div");
+    overlay.id = "search-overlay";
+    overlay.className = "search-overlay";
+    overlay.innerHTML = `
+      <div class="search-box">
+        <div class="search-input-wrap">
+          <span style="color:var(--text-dim);font-size:16px">🔍</span>
+          <input id="search-input" placeholder="Cerca in tutta la campagna…" autocomplete="off">
+          <button class="search-close" onclick="closeGlobalSearch()">✕</button>
+        </div>
+        <div class="search-results" id="search-results">
+          <div class="search-hint">Inizia a digitare per cercare NPC, luoghi, incantesimi…</div>
+        </div>
+      </div>
+    `;
+    overlay.addEventListener("click", e=>{
+      if(e.target === overlay) closeGlobalSearch();
+    });
+    document.body.appendChild(overlay);
+  }
+
+  // Listener sull'input
+  document.getElementById("search-input").addEventListener("input", e=>{
+    const q = e.target.value.trim();
+    if(q.length < 2){
+      document.getElementById("search-results").innerHTML =
+        '<div class="search-hint">Inizia a digitare per cercare NPC, luoghi, incantesimi…</div>';
+      return;
+    }
+    const results = searchFn(q);
+    renderSearchResults(results, q);
+  });
+
+  // Scorciatoia tastiera: / per aprire, Esc per chiudere
+  document.addEventListener("keydown", e=>{
+    if(e.key === "/" && !e.ctrlKey && !e.metaKey){
+      const active = document.activeElement;
+      const isEditing = active && (active.tagName==="INPUT"||active.tagName==="TEXTAREA"||active.isContentEditable);
+      if(!isEditing){ e.preventDefault(); openGlobalSearch(); }
+    }
+    if(e.key === "Escape") closeGlobalSearch();
+  });
+}
+
+function openGlobalSearch(){
+  document.getElementById("search-overlay")?.classList.add("open");
+  setTimeout(()=>document.getElementById("search-input")?.focus(), 50);
+}
+
+function closeGlobalSearch(){
+  document.getElementById("search-overlay")?.classList.remove("open");
+  if(document.getElementById("search-input"))
+    document.getElementById("search-input").value = "";
+  if(document.getElementById("search-results"))
+    document.getElementById("search-results").innerHTML =
+      '<div class="search-hint">Inizia a digitare per cercare NPC, luoghi, incantesimi…</div>';
+}
+
+window.closeGlobalSearch = closeGlobalSearch;
+window.openGlobalSearch  = openGlobalSearch;
+
+function highlight(text, q){
+  if(!text) return "";
+  // Rimuove tag HTML per il testo da mostrare
+  const plain = text.replace(/<[^>]+>/g,"");
+  const idx = plain.toLowerCase().indexOf(q.toLowerCase());
+  if(idx === -1) return plain.slice(0,80);
+  const start = Math.max(0, idx-30);
+  const end   = Math.min(plain.length, idx+q.length+50);
+  const snippet = (start>0?"…":"")+plain.slice(start,end)+(end<plain.length?"…":"");
+  return snippet.replace(
+    new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"),
+    m=>`<mark>${m}</mark>`
+  );
+}
+
+function renderSearchResults(groups, q){
+  const container = document.getElementById("search-results");
+  if(!container) return;
+
+  const hasResults = groups.some(g=>g.items.length>0);
+  if(!hasResults){
+    container.innerHTML = '<div class="search-empty">Nessun risultato per "'+q+'"</div>';
+    return;
+  }
+
+  container.innerHTML = groups
+    .filter(g=>g.items.length>0)
+    .map(g=>`
+      <div class="search-group">
+        <div class="search-group-header">${g.label} (${g.items.length})</div>
+        ${g.items.slice(0,5).map(item=>`
+          <a class="search-result" href="${item.href}" onclick="closeGlobalSearch()">
+            <div class="search-result-name">${item.name}</div>
+            ${item.sub?`<div class="search-result-sub">${highlight(item.sub,q)}</div>`:""}
+          </a>
+        `).join("")}
+        ${g.items.length>5?`<div style="padding:6px 14px;font-size:12px;color:var(--text-dim);font-style:italic">+${g.items.length-5} altri risultati — affina la ricerca</div>`:""}
+      </div>
+    `).join("");
+}
