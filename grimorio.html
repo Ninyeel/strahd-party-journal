@@ -175,7 +175,7 @@ import {
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
   toggleUserMenu, initUserMenuClose, loadUserProfile,
-  initGlobalSearch
+  initGlobalSearch, initScrollToTarget
 } from "./js/common.js";
 import {
   collection, addDoc, deleteDoc, updateDoc,
@@ -223,7 +223,7 @@ async function searchRemote(q){
     const grim = grimSnap.docs
       .map(d=>({id:d.id,...d.data()}))
       .filter(s=>(s.nome||"").toLowerCase().includes(ql)||(s.descrizione||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql))
-      .map(s=>({ name:s.nome, sub:(s.scuola||"")+" · "+(+s.livello===0?"Trucchetto":s.livello+"° liv."), href:"grimorio.html" }));
+      .map(s=>({ name:s.nome, sub:(s.scuola||"")+" · "+(+s.livello===0?"Trucchetto":s.livello+"° liv."), href:"grimorio.html#gpc-"+s.id }));
     results.push({ label:"📚 Grimorio", items:grim });
 
   } catch(e){ console.error("Search error:",e); }
@@ -274,6 +274,7 @@ onAuthStateChanged(auth, async user=>{
       document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
       showScreen("screen-app");
       initGlobalSearch(searchFnWrapper);
+      initScrollToTarget();
       await loadMySpellIds();
       await loadGrimorio();
     } else {
