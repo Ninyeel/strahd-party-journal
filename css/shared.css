@@ -158,3 +158,14 @@ footer{text-align:center;color:var(--text-dim);font-family:'Cormorant Garamond',
 .search-result-sub mark{background:rgba(196,30,58,.3);color:var(--text);border-radius:2px;padding:0 2px;}
 .search-empty{text-align:center;color:var(--text-dim);font-style:italic;padding:32px 0;font-size:15px;}
 .search-hint{text-align:center;color:var(--text-dim);font-style:italic;padding:20px 0;font-size:14px;}
+
+/* HIGHLIGHT RICERCA */
+@keyframes search-highlight{
+  0%  { box-shadow: 0 0 0 3px var(--crimson-bright), 0 0 20px rgba(196,30,58,.4); background: rgba(196,30,58,.12); }
+  70% { box-shadow: 0 0 0 3px var(--crimson-bright), 0 0 20px rgba(196,30,58,.4); background: rgba(196,30,58,.12); }
+  100%{ box-shadow: none; background: transparent; }
+}
+.search-target-highlight{
+  animation: search-highlight 2.5s ease forwards;
+  border-radius: 6px;
+}
