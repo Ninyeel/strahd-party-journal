@@ -118,6 +118,36 @@ export async function ensureUser(user){
   }
 }
 
+/* ── SCROLL & HIGHLIGHT DA URL FRAGMENT ─────────────────────── */
+export function initScrollToTarget(){
+  const hash = window.location.hash;
+  if(!hash || hash.length < 2) return;
+  const id = decodeURIComponent(hash.slice(1));
+
+  // Prova subito, poi riprova dopo che il DOM dinamico è caricato
+  function tryScroll(){
+    const el = document.getElementById(id);
+    if(!el) return false;
+    // Scroll con offset per la navbar sticky
+    const navH = document.querySelector(".topnav")?.offsetHeight || 60;
+    const top  = el.getBoundingClientRect().top + window.scrollY - navH - 12;
+    window.scrollTo({ top, behavior:"smooth" });
+    el.classList.add("search-target-highlight");
+    setTimeout(()=>el.classList.remove("search-target-highlight"), 2600);
+    return true;
+  }
+
+  // Primo tentativo immediato
+  if(!tryScroll()){
+    // Riprova ogni 200ms per max 3 secondi (attende il render dei dati Firestore)
+    let attempts = 0;
+    const interval = setInterval(()=>{
+      attempts++;
+      if(tryScroll() || attempts > 15) clearInterval(interval);
+    }, 200);
+  }
+}
+
 /* ── RICERCA GLOBALE ─────────────────────────────────────────── */
 function openGlobalSearch(){
   document.getElementById("search-overlay")?.classList.add("open");
