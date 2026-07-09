@@ -452,7 +452,7 @@ import {
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
   toggleUserMenu, initUserMenuClose, loadUserProfile,
-  initGlobalSearch
+  initGlobalSearch, initScrollToTarget
 } from "./js/common.js";
 import {
   collection, addDoc, deleteDoc, updateDoc,
@@ -498,19 +498,16 @@ function searchLocal(q){
   ).map(n=>({
     name: n.name,
     sub:  (n.role||"")+(n.location?" · "+n.location:""),
-    href: "index.html#personaggi"
+    href: "index.html#npc-"+n.id
   }));
 
-  // Per atti, luoghi, profezie, quest, note-DM
-  // usiamo le cache Firestore già in memoria tramite snapshot
-  // Le colleghiamo tramite variabili globali aggiornate dai listener
   const atti = (window._attiCache||[]).filter(a=>
     (a.title||"").toLowerCase().includes(ql)||
     (a.events||"").replace(/<[^>]+>/g,"").toLowerCase().includes(ql)
   ).map(a=>({
     name: a.title||"Atto senza titolo",
     sub:  (a.events||"").replace(/<[^>]+>/g,""),
-    href: "index.html#cronologia"
+    href: "index.html#atto-"+a.id
   }));
 
   const luoghi = (window._luoghiCache||[]).filter(l=>
@@ -519,7 +516,7 @@ function searchLocal(q){
   ).map(l=>({
     name: l.nome,
     sub:  (l.tipo||"")+" — "+(l.note||"").replace(/<[^>]+>/g,""),
-    href: "index.html#luoghi"
+    href: "index.html#luogo-"+l.id
   }));
 
   const profezie = (window._profezieCache||[]).filter(p=>
@@ -528,7 +525,7 @@ function searchLocal(q){
   ).map(p=>({
     name: p.titolo,
     sub:  (p.note||"").replace(/<[^>]+>/g,""),
-    href: "index.html#profezie"
+    href: "index.html#prof-"+p.id
   }));
 
   const quest = (window._questCache||[]).filter(q2=>
@@ -536,7 +533,7 @@ function searchLocal(q){
   ).map(q2=>({
     name: q2.testo,
     sub:  q2.tipo||"",
-    href: "index.html#quest"
+    href: "index.html#quest-"+q2.id
   }));
 
   const notedm = (window._notedmCache||[]).filter(n=>
@@ -545,7 +542,7 @@ function searchLocal(q){
   ).map(n=>({
     name: n.titolo,
     sub:  (n.testo||"").replace(/<[^>]+>/g,""),
-    href: "index.html#note-dm"
+    href: "index.html#notedm-"+n.id
   }));
 
   return [
@@ -591,10 +588,11 @@ onAuthStateChanged(auth, async user=>{
     if(data.approved===true){
       document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
-      initGlobalSearch(searchLocal);
+      initGlobalSearch(searchFnWrapper);
       initIndexQuills();
       listenNPCs();
       initGlobalSearch(searchLocal);
+      initScrollToTarget();
       listenAtti();
       listenLuoghi();
       listenProfezie();
@@ -808,7 +806,7 @@ window.renderNPCTable=()=>{
   tbody.innerHTML=data.map(n=>{
     const own=uid&&uid===n.authorId;
     const pc=n.stato?.includes("morto")||n.stato?.includes("morta")?"morto":n.stato?.includes("vivo")||n.stato?.includes("viva")?"vivo":n.stato?.includes("spirito")||n.stato?.includes("non-morto")?"nonmorto":"";
-    return '<tr>'
+    return '<tr id="npc-'+esc(n.id)+'">'
       +'<td title="'+( n.updatedBy ? '✎ '+n.updatedBy : '')+'">'
         +esc(n.name)
         +(n.updatedBy?'<br><span style="font-size:10px;color:var(--text-dim);font-style:italic">✎ '+esc(n.updatedBy)+'</span>':"")
@@ -877,6 +875,7 @@ function listenAtti(){
       const a=ds.data(),own=uid&&uid===a.authorId;
       const lines=(a.events||"").split("\n").filter(Boolean);
       const div=document.createElement("div"); div.className="atto"; div.style.borderLeft="3px solid var(--gold)";
+      div.id="atto-"+ds.id;
       div.innerHTML =
         '<h3>'+esc(a.title)+(a.sessions?' <span class="sess">'+esc(a.sessions)+'</span>':'')+'</h3>'
         +'<div style="font-size:15px;color:var(--text-muted)">'+(a.events||"")+'</div>'
@@ -937,6 +936,7 @@ function listenLuoghi(){
       const l=ds.data(),own=uid&&uid===l.authorId;
       const lines=(l.note||"").split("\n").filter(Boolean);
       const div=document.createElement("div"); div.className="luogo"; div.style.borderLeft="3px solid var(--gold)";
+      div.id="luogo-"+ds.id;
       div.innerHTML='<div class="nome">'+esc(l.nome)+'<small>'+esc(l.tipo||"")+'</small></div>'
         +'<div style="font-size:14.5px;color:var(--text-muted)">'+(l.note||"")+'</div>'
         +'<div style="margin-top:6px">'+fmtUpdate(l)+'</div>'
@@ -992,6 +992,7 @@ function listenProfezie(){
     snap.forEach(ds=>{
       const p=ds.data(),own=uid&&uid===p.authorId;
       const div=document.createElement("div");
+      div.id="prof-"+ds.id;
       div.style.cssText="background:var(--bg-panel);border:1px solid var(--border);border-left:3px solid var(--crimson-bright);border-radius:7px;padding:11px 16px;margin-bottom:9px;font-size:15px;color:var(--text-muted);position:relative;";
       div.innerHTML='<b style="color:var(--text)">'+esc(p.titolo)+'</b>'+(p.note?'<div style="margin-top:4px;font-size:14px">'+p.note+'</div>':"")
         +'<div style="margin-top:6px">'+fmtUpdate(p)+'</div>'
@@ -1045,6 +1046,7 @@ function listenQuest(){
       const colors={aperta:"#e2543d",sospeso:"#d8b65a",mistero:"#8a7fd1",completata:"#4fa86e"};
       const col=colors[q.tipo]||"#e2543d";
       const li=document.createElement("li");
+      li.id="quest-"+ds.id;
       li.innerHTML='<span class="dot" style="color:'+col+'">&#9679;</span>'
         +'<span style="flex:1">'+esc(q.testo)+'</span>'
         +(own?'<span style="display:flex;gap:4px;flex-shrink:0">'
@@ -1199,7 +1201,7 @@ function listenNoteDM(){
       ).join("");
       const dynHTML=snap.docs.map(ds=>{
         const d=ds.data(),own=uid&&uid===d.authorId;
-        return '<li style="border-left-color:var(--crimson-bright);display:flex;flex-direction:column;gap:6px">'
+        return '<li id="notedm-'+ds.id+'" style="border-left-color:var(--crimson-bright);display:flex;flex-direction:column;gap:6px">'
           +(own?'<span style="display:flex;gap:4px">'
               +'<button class="btn btn-ghost btn-xs" onclick="openNoteDMEdit(\''+ds.id+'\',\''+esc(d.titolo)+'\',\''+esc(d.testo||"")+'\')">&#9999; Modifica</button>'
               +'<button class="btn btn-danger btn-xs" onclick="deleteNoteDM(\''+ds.id+'\')">&#128465; Elimina</button>'
