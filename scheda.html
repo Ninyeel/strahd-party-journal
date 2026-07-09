@@ -411,7 +411,7 @@ import {
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
   toggleUserMenu, initUserMenuClose, loadUserProfile,
-  initGlobalSearch
+  initGlobalSearch, initScrollToTarget
 } from "./js/common.js";
 import { doc, getDoc, setDoc, collection, addDoc,
          updateDoc, deleteDoc, onSnapshot, query,
@@ -566,6 +566,7 @@ onAuthStateChanged(auth, async user=>{
       document.getElementById("nav-nick-text").textContent=data.nickname||user.email.split("@")[0];
       showScreen("screen-app");
       initGlobalSearch(searchFnWrapper);
+      initScrollToTarget();
       buildSkillsGrid();
       initQuills();
       await loadScheda();
