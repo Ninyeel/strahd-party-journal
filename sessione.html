@@ -228,7 +228,7 @@ import {
   hideOverlay, showScreen, toast, esc,
   loginGoogle, loginEmail, registerEmail, logout,
   toggleUserMenu, initUserMenuClose, loadUserProfile,
-  initGlobalSearch
+  initGlobalSearch, initScrollToTarget
 } from "./js/common.js";
 
 import {
@@ -402,6 +402,7 @@ onAuthStateChanged(auth, async user=>{
       document.getElementById("nav-nick-text").textContent=nickname;
       showScreen("screen-app");
       initGlobalSearch(searchFnWrapper);
+      initScrollToTarget();
       initNoteEditor();
       listenSession();
       listenArchivio();
