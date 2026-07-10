@@ -325,7 +325,6 @@ async function loadGrimorio(){
     grimorioCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     const tot=document.getElementById("spell-count-total");
     if(tot) tot.textContent=grimorioCache.length;
-    // Carica i contatori in parallelo al render
     importCounts = await loadImportCounts();
     renderGrimorio();
   } catch(e){ console.error(e); toast("Errore grimorio: "+e.message); }
@@ -423,6 +422,9 @@ window.renderGrimorio=()=>{
             }
             ${isOwner?`<button class="btn btn-ghost btn-xs" onclick="openEdit('${s.id}')">✏</button>`:""}
             ${isOwner?`<button class="btn btn-danger btn-xs" onclick="deleteFromGrimorio('${s.id}')">🗑</button>`:""}
+            <span class="import-count" style="font-size:11px;color:var(--text-dim);font-style:italic;align-self:center;">
+              ${importCounts[s.id] ? "👥 "+formatImportCount(importCounts[s.id]) : ""}
+            </span>
           </div>
         </div>`;
     });
@@ -491,6 +493,7 @@ window.importSpell=async(grimorioId)=>{
   try{
     await addDoc(collection(db,"users",uid,"incantesimi"),personalCopy);
     mySpellIds.add(grimorioId);
+
     // Registra l'importazione nella sottocollezione
     try{
       await setDoc(
@@ -503,6 +506,7 @@ window.importSpell=async(grimorioId)=>{
       const badge = document.querySelector(`#gpc-${grimorioId} .import-count`);
       if(badge) badge.textContent = formatImportCount(importCounts[grimorioId]);
     } catch(e){ console.error("Import tracking:",e); }
+
     // Aggiorna il pulsante sulla card senza re-render completo
     const btn=document.querySelector(`#gpc-${grimorioId} .btn-import`);
     if(btn){
